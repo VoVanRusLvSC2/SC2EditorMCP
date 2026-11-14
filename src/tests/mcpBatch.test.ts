@@ -137,6 +137,7 @@ test("an unresolved live Save or refresh stops later batch mutations", async () 
   for (const status of [
     "stopped",
     "needs_parameters",
+    "needs_validation",
     "partial",
     "save_unconfirmed",
     "save_confirmed_prepare_blocked",

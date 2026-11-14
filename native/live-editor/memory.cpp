@@ -373,8 +373,8 @@ static void Execute(LiveDataRequest *b, HWND root) {
     return;
   }
   if (b->operation == 50 || b->operation == 55 || b->operation == 66 || b->operation == 67 ||
-      b->operation == 68) {
-    if ((b->operation == 66 || b->operation == 67 || b->operation == 68) && activeEdit) {
+      b->operation == 68 || b->operation == 69) {
+    if ((b->operation == 66 || b->operation == 67 || b->operation == 68 || b->operation == 69) && activeEdit) {
       Fail(b, L"LIVE_MEMORY_EDIT_BUSY");
       return;
     }

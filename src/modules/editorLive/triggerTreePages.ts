@@ -2,11 +2,16 @@ import * as z from "zod/v4";
 import type { MemoryDesktop } from "./memoryDesktop.js";
 import type { EditorWindow } from "./desktop.js";
 
+/** Native custom definitions have different controls from ordinary triggers. */
+export const triggerTreeIds = (id: number) =>
+  id === 134 ? [134, 154] : id === 468 ? [468, 774] : [id];
+
 const item = z.object({
   handle: z.string(),
   parent: z.string(),
   depth: z.number(),
   text: z.string(),
+  stateImage: z.number().int().min(0).max(15).optional(),
 });
 const pageSchema = z.object({
   tree: z.object({
@@ -36,7 +41,7 @@ export async function readTriggerTreePage(
     }),
   ).tree;
   if (
-    page.id !== id ||
+    !triggerTreeIds(id).includes(page.id) ||
     page.offset !== offset ||
     page.truncated ||
     page.total !== page.count ||
@@ -57,6 +62,7 @@ export async function readTriggerTreePages(
   initialHash = "",
 ) {
   let fingerprint = initialHash,
+    actualId = id,
     expectedTotal: number | undefined,
     offset = 0;
   const items: z.infer<typeof item>[] = [],
@@ -64,7 +70,9 @@ export async function readTriggerTreePages(
   // Every page must belong to one fingerprint. UI handles are snapshot-local;
   // duplicate handles or a changed count would mix incompatible tree revisions.
   for (;;) {
-    const page = await readTriggerTreePage(desktop, window, id, offset, fingerprint);
+    const page = await readTriggerTreePage(desktop, window, actualId, offset, fingerprint);
+    if (offset && page.id !== actualId) throw Error("LIVE_TRIGGER_TREE_PAGE_CHANGED");
+    actualId = page.id;
     if (expectedTotal !== undefined && page.total !== expectedTotal)
       throw Error("LIVE_TRIGGER_TREE_PAGE_CHANGED");
     fingerprint = page.fingerprint;
@@ -76,7 +84,7 @@ export async function readTriggerTreePages(
     }
     offset += page.items.length;
     if (offset === expectedTotal)
-      return { id, count: expectedTotal, fingerprint, truncated: false, items };
+      return { id: actualId, count: expectedTotal, fingerprint, truncated: false, items };
     if (offset > expectedTotal || page.items.length === 0)
       throw Error("LIVE_TRIGGER_TREE_PAGE_INCOMPLETE");
   }

@@ -60,9 +60,11 @@ static void DocumentExecute(LiveDataRequest *b, HWND root) {
       for(int i=0;owner&&i<16;i++,owner=GetWindow(owner,GW_OWNER))if(owner==root)owned=true;
       if(comma)out+=L",";comma=true;
       out+=L"{\"handle\":"+Quote(std::to_wstring(reinterpret_cast<uintptr_t>(dialog)))+L",\"title\":"+Quote(Text(dialog))+L",\"targetOwned\":"+std::wstring(owned?L"true":L"false")+L",\"controls\":[";bool child=false;
-      for(HWND h:Children(dialog))if(IsWindowVisible(h)&&(Class(h)==L"Static"||Class(h)==L"Button"||Class(h)==L"Edit")) {
+      for(HWND h:Children(dialog))if(IsWindowVisible(h)&&(Class(h)==L"Static"||Class(h)==L"Button"||Class(h)==L"Edit"||Class(h)==L"RichEdit20W"||Class(h)==L"SysListView32")) {
         if(child)out+=L",";child=true;
-        out+=L"{\"id\":"+std::to_wstring(GetDlgCtrlID(h))+L",\"type\":"+Quote(Class(h))+L",\"text\":"+Quote(Text(h))+L",\"enabled\":"+std::wstring(IsWindowEnabled(h)?L"true":L"false")+L"}";
+        out+=L"{\"id\":"+std::to_wstring(GetDlgCtrlID(h))+L",\"type\":"+Quote(Class(h))+L",\"text\":"+Quote(Text(h))+L",\"enabled\":"+std::wstring(IsWindowEnabled(h)?L"true":L"false");
+        if(Class(h)==L"SysListView32") out+=L",\"table\":"+Table(h,8);
+        out+=L"}";
       }
       out+=L"]}";
     }

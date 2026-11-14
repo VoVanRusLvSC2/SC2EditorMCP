@@ -3,6 +3,14 @@ import { CallToolResultSchema } from "@modelcontextprotocol/core";
 import * as z from "zod/v4";
 import type { EditorLiveWorkspace } from "./workspace.js";
 import { registerMemoryTools } from "./memoryTools.js";
+import { triggerMemberCreateSchema, triggerMemberVerifySchema } from "./triggerMembers.js";
+import { triggerPatchSchema, triggerPatchRecoverSchema } from "./triggerPatch.js";
+import {
+  triggerDeclarationSchema,
+  triggerDeclarationSetSchema,
+  triggerNewDeclarationSchema,
+  triggerDeclarationRenameSchema,
+} from "./triggerDeclaration.js";
 import { createPlacementGroup, placementGroupSchema } from "./placementGroup.js";
 import { placementJobStartSchema } from "./placementJobs.js";
 import { liveTerrainFlattenSchema } from "./terrain.js";
@@ -135,7 +143,7 @@ export function registerEditorLiveTools(
     "live.trigger.append_action",
     {
       description:
-        "Append a built-in GUI action to an existing trigger through the original Action dialog. Optional groupPath (one-based child indexes, e.g. 3/1/2) appends inside an existing Actions/Then/Else body and requires expectedDetailHash. Compound built-ins are verified as one inserted subtree. action=skip_remaining takes no parameters; action=wait requires seconds (0–3600, 0.01 increments) in Game Time; action=builtin_default requires exact actionName and useDefaults=true, with optional exact category to disambiguate. Built-in defaults may be incomplete or invalid and are never considered verified; configure and validate the parameters. Custom Script is refused. path is exact slash-separated labels. Guards trees and verifies insertion last; wait also verifies its Real parameter. A partial result means an action already exists: inspect it, do not append again. Compile/runtime behavior requires separate verification. No save, copy or reopen; uncertain commits are never replayed.",
+        "Append a built-in or named custom GUI action to an existing trigger/definition through the original Action dialog. Optional groupPath (one-based child indexes, e.g. 3/1/2) appends inside an existing Actions/Then/Else body and requires expectedDetailHash. Compound built-ins are verified as one inserted subtree. action=skip_remaining takes no parameters; action=wait requires seconds (0–3600, 0.01 increments) in Game Time; action=builtin_default requires exact actionName and useDefaults=true, with optional exact category to disambiguate; action=definition_default also requires its exact native origin. Native defaults may be incomplete or invalid and are never considered verified; configure and validate the parameters. Custom Script is refused. path is exact slash-separated labels. Guards trees and verifies insertion last; wait also verifies its Real parameter. A partial result means an action already exists: inspect it, do not append again. Compile/runtime behavior requires separate verification. No save, copy or reopen; uncertain commits are never replayed.",
       inputSchema: triggerAppendActionSchema,
     },
     async (a) => result(await live.triggers.appendAction(a)),
@@ -186,10 +194,84 @@ export function registerEditorLiveTools(
     async (a) => result(await configureTrigger(live.triggers, a)),
   );
   server.registerTool(
+    "live.trigger.patch",
+    {
+      description:
+        "Apply 1–64 compact native GUI edit commands to existing systems in the current document. Supply archive/windowId, default path, script and optional saveOnComplete. Lines use bind/set_integer/set_real/set_wait/set_periodic/append_action/append_event/append_condition/edit/move/declaration_set/declaration_rename/new_declaration/member_create with existing arguments; omit archive/windowId and all expected hashes inside the script. The adapter obtains fresh guards, keeps one process lease and journals each step before submission. Append aliases use as=Name, then itemIndex=@Name; itemIndex/actionIndex/eventIndex=last selects the last current sibling. All static tool arguments preflight before mutation; native targets and choices are checked against each evolving state. Defaults/type/signature changes retain needs_validation and prevent automatic Save. Other verified edits can save once to the same file. No map copy/reopen or atomic Undo guarantee. Keep patchId/pendingId; recover an interrupted sequence instead of repeating it.",
+      inputSchema: triggerPatchSchema,
+    },
+    async (a) => result(await live.triggerPatches.start(a)),
+  );
+  server.registerTool(
+    "live.trigger.patch_recover",
+    {
+      description:
+        "Inspect/continue/release a durable current-document GUI patch by patchId. Default inspect compares the complete retained visible graphs and saved revision. continue resumes after acknowledged steps with unchanged current state, or adopts an acknowledged append only when its exact insertion is proved from current graphs; it never repeats an in-flight edit or unknown Save. release preserves history and releases the journal without undoing any map edits. An uncertain native operation requires its own original recovery/inspection, not another patch submission. No automatic dialog dismissal or map reload.",
+      inputSchema: triggerPatchRecoverSchema,
+    },
+    async (a) => result(await live.triggerPatches.recover(a)),
+  );
+  server.registerTool(
+    "live.trigger.declaration",
+    {
+      description:
+        "Read a GUI declaration in the current document: view=variable for a global, return_type for a function, or local/parameter with member=<name> and path=<owning trigger/function>. Returns native choices, flags and declarationFingerprint. Exact labels or unique declaration names are accepted. Pending manual input is preserved; no Save/copy/reopen.",
+      inputSchema: triggerDeclarationSchema,
+      annotations: { readOnlyHint: true },
+    },
+    async (a) => result(await live.triggers.declaration(a)),
+  );
+  server.registerTool(
+    "live.trigger.declaration_set",
+    {
+      description:
+        "Change an existing GUI declaration through original controls. Supply fresh expectedDeclarationHash, field/value and view=variable|return_type|local|parameter; local/parameter also require member and the owning path. Type/subtype changes require allowTypeReset=true; array/dimensions/size require allowShapeChange=true. dimension=1..4 selects a native array bound. initial supports numeric/Boolean values; parameter default_enabled controls whether its default is enabled; field=option requires an exact native option label and Boolean value. Option readback does not certify generated reference semantics. Type/shape/constant/default flag edits return needs_validation: inspect uses and compile before Save. Unknown outcomes never replay; no Save/copy/reopen.",
+      inputSchema: triggerDeclarationSetSchema,
+    },
+    async (a) => result(await live.triggers.declarationSet(a)),
+  );
+  server.registerTool(
+    "live.trigger.new_declaration",
+    {
+      description:
+        "Create and name an ordinary GUI variable, function, action_definition or trigger in an existing folder/library through the original Editor. path identifies that parent and expectedTreeHash comes from live.trigger.tree. Verifies one new sibling and preserves other nodes. Returns needs_parameters for the native default type/body; configure the existing new declaration rather than repeating creation. No Custom Script, Save, copy or reopen.",
+      inputSchema: triggerNewDeclarationSchema,
+    },
+    async (a) => result(await live.triggers.newDeclaration(a)),
+  );
+  server.registerTool(
+    "live.trigger.declaration_rename",
+    {
+      description:
+        "Rename an existing global/local/parameter declaration or function through original Rename, retaining the native object instead of recreating it. Uses declaration scope/member and a fresh expectedDeclarationHash; rejects same-scope name collisions and manual input. Verifies the new decorated label and topology/state images and reports changed display labels. Returns needs_validation: inspect affected uses and native compilation; GUI readback alone does not certify complete reference identity. Unknown outcomes never replay. No Save/copy/reopen.",
+      inputSchema: triggerDeclarationRenameSchema,
+    },
+    async (a) => result(await live.triggers.declarationRename(a)),
+  );
+  server.registerTool(
+    "live.trigger.member_create",
+    {
+      description:
+        "Create one ordinary local variable or function parameter in the current GUI document using original New and inline Rename. kind=local|parameter, path=<owning trigger/function>, name and fresh expectedDetailHash are required. Preserves other declarations/actions and verifies native generated grammar changes. Native defaults return needs_parameters. A shared pendingId survives MCP reconnect: inspect with member_verify rather than repeating New. No Custom Script, Save/copy/reopen.",
+      inputSchema: triggerMemberCreateSchema,
+    },
+    async (a) => result(await live.triggers.memberCreate(a)),
+  );
+  server.registerTool(
+    "live.trigger.member_verify",
+    {
+      description:
+        "Recover/verify one pending GUI local/parameter creation by its pendingId. Reads the original completion receipt and complete current graph against the shared before snapshot. Never invokes New or commits an unknown dialog. Source/document changes retain the pending record; no Save/copy/reopen.",
+      inputSchema: triggerMemberVerifySchema,
+      annotations: { readOnlyHint: true },
+    },
+    async (a) => result(await live.triggers.memberVerify(a)),
+  );
+  server.registerTool(
     "live.trigger.binding_options",
     {
       description:
-        "Inspect native compatible variable, function or preset choices for an existing GUI parameter, including nested expressions. Requires the fresh detail and parameter fingerprints. Original source/type dialogs are cancelled without committing. Optional type asks the original type chooser only where enabled. Returns up to 32 exact names with origin; duplicate names require an origin when binding. Does not save, copy or reopen.",
+        "Inspect native compatible variable, parameter, function or preset choices for an existing GUI parameter, including nested expressions. Requires the fresh detail and parameter fingerprints. Original source/type dialogs are cancelled without committing. Optional type asks the original type chooser only where enabled. Returns up to 32 exact names with origin; duplicate names require an origin when binding. Does not save, copy or reopen.",
       inputSchema: triggerBindingOptionsSchema,
       annotations: { readOnlyHint: true },
     },
@@ -199,7 +281,7 @@ export function registerEditorLiveTools(
     "live.trigger.bind",
     {
       description:
-        "Replace an existing GUI parameter source with a compatible variable, function, preset or numeric literal through the original Editor. Preserve groupPath/parameterPath and both fresh fingerprints. Use source and exact name/origin from binding_options, or source=value with value. Functions return needs_parameters: configure their native children. Optional type changes only an enabled original type chooser and requires allowTypeReset=true; dependent parameters may reset and must be reviewed. No Custom Script, Save, copy or reopen; uncertain commits never replay.",
+        "Replace an existing GUI parameter source with a compatible variable, parameter, function, preset or numeric literal through the original Editor. Preserve groupPath/parameterPath and both fresh fingerprints. Use source and exact name/origin from binding_options, or source=value with value. Functions return needs_parameters: configure their native children. Optional type changes only an enabled original type chooser and requires allowTypeReset=true; dependent parameters may reset and must be reviewed. No Custom Script, Save, copy or reopen; uncertain commits never replay.",
       inputSchema: triggerBindSchema,
     },
     async (a) => result(await live.triggers.bind(a)),

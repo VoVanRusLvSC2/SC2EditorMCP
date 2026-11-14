@@ -4,7 +4,11 @@ import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { Workspace } from "../core/workspace.js";
-import { LiveTriggers, triggerBindSchema } from "../modules/editorLive/triggers.js";
+import {
+  LiveTriggers,
+  triggerBindSchema,
+  triggerAppendActionSchema,
+} from "../modules/editorLive/triggers.js";
 import {
   verifyGraphEdit,
   verifyParameterRebind,
@@ -58,6 +62,38 @@ test("move up/down preserves subtree descendants and exact sibling order", () =>
   bad[5].text = "Wait 8";
   assert.equal(verifyGraphEdit(graph, bad, "4", "up").verified, false);
   assert.throws(() => verifyGraphEdit(graph, graph, "3", "up"), /BOUNDARY/);
+});
+
+test("graph verification retains enabled and disabled native state images", () => {
+  const before = graph.map((row) => ({ ...row, stateImage: 1 }));
+  const after = recycle([...before.slice(0, 3), before[8]]);
+  assert.equal(verifyGraphEdit(before, after, "4", "delete").verified, true);
+  after[2].stateImage = 2;
+  assert.equal(verifyGraphEdit(before, after, "4", "delete").verified, false);
+});
+
+test("custom action definitions require an explicit origin instead of assuming Built-In", () => {
+  const base = {
+    archive: "A.SC2Map",
+    windowId: "1",
+    path: "MAIN/Run",
+    action: "definition_default",
+    actionName: "ApplyReward",
+    useDefaults: true,
+  };
+  assert.equal(triggerAppendActionSchema.safeParse(base).success, false);
+  assert.equal(triggerAppendActionSchema.safeParse({ ...base, origin: "Global" }).success, true);
+  assert.equal(
+    triggerAppendActionSchema.safeParse({ ...base, action: "builtin_default", origin: "Global" })
+      .success,
+    false,
+  );
+  const steps = compileAuthorScript(
+    "live trigger.append_action archive=A.SC2Map windowId=1 path=MAIN/Run action=definition_default actionName=ApplyReward origin=Global useDefaults=true",
+    "stage",
+  );
+  assert.equal(steps[0].tool, "live.trigger.append_action");
+  assert.equal(steps[0].args.origin, "Global");
 });
 test("move in/out accepts one changed parent while preserving every other node", () => {
   const inside = [...graph.slice(0, 8), r(9, 6, 4, "Last")]; // insert before Else in valid preorder
@@ -122,7 +158,13 @@ test("binding input rejects ambiguous shapes and implicit dependent type resets"
 let pid = 980000;
 async function fixture(
   t: test.TestContext,
-  options: { lostReply?: boolean; manual?: boolean; collateral?: boolean } = {},
+  options: {
+    lostReply?: boolean;
+    manual?: boolean;
+    collateral?: boolean;
+    customDefinition?: boolean;
+    wrongValue?: boolean;
+  } = {},
 ) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "sc2-live-graph-")),
     archive = path.join(root, "Current.SC2Map");
@@ -161,14 +203,14 @@ async function fixture(
           trees: [
             { id: 28, count: left.length, items: left, fingerprint: "30", truncated: false },
             {
-              id: 134,
+              id: options.customDefinition ? 154 : 134,
               count: detail.length,
               items: detail,
               fingerprint: String(revision),
               truncated: false,
             },
             {
-              id: 468,
+              id: options.customDefinition ? 774 : 468,
               count: params.length,
               items: params,
               fingerprint: String(parameterRevision),
@@ -213,7 +255,7 @@ async function fixture(
         assert.notEqual(chosen, "undefined");
         params = [
           r(20, 0, 0, "Set Variable"),
-          r(21, 20, 1, "Value: " + chosen),
+          r(21, 20, 1, "Value: " + (options.wrongValue ? "RoundsCompleted" : chosen)),
           r(22, 20, 1, options.collateral ? "Other: 8" : "Other: 7"),
         ];
         if (source === "function")
@@ -291,6 +333,28 @@ test("numeric rebinding forwards the value even when no name property exists", a
     "42",
   );
   assert.equal(await fs.readFile(f.archive, "utf8"), "saved baseline");
+});
+test("custom function bodies reuse the same guarded parameter editing and verification", async (t) => {
+  const f = await fixture(t, { customDefinition: true });
+  const details = await f.live.details({
+    archive: f.archive,
+    windowId: f.target.windowId,
+    path: f.target.path,
+    includeDetail: true,
+  });
+  assert.equal(details.detail?.id, 154);
+  const parameters = await f.live.parameters(f.target);
+  assert.equal(parameters.parameterFingerprint, "50");
+  const bound = await f.live.bind({ ...f.parameter, source: "value", value: 42 });
+  assert.equal(bound.status, "applied");
+  assert.equal(f.counts().commits, 1);
+});
+test("a matching graph shape cannot accept a variable when a numeric literal was requested", async (t) => {
+  const f = await fixture(t, { wrongValue: true, customDefinition: true });
+  const r = await f.live.bind({ ...f.parameter, source: "value", value: 42 });
+  assert.equal(r.status, "verification_failed");
+  assert.equal("nativeBindingVerified" in r && r.nativeBindingVerified, false);
+  assert.equal(f.counts().commits, 1);
 });
 test("variable origins and function defaults remain explicit", async (t) => {
   const f = await fixture(t);

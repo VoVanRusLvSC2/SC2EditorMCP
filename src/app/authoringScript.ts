@@ -31,6 +31,9 @@ export const authoringGuide = {
       'live trigger.configure archive=Current.SC2Map windowId=456 path="MAIN/Start" section=actions itemIndex=1 expectedDetailHash=<fingerprint> edits="integer:Count=7;unit:Type=Murloc Marine;point:Point=Spawn"',
       'live trigger.set_unit archive=Current.SC2Map windowId=456 path="MAIN/Start" section=actions itemIndex=1 expectedDetailHash=<fingerprint> parameterIndex=2 expectedParameterHash=<fingerprint> unitName="Murloc Marine"',
       'live trigger.bind archive=Current.SC2Map windowId=456 path="MAIN/Rounds" section=actions groupPath=3/1/1/2 parameterPath=2 itemIndex=1 parameterIndex=1 expectedDetailHash=<detail> expectedParameterHash=<parameters> source=variable name=Round origin=Local',
+      'live trigger.declaration archive=Current.SC2Map windowId=456 path="MAIN/Reward"',
+      'live trigger.declaration_set archive=Current.SC2Map windowId=456 path="MAIN/Reward" field=initial value=100 expectedDeclarationHash=<declaration>',
+      'live trigger.patch archive=Current.SC2Map windowId=456 path="MAIN/Start" saveOnComplete=true <<EDITS\nappend_action action=wait seconds=0.25 as=Pause\nset_wait actionIndex=@Pause seconds=0.5\nEDITS',
       'live trigger.move archive=Current.SC2Map windowId=456 path="MAIN/Rounds" section=actions itemIndex=7 expectedDetailHash=<detail> destinationGroupPath=6/2',
       'live trigger.edit archive=Current.SC2Map windowId=456 path="MAIN/Rounds" section=actions groupPath=6/2 itemIndex=1 expectedDetailHash=<detail> operation=delete',
       'live trigger.set_point archive=Current.SC2Map windowId=456 path="MAIN/Start" section=actions itemIndex=1 expectedDetailHash=<fingerprint> parameterIndex=4 expectedParameterHash=<fingerprint> pointName="MCP Spawn Point"',
@@ -61,7 +64,7 @@ export const authoringGuide = {
   presentationPolicy:
     "Player-facing abilities/effects normally include native Actor/Model feedback for cast, movement/travel and impact/area, plus sound when appropriate. Invisible helper effects/passives are explicit exceptions. Use native event/host/site-op/lifecycle bindings and visual preloads; mechanics or a Model ID alone do not prove visible playback.",
   format:
-    "One command per line: section verb key=value. Quote values containing spaces. Use dotted keys for nested arguments and JSON only for complex arrays. A <<TAG block preserves Galaxy source or a live refresh authoring batch verbatim. In the same command script, sessionId=@s1.sessionId refers to the earlier refresh begin/prepare/resume step s1.",
+    "One command per line: section verb key=value. Quote values containing spaces. Use dotted keys for nested arguments and JSON only for complex arrays. A <<TAG block preserves Galaxy source, a live GUI command patch or a live refresh authoring batch verbatim. In the same command script, sessionId=@s1.sessionId refers to the earlier refresh begin/prepare/resume step s1.",
   modes: {
     plan: "Read or preview only; module tools keep their dry-run defaults.",
     stage: "For supported recipes, apply to staged workspace files without saving.",
@@ -226,6 +229,14 @@ const directCommands = new Set([
   "live.trigger.append_event",
   "live.trigger.append_condition",
   "live.trigger.binding_options",
+  "live.trigger.declaration",
+  "live.trigger.declaration_set",
+  "live.trigger.new_declaration",
+  "live.trigger.patch",
+  "live.trigger.patch_recover",
+  "live.trigger.declaration_rename",
+  "live.trigger.member_create",
+  "live.trigger.member_verify",
   "live.trigger.bind",
   "live.trigger.edit",
   "live.trigger.move",
@@ -628,8 +639,13 @@ function shorthand(
       args,
     };
   }
-  if (name === "live.refresh.author" && block !== undefined) {
-    if (args.script !== undefined) throw Error("AUTHOR_REFRESH_SCRIPT_CONFLICT");
+  if ((name === "live.refresh.author" || name === "live.trigger.patch") && block !== undefined) {
+    if (args.script !== undefined)
+      throw Error(
+        name === "live.trigger.patch"
+          ? "AUTHOR_TRIGGER_PATCH_SCRIPT_CONFLICT"
+          : "AUTHOR_REFRESH_SCRIPT_CONFLICT",
+      );
     args.script = block;
   }
   if (name === "live.refresh.resource") {
@@ -1286,7 +1302,8 @@ export function compileAuthorScript(
       !name.startsWith("galaxy.") &&
       !name.startsWith("logic.") &&
       name !== "gui.script" &&
-      name !== "live.refresh.author"
+      name !== "live.refresh.author" &&
+      name !== "live.trigger.patch"
     )
       throw new Error("AUTHOR_BLOCK_ONLY_GALAXY_OR_REFRESH");
     const args = argumentsOf(tokens, name);

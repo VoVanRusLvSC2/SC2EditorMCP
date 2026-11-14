@@ -17,8 +17,25 @@ import { directoryManifest } from "../../archive/archiveAdapter.js";
 import { configureLiveWait, configureLivePeriodic } from "./triggerWait.js";
 import { editLiteralNumber } from "./triggerNumber.js";
 import { editParameterBinding } from "./triggerBinding.js";
+import {
+  createTriggerMember,
+  verifyTriggerMember,
+  triggerMemberCreateSchema,
+  triggerMemberVerifySchema,
+} from "./triggerMembers.js";
+import {
+  readDeclaration,
+  setDeclaration,
+  newDeclaration,
+  renameDeclaration,
+  triggerDeclarationSchema,
+  triggerDeclarationSetSchema,
+  triggerNewDeclarationSchema,
+  triggerDeclarationRenameSchema,
+  type DeclarationContext,
+} from "./triggerDeclaration.js";
 import { editLiteralChoice } from "./triggerChoice.js";
-import { readTriggerTreePage, readTriggerTreePages } from "./triggerTreePages.js";
+import { readTriggerTreePage, readTriggerTreePages, triggerTreeIds } from "./triggerTreePages.js";
 import { resolveTriggerContext } from "./triggerContext.js";
 import { collectGuiValues } from "../trigger/authoring.js";
 import type { GuiCatalogIdentity } from "../trigger/catalogContext.js";
@@ -103,7 +120,14 @@ export const triggerAppendActionSchema = triggerTargetSchema
     path: triggerRenameSchema.shape.path,
     groupPath: triggerChildPath.optional(),
     expectedDetailHash: z.string().regex(/^\d+$/).optional(),
-    action: z.enum(["skip_remaining", "wait", "builtin_default"]),
+    action: z.enum(["skip_remaining", "wait", "builtin_default", "definition_default"]),
+    origin: z
+      .string()
+      .trim()
+      .min(1)
+      .max(100)
+      .refine((v) => [...v].every((c) => c.charCodeAt(0) >= 32))
+      .optional(),
     seconds: z.number().min(0).max(3600).multipleOf(0.01).optional(),
     actionName: z.string().trim().min(1).max(100).optional(),
     category: z.string().trim().max(100).optional(),
@@ -118,7 +142,7 @@ export const triggerAppendActionSchema = triggerTargetSchema
         code: "custom",
         message: "wait requires seconds; skip_remaining must omit seconds",
       });
-    if (value.action === "builtin_default") {
+    if (value.action === "builtin_default" || value.action === "definition_default") {
       if (
         !value.actionName ||
         value.useDefaults !== true ||
@@ -128,10 +152,17 @@ export const triggerAppendActionSchema = triggerTargetSchema
           code: "custom",
           message: "builtin_default requires a non-script actionName and useDefaults=true",
         });
+      if ((value.action === "definition_default") !== (value.origin !== undefined))
+        ctx.addIssue({
+          code: "custom",
+          message:
+            "definition_default requires the exact native origin; builtin_default uses Built-In.",
+        });
     } else if (
       value.actionName !== undefined ||
       value.category !== undefined ||
-      value.useDefaults !== undefined
+      value.useDefaults !== undefined ||
+      value.origin !== undefined
     )
       ctx.addIssue({
         code: "custom",
@@ -245,13 +276,13 @@ const bindingDisplayName = z
     "Control characters are not allowed in native displayed names",
   );
 const bindingFields = {
-  source: z.enum(["variable", "function", "preset", "value"]),
+  source: z.enum(["variable", "function", "preset", "value", "parameter"]),
   type: bindingDisplayName.optional(),
 };
 export const triggerBindingOptionsSchema = triggerParametersSchema
   .extend({
     ...bindingFields,
-    source: z.enum(["variable", "function", "preset"]),
+    source: z.enum(["variable", "function", "preset", "parameter"]),
     parameterIndex: z.number().int().min(1).max(8192),
     expectedParameterHash: z.string().regex(/^\d+$/),
     offset: z.number().int().min(0).max(10000).default(0),
@@ -339,7 +370,13 @@ const fullTreeSchema = z.object({
   fingerprint: z.string(),
   truncated: z.boolean(),
   items: z.array(
-    z.object({ handle: z.string(), parent: z.string(), depth: z.number(), text: z.string() }),
+    z.object({
+      handle: z.string(),
+      parent: z.string(),
+      depth: z.number(),
+      text: z.string(),
+      stateImage: z.number().int().min(0).max(15).optional(),
+    }),
   ),
 });
 type FullTree = z.infer<typeof fullTreeSchema>;
@@ -350,6 +387,7 @@ function canonicalTree(tree: FullTree) {
     parent: item.parent === "0" ? -1 : indices.get(item.parent),
     depth: item.depth,
     text: item.text,
+    stateImage: item.stateImage ?? 0,
   }));
 }
 function detailPreserved(before: FullTree, after: FullTree, changedHandle: string) {
@@ -363,6 +401,7 @@ function detailPreserved(before: FullTree, after: FullTree, changedHandle: strin
       return (
         now.parent === item.parent &&
         now.depth === item.depth &&
+        now.stateImage === item.stateImage &&
         ((item.parent !== -1 && changedAncestors.has(before.items[index].handle)) ||
           now.text === item.text)
       );
@@ -437,6 +476,12 @@ export class LiveTriggers {
         "live.trigger.edit",
         "live.trigger.move",
         "live.trigger.move_recover",
+        "live.trigger.declaration",
+        "live.trigger.declaration_set",
+        "live.trigger.new_declaration",
+        "live.trigger.declaration_rename",
+        "live.trigger.member_create",
+        "live.trigger.member_verify",
         "live.trigger.append_numeric",
         "live.trigger.append_configured",
         "live.trigger.configure",
@@ -448,14 +493,14 @@ export class LiveTriggers {
         "live.trigger.set_point",
       ],
       scope:
-        "Create self-contained GUI libraries; edit existing nested actions/events/conditions, compatible native parameter sources and editable types; delete, reorder and transfer complete subtrees within the same trigger",
+        "Create self-contained GUI libraries, ordinary declarations/triggers and local/function parameters; edit compatible declaration fields, custom function bodies and nested actions/events/conditions; bind native compatible sources and delete/reorder/transfer same-trigger subtrees",
       copiesCreated: 0,
       reopensMap: false,
       savesMap: false,
       limits:
         "1 MiB; Core GUI references; up to 32 exact live Game Links; English embedded names; 4 prepared libraries for 10 minutes",
       unsupported: [
-        "Atomic whole map-root/library replacement and editing declaration signatures; parameter source/type choices are limited to the compatible options exposed by the original Editor",
+        "Atomic whole map-root/library replacement, comprehensive reference/use migration and callback signatures; parameter source/type/option choices are limited to compatible enabled original controls; reference semantics require generated-code verification",
         "Custom Script",
         "Map-instance references",
         "Non-name localization and translated strings",
@@ -530,14 +575,64 @@ export class LiveTriggers {
         throw error;
       return readTriggerTreePages(this.desktop, w, id);
     }
-    const tree = value.trees.find((t) => t.id === id);
-    if (!tree) throw Error("LIVE_TRIGGER_TREE_UNREADABLE_OR_TOO_LARGE");
-    if (tree.truncated) return readTriggerTreePages(this.desktop, w, id, tree.fingerprint);
+    const matches = value.trees.filter((t) => triggerTreeIds(id).includes(t.id));
+    if (matches.length !== 1) throw Error("LIVE_TRIGGER_TREE_UNREADABLE_OR_TOO_LARGE");
+    const tree = matches[0];
+    if (tree.truncated) return readTriggerTreePages(this.desktop, w, tree.id, tree.fingerprint);
     if (tree.count !== tree.items.length) throw Error("LIVE_TRIGGER_TREE_UNREADABLE_OR_TOO_LARGE");
     return tree;
   }
   private fullTree(w: EditorWindow) {
     return this.moduleTree(w, 28);
+  }
+  /** Complete visible GUI graphs for a journalled current-document operation. */
+  snapshot(input: Target & { paths: string[] }) {
+    const a = triggerTargetSchema
+      .extend({ paths: z.array(z.string().min(1).max(1024)).max(16) })
+      .strict()
+      .parse(input);
+    return this.run(async () => {
+      const archive = await this.archive(a.archive),
+        target = { archive: archive.archive, windowId: a.windowId },
+        window = await this.window(target);
+      return withEditorLease(window, async () => {
+        z.object({ ready: z.literal(true) }).parse(
+          await this.desktop.command(window, 69, { field: "preflight" }),
+        );
+        const root = await this.fullTree(window),
+          bodies: Array<{ path: string; items: ReturnType<typeof structuralTree> }> = [],
+          missing: string[] = [];
+        let count = root.items.length;
+        for (const path of [...new Set(a.paths)].sort()) {
+          try {
+            const selected = await this.selectTrigger(window, path);
+            count += selected.detail.items.length;
+            if (count > 32768) throw Error("LIVE_TRIGGER_SNAPSHOT_BOUND");
+            bodies.push({ path, items: structuralTree(selected.detail.items) });
+          } catch (error) {
+            if (
+              String(error).includes("PATH_NOT_UNIQUE_OR_MISSING") ||
+              String(error).includes("PATH_NOT_FOUND")
+            )
+              missing.push(path);
+            else throw error;
+          }
+        }
+        const after = await this.fullTree(window);
+        if (
+          root.fingerprint !== after.fingerprint ||
+          (await this.archive(target.archive)).sha256 !== archive.sha256
+        )
+          throw Error("LIVE_TRIGGER_SNAPSHOT_CHANGED");
+        return {
+          archive: archive.archive,
+          sha256: archive.sha256,
+          window,
+          graph: { root: structuralTree(root.items), bodies, missing },
+          mapMutation: false,
+        };
+      });
+    });
   }
   private async selectTrigger(
     w: EditorWindow,
@@ -1047,6 +1142,54 @@ export class LiveTriggers {
       });
     });
   }
+  private async declarationOperation<T>(
+    input: Target,
+    operation: (context: DeclarationContext) => Promise<T>,
+  ) {
+    return this.run(async () => {
+      const archive = await this.archive(input.archive),
+        target = { archive: archive.archive, windowId: input.windowId };
+      const window = await this.window(target);
+      return withEditorLease(window, () =>
+        operation({
+          archive: archive.archive,
+          archiveSha256: archive.sha256,
+          desktop: this.desktop,
+          window,
+          pause: this.pause,
+          guardArchive: async () => {
+            if ((await this.archive(target.archive)).sha256 !== archive.sha256)
+              throw Error("LIVE_TRIGGER_ARCHIVE_CHANGED");
+          },
+          currentWindow: () => this.window(target, window),
+        }),
+      );
+    });
+  }
+  declaration(input: z.input<typeof triggerDeclarationSchema>) {
+    const a = triggerDeclarationSchema.parse(input);
+    return this.declarationOperation(a, (c) => readDeclaration(c, a));
+  }
+  declarationSet(input: z.input<typeof triggerDeclarationSetSchema>) {
+    const a = triggerDeclarationSetSchema.parse(input);
+    return this.declarationOperation(a, (c) => setDeclaration(c, a));
+  }
+  newDeclaration(input: z.input<typeof triggerNewDeclarationSchema>) {
+    const a = triggerNewDeclarationSchema.parse(input);
+    return this.declarationOperation(a, (c) => newDeclaration(c, a));
+  }
+  memberCreate(input: z.input<typeof triggerMemberCreateSchema>) {
+    const a = triggerMemberCreateSchema.parse(input);
+    return this.declarationOperation(a, (c) => createTriggerMember(c, a));
+  }
+  declarationRename(input: z.input<typeof triggerDeclarationRenameSchema>) {
+    const a = triggerDeclarationRenameSchema.parse(input);
+    return this.declarationOperation(a, (c) => renameDeclaration(c, a));
+  }
+  memberVerify(input: z.input<typeof triggerMemberVerifySchema>) {
+    const a = triggerMemberVerifySchema.parse(input);
+    return this.declarationOperation(a, (c) => verifyTriggerMember(c, a));
+  }
   async rename(input: z.infer<typeof triggerRenameSchema>) {
     return this.run(async () => {
       const args = triggerRenameSchema.parse(input),
@@ -1193,7 +1336,14 @@ export class LiveTriggers {
             "allowTypeReset" in args && args.allowTypeReset === true,
           );
           const preserved = detailPreserved(selected.detail, afterDetail, selected.item.handle);
-          const accepted = verified.verified && preserved;
+          const literal = verified.bound?.text.split(": ").slice(1).join(": ").trim();
+          const literalVerified =
+            args.source !== "value" ||
+            (!!literal &&
+              /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(literal) &&
+              Number(literal) === args.value &&
+              !afterParams.items.some((row) => row.parent === verified.bound?.handle));
+          const accepted = verified.verified && preserved && literalVerified;
           return {
             status: accepted
               ? args.type || args.source === "function"
@@ -1542,7 +1692,7 @@ export class LiveTriggers {
           ? periodic
             ? "Timer"
             : (eventArgs.category ?? "")
-          : actionArgs!.action === "builtin_default"
+          : actionArgs!.action === "builtin_default" || actionArgs!.action === "definition_default"
             ? (actionArgs!.category ?? "")
             : "General";
       const kind = conditionArgs
@@ -1628,6 +1778,7 @@ export class LiveTriggers {
               expected: dialog.fingerprint,
               field: nativeAction,
               value: category,
+              ...(actionArgs?.origin ? { unit: actionArgs.origin } : {}),
             }),
           );
           dialog = await readDialog();
@@ -1642,6 +1793,7 @@ export class LiveTriggers {
               expected: dialog.fingerprint,
               field: nativeAction,
               value: selection.category,
+              ...(actionArgs?.origin ? { unit: actionArgs.origin } : {}),
             }),
           );
           let current: EditorWindow | undefined;
@@ -1717,13 +1869,16 @@ export class LiveTriggers {
                 : { action: actionArgs!.action, seconds: actionArgs!.seconds }),
               nativeTreeVerified: true,
               parameterVerified: true,
+              itemIndex: groupChildren.length,
+              nativeLabel: wait.nativeLabel,
+              detailFingerprint: wait.detailFingerprint,
               copiesCreated: 0,
               reopensMap: false,
               saved: false,
               retryMutation: false,
             };
           }
-          const defaults = kind === "builtin_default";
+          const defaults = kind === "builtin_default" || kind === "definition_default";
           return {
             status: verified ? (defaults ? "needs_parameters" : "applied") : "verification_failed",
             path: args.path,
@@ -1745,6 +1900,7 @@ export class LiveTriggers {
                           actionName: nativeAction,
                         }),
                   category: selection.category,
+                  ...(actionArgs?.origin ? { origin: actionArgs.origin } : {}),
                   nativeLabel: addedRoot?.text,
                   itemIndex: verified ? groupChildren.length : undefined,
                   detailFingerprint: verified ? after.fingerprint : undefined,
@@ -1753,6 +1909,13 @@ export class LiveTriggers {
                 }
               : {}),
             nativeTreeVerified: verified,
+            ...(verified
+              ? {
+                  itemIndex: groupChildren.length,
+                  nativeLabel: addedRoot!.text,
+                  detailFingerprint: after.fingerprint,
+                }
+              : {}),
             copiesCreated: 0,
             reopensMap: false,
             saved: false,

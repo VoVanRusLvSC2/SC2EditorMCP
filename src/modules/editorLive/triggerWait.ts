@@ -100,7 +100,13 @@ async function configureLiveDuration(c: WaitContext, kind: "wait" | "periodic") 
         parameterVerified: false,
         retryMutation: false,
       };
-    return { status: "applied" as const, parameterVerified: true, retryMutation: false };
+    return {
+      status: "applied" as const,
+      parameterVerified: true,
+      nativeLabel: after!.text,
+      detailFingerprint: detail.fingerprint,
+      retryMutation: false,
+    };
   } catch (error) {
     return {
       status: submitted ? ("unknown" as const) : ("stopped" as const),

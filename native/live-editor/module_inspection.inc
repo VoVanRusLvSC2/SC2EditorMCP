@@ -81,7 +81,28 @@ static ModuleTreeView ModuleTree(HWND tree, bool rootsOnly = false, int offset =
               items + L"]}",
           hash};
 }
+// Triggers and custom definitions use distinct native detail/parameter trees.
+// Logical IDs retain the public API; never choose between two visible panes.
+static bool TriggerPendingUserInput(HWND root) {
+  for (int id : {28, 134, 154, 468, 774}) {
+    HWND tree = Control(root, id, L"SysTreeView32");
+    if (tree && IsWindowVisible(tree) && SendMessageW(tree, TVM_GETEDITCONTROL, 0, 0)) return true;
+  }
+  HWND focus = GetFocus();
+  const auto cls = Class(focus);
+  return focus && IsChild(root, focus) && (cls == L"Edit" || cls == L"RichEdit20W") &&
+         !(GetWindowLongW(focus, GWL_STYLE) & ES_READONLY) && SendMessageW(focus, EM_GETMODIFY, 0, 0);
+}
+static HWND TriggerControlTree(HWND root, int id) {
+  int alternative = id == 134 ? 154 : id == 468 ? 774 : 0;
+  HWND direct = Control(root, id, L"SysTreeView32");
+  if (!alternative) return direct;
+  HWND other = Control(root, alternative, L"SysTreeView32");
+  bool a = direct && IsWindowVisible(direct), b = other && IsWindowVisible(other);
+  return a == b ? nullptr : a ? direct : other;
+}
 #include "trigger_graph.inc"
+#include "trigger_declaration.inc"
 static void ModuleInspectExecute(LiveDataRequest *b, HWND root) {
   if (b->operation == 68) {
     TriggerGraphTransfer(b, root);
@@ -92,7 +113,24 @@ static void ModuleInspectExecute(LiveDataRequest *b, HWND root) {
     Fail(b, L"LIVE_MODULE_CONTEXT_CHANGED");
     return;
   }
+  if (b->operation == 69) {
+    TriggerDeclarationExecute(b, root);
+    return;
+  }
+  if (b->operation == 50 && std::wstring(b->field) == L"module") {
+    const auto module = std::wstring(b->unit);
+    const auto state = DocumentRefreshInspect(root);
+    if ((module != L"Terrain" && module != L"Triggers" && module != L"Data") ||
+        state.pendingInput || state.pendingXml) {
+      Fail(b, L"LIVE_MODULE_PENDING_INPUT_OR_UNSUPPORTED"); return;
+    }
+    if (!Invoke(root, module.c_str())) { Fail(b, L"LIVE_MODULE_OPEN_UNAVAILABLE"); return; }
+    Result(b, L"{\"moduleRequested\":" + Quote(module) + L",\"mapMutation\":false}"); return;
+  }
   if (b->operation == 55 || b->operation == 66 || b->operation == 67) {
+    if (Text(root).rfind(L"Triggers - [", 0) == 0 && TriggerPendingUserInput(root)) {
+      Fail(b, L"LIVE_TRIGGER_MANUAL_INLINE_PRESERVED"); return;
+    }
     bool rename = b->operation == 66, editGraph = b->operation == 67;
     if (rename && Text(root).rfind(L"Triggers - [", 0) != 0) {
       Fail(b, L"LIVE_TRIGGER_RENAME_CONTEXT_REQUIRED");
@@ -105,7 +143,7 @@ static void ModuleInspectExecute(LiveDataRequest *b, HWND root) {
       return;
     }
     bool rootsOnly = !rename && std::wstring(b->value) == L"roots";
-    HWND tree = Control(root, int(id), L"SysTreeView32");
+    HWND tree = TriggerControlTree(root, int(id));
     auto snapshot = tree ? ModuleTree(tree, rootsOnly) : ModuleTreeView{};
     if (!tree || !IsWindowVisible(tree) || snapshot.hash.empty() || snapshot.hash != b->expected) {
       Fail(b, L"LIVE_MODULE_TREE_CHANGED");
@@ -153,7 +191,7 @@ static void ModuleInspectExecute(LiveDataRequest *b, HWND root) {
                              : action == L"in"   ? L"Move In"
                              : action == L"out"  ? L"Move Out"
                                                  : nullptr;
-      if (Text(root).rfind(L"Triggers - [", 0) != 0 || id != 134 || !label ||
+      if (Text(root).rfind(L"Triggers - [", 0) != 0 || (id != 134 && id != 154) || !label ||
           SendMessageW(tree, TVM_GETEDITCONTROL, 0, 0)) {
         Fail(b, L"LIVE_TRIGGER_GRAPH_COMMAND_INVALID");
         return;
@@ -175,8 +213,9 @@ static void ModuleInspectExecute(LiveDataRequest *b, HWND root) {
     }
     if (rename) {
       auto name = std::wstring(b->value);
-      if (id != 28 || name.empty() || name.size() > 80 ||
-          std::any_of(name.begin(), name.end(), [](wchar_t c) { return c < 32 || c == L'*'; }) ||
+      const bool member = id == 134 || id == 154;
+      if ((id != 28 && !member) || name.empty() || name.size() > (member ? 63 : 80) ||
+          std::any_of(name.begin(), name.end(), [](wchar_t c) { return c < 32 || c == L'*' || c == L'/'; }) ||
           SendMessageW(tree, TVM_GETEDITCONTROL, 0, 0)) {
         Fail(b, L"LIVE_TRIGGER_RENAME_INPUT_INVALID_OR_BUSY");
         return;
@@ -191,6 +230,14 @@ static void ModuleInspectExecute(LiveDataRequest *b, HWND root) {
         Fail(b, L"LIVE_TRIGGER_RENAME_ITEM_UNREADABLE");
         return;
       }
+      if (member) {
+        const auto rows = TriggerGraphRows(tree);
+        auto row = std::find_if(rows.begin(), rows.end(), [&](const TriggerGraphRow &r) { return r.handle == target; });
+        if (row == rows.end() || row->parent < 0 ||
+            (rows[row->parent].text != L"Local Variables" && rows[row->parent].text != L"Parameters")) {
+          Fail(b, L"LIVE_TRIGGER_RENAME_DECLARATION_REQUIRED"); return;
+        }
+      }
       SetActiveWindow(root);
       SetFocus(tree);
       SendMessageW(tree, TVM_SELECTITEM, TVGN_CARET, reinterpret_cast<LPARAM>(target));
@@ -201,7 +248,7 @@ static void ModuleInspectExecute(LiveDataRequest *b, HWND root) {
       HWND edit = reinterpret_cast<HWND>(SendMessageW(tree, TVM_GETEDITCONTROL, 0, 0));
       std::wstring label = old, editable = edit ? Text(edit) : L"";
       bool decorated = !editable.empty() && label.size() > editable.size() + 3 &&
-                       label.rfind(editable + L" <", 0) == 0 && label.back() == L'>';
+                       (label.rfind(editable + L" <", 0) == 0 || label.rfind(editable + L" = ", 0) == 0) && label.back() == L'>';
       if (!edit || Class(edit) != L"Edit" || (editable != label && !decorated)) {
         if (edit && Class(edit) == L"Edit")
           SendMessageW(tree, TVM_ENDEDITLABELNOW, TRUE, 0);
@@ -253,7 +300,7 @@ static void ModuleInspectExecute(LiveDataRequest *b, HWND root) {
       Fail(b, L"LIVE_MODULE_TREE_PAGE_INVALID");
       return;
     }
-    HWND tree = Control(root, int(id), L"SysTreeView32");
+    HWND tree = TriggerControlTree(root, int(id));
     auto snapshot = tree ? ModuleTree(tree, false, int(offset), true) : ModuleTreeView{};
     if (!tree || !IsWindowVisible(tree) || snapshot.hash.empty()) {
       Fail(b, L"LIVE_MODULE_TREE_UNREADABLE");

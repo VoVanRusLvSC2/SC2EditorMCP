@@ -76,10 +76,66 @@ test("native save writes the selected current file without creating or reopening
   );
   assert.deepEqual(await fs.readdir(f.root), ["Current.SC2Map"]);
 });
+test("save waits through an in-progress disk read without resubmitting Save", async (t) => {
+  const f = await fixture(t);
+  const internal = f.document as unknown as { archive: (file: string) => Promise<unknown> };
+  const original = internal.archive.bind(f.document);
+  let transient = true;
+  internal.archive = async (file) => {
+    if (f.state.calls && transient) {
+      transient = false;
+      throw Error("LIVE_FILE_CHANGED_DURING_HASH");
+    }
+    return original(file);
+  };
+  const result = await f.document.save(f.input);
+  assert.equal(result.status, "saved");
+  assert.equal(f.state.calls, 1);
+  assert.equal(transient, false);
+});
+test("save waits through a transient missing file during native replacement", async (t) => {
+  const f = await fixture(t);
+  const internal = f.document as unknown as { archive: (file: string) => Promise<unknown> };
+  const original = internal.archive.bind(f.document);
+  let transient = true;
+  internal.archive = async (file) => {
+    if (f.state.calls && transient) {
+      transient = false;
+      throw Object.assign(Error("temporarily absent"), { code: "ENOENT" });
+    }
+    return original(file);
+  };
+  const result = await f.document.save(f.input);
+  assert.equal(result.status, "saved");
+  assert.equal(f.state.calls, 1);
+  assert.equal(transient, false);
+});
 test("external archive changes refuse before Save", async (t) => {
   const f = await fixture(t);
   await fs.writeFile(f.target.archive, "external edit");
   await assert.rejects(f.document.save(f.input), /ARCHIVE_CHANGED/);
+  assert.equal(f.state.calls, 0);
+});
+test("status retains bounded native compiler error details without acknowledging a dialog", async (t) => {
+  const f = await fixture(t);
+  const dialogs = [
+    {
+      title: "Errors",
+      targetOwned: true,
+      controls: [
+        { id: 13, type: "SysListView32", table: { count: 1, rows: [["Expected a return value"]] } },
+      ],
+    },
+  ];
+  f.desktop.documentState = async () => ({
+    documentDirty: true,
+    pendingXmlBuffers: 0,
+    pendingInput: false,
+    dialogs,
+  });
+  const r = await f.document.status(f.target);
+  assert.equal(r.dialogPresent, true);
+  assert.deepEqual(r.dialogs, dialogs);
   assert.equal(f.state.calls, 0);
 });
 test("existing dialogs and checkpoint work prevent native saving", async (t) => {
@@ -98,6 +154,32 @@ test("lost Save acknowledgement is unknown and never replayed", async (t) => {
   assert.equal(result.status, "unknown");
   assert.equal(result.retryMutation, false);
   assert.equal(f.state.calls, 1);
+});
+test("native Save may temporarily release a short-caption archive lock; only observations retry", async (t) => {
+  if (process.platform !== "win32") return t.skip("Original short Windows map captions");
+  const f = await fixture(t);
+  const normalized = f.target.archive.replaceAll("\\", "/");
+  const suffix = normalized.split("/").slice(-2).join("/");
+  f.state.window.title = `Terrain - [${normalized.slice(0, 3)}.../${suffix}*] - StarCraft II Editor`;
+  let transient = 0;
+  f.desktop.documentIdentity = async (window, archive) => {
+    if (f.state.calls && transient++ < 2) return { verified: false };
+    return {
+      verified: true,
+      archive,
+      windowId: window.windowId,
+      processId: window.processId,
+      processStart: window.processStart,
+      title: window.title,
+      matchingDocuments: 1,
+      lockedByProcess: true,
+      scope: "map_archive_owner_and_unique_document",
+    };
+  };
+  const r = await f.document.save(f.input);
+  assert.equal(r.status, "saved");
+  assert.equal(f.state.calls, 1);
+  assert.ok(transient >= 2);
 });
 test("a remaining dirty marker cannot be reported as saved even when disk changed", async (t) => {
   const f = await fixture(t);

@@ -21,6 +21,29 @@ struct ComponentDialogState {
   HANDLE localeSource = INVALID_HANDLE_VALUE;
 };
 static ComponentDialogState componentDialog;
+struct ComponentMemberReceipt { HWND root; std::wstring title, name; bool named; };
+static std::map<std::wstring, ComponentMemberReceipt> componentMemberReceipts;
+static std::wstring ComponentMemberMarker(const wchar_t *token) {
+  const std::wstring id = token;
+  if (id.size() != 36 || std::any_of(id.begin(), id.end(), [](wchar_t c) {
+    return !(c >= L'0' && c <= L'9') && !(c >= L'a' && c <= L'f') && c != L'-';
+  })) return L"";
+  return L"SC2EditorToolkit.TriggerMember.Completed." + id;
+}
+// Function definitions insert a Parameter radio and shift all subsequent IDs.
+// The semantic source must match its original visible caption, never an index.
+static HWND TriggerSourceButton(HWND dialog, const std::wstring &source) {
+  const wchar_t *label = source == L"function" ? L"Function" : source == L"preset" ? L"Preset"
+                        : source == L"parameter" ? L"Parameter" : source == L"variable" ? L"Variable"
+                        : source == L"value" ? L"Value" : nullptr;
+  if (!label) return nullptr;
+  HWND match = nullptr;
+  for (HWND h : Children(dialog)) if (Class(h) == L"Button" && IsWindowVisible(h) && Clean(Text(h)) == label) {
+    if (match) return nullptr;
+    match = h;
+  }
+  return match;
+}
 struct ComponentCommand {
   const wchar_t *mode, *module, *command;
   bool deferred;
@@ -42,6 +65,9 @@ static const ComponentCommand *ComponentCommandFor(const std::wstring &mode) {
       {L"trigger.condition", L"Triggers", L"New Condition", true},
       {L"trigger.real", L"Triggers", L"", true},
       {L"trigger.choice", L"Triggers", L"", true},
+      {L"trigger.declaration", L"Triggers", L"", true},
+      {L"trigger.local", L"Triggers", L"New Variable", true},
+      {L"trigger.parameter", L"Triggers", L"New Parameter", true},
       {L"layout.add", L"UI", L"Add Layout...", true},
       {L"terrain.heightfield", L"Terrain", L"Modify Height Field...", true},
       {L"import.files", L"Import", L"Import Files...", true},
@@ -146,6 +172,9 @@ static HWND ComponentDialogWindow() {
         continue;
       if (componentDialog.mode == L"trigger.choice" && (!GetDlgItem(h, 11) || !GetDlgItem(h, 12)))
         continue;
+      if ((componentDialog.mode == L"trigger.local" || componentDialog.mode == L"trigger.parameter") &&
+          (!GetDlgItem(h, 11) || !GetDlgItem(h, 12) ||
+           (Text(h) != L"Variable" && Text(h) != L"Parameter"))) continue;
       if (found && !ComponentDescendant(found, h) && !ComponentDescendant(h, found))
         return nullptr;
       if (!found || ComponentDescendant(h, found))
@@ -345,6 +374,36 @@ static std::vector<ComponentLocale> ComponentLocales(HWND dialog) {
 }
 #include "import_dialog.inc"
 static void ComponentExecute(LiveDataRequest *b, HWND root) {
+  const auto marker = ComponentMemberMarker(b->token);
+  const auto markerState = marker.empty() ? 0 : reinterpret_cast<uintptr_t>(GetPropW(root, marker.c_str()));
+  if ((b->operation == 52 && markerState) || (b->operation == 59 && std::wstring(b->field) == L"member_verified")) {
+    if (b->pid != GetCurrentProcessId() || Text(root).rfind(L"Triggers - [", 0) != 0 ||
+        PlacementTitle(Text(root)) != PlacementTitle(b->title) || marker.empty() || (markerState != 1 && markerState != 2)) {
+      Fail(b, L"LIVE_TRIGGER_MEMBER_CONTEXT_CHANGED"); return;
+    }
+    if (b->operation == 59) {
+      RemovePropW(root, marker.c_str());
+      componentMemberReceipts.erase(b->token);
+      Result(b, L"{\"released\":true,\"mapMutation\":false}"); return;
+    }
+    // Window properties outlive a particular immutable adapter DLL. The MCP
+    // journal still verifies archive identity and both complete GUI graphs.
+    Result(b, L"{\"status\":\"created\",\"nameSubmitted\":" + std::wstring(markerState == 1 ? L"true" : L"false") + L",\"retryMutation\":false}"); return;
+  }
+  // The C# transport may return pending while the original inline rename is
+  // still executing. Retain completion before releasing its dialog guard.
+  if (b->operation == 52) {
+    auto completed = componentMemberReceipts.find(b->token);
+    if (completed != componentMemberReceipts.end()) {
+      const auto &receipt = completed->second;
+      if (b->pid != GetCurrentProcessId() || receipt.root != root ||
+          receipt.title != PlacementTitle(Text(root)) || receipt.title != PlacementTitle(b->title)) {
+        Fail(b, L"LIVE_TRIGGER_MEMBER_CONTEXT_CHANGED"); return;
+      }
+      Result(b, L"{\"status\":\"created\",\"nameSubmitted\":" + std::wstring(receipt.named ? L"true" : L"false") +
+                    L",\"name\":" + Quote(receipt.name) + L",\"retryMutation\":false}"); return;
+    }
+  }
   bool owned = ComponentOwned(b, root);
   // Synchronous library commands enter a nested modal loop too. Its filename
   // dialog may be visible before the initialization timer has observed it.
@@ -373,9 +432,76 @@ static void ComponentExecute(LiveDataRequest *b, HWND root) {
       Fail(b, L"LIVE_COMPONENT_DIALOG_BUSY");
       return;
     }
+    if (std::wstring(spec->module) == L"Triggers" && TriggerPendingUserInput(root)) {
+      Fail(b, L"LIVE_TRIGGER_MANUAL_INLINE_PRESERVED"); return;
+    }
+    HWND declarationControl = nullptr;
+    HWND memberTree = nullptr;
+    std::wstring memberName;
+    std::vector<TriggerGraphRow> memberBefore;
+    if (mode == L"trigger.local" || mode == L"trigger.parameter") {
+      HWND leftTree = Control(root, 28, L"SysTreeView32");
+      memberTree = TriggerControlTree(root, 134);
+      const auto left = leftTree ? ModuleTree(leftTree) : ModuleTreeView{}, right = memberTree ? ModuleTree(memberTree) : ModuleTreeView{};
+      const auto value = std::wstring(b->value);
+      const auto a = value.find(L':'), bpos = a == std::wstring::npos ? a : value.find(L':', a + 1);
+      auto owner = leftTree ? reinterpret_cast<HTREEITEM>(SendMessageW(leftTree, TVM_GETNEXTITEM, TVGN_CARET, 0)) : nullptr;
+      auto insertion = memberTree ? reinterpret_cast<HTREEITEM>(SendMessageW(memberTree, TVM_GETNEXTITEM, TVGN_CARET, 0)) : nullptr;
+      if (a == std::wstring::npos || bpos == std::wstring::npos || !owner || !insertion ||
+          left.hash.empty() || right.hash.empty() || std::wstring(b->expected) != left.hash + L":" + right.hash ||
+          value.substr(0, a) != std::to_wstring(reinterpret_cast<uintptr_t>(owner)) ||
+          value.substr(a + 1, bpos - a - 1) != std::to_wstring(reinterpret_cast<uintptr_t>(insertion))) {
+        Fail(b, L"LIVE_TRIGGER_MEMBER_SELECTION_CHANGED"); return;
+      }
+      memberName = value.substr(bpos + 1);
+      if (memberName.empty() || memberName.size() > 63 || std::any_of(memberName.begin(), memberName.end(), [](wchar_t c) { return c < 32 || c == L'*' || c == L'/'; })) {
+        Fail(b, L"LIVE_TRIGGER_MEMBER_NAME_INVALID"); return;
+      }
+      memberBefore = TriggerGraphRows(memberTree);
+      auto selected = std::find_if(memberBefore.begin(), memberBefore.end(), [&](const TriggerGraphRow &r) { return r.handle == insertion; });
+      const auto groupName = mode == L"trigger.local" ? L"Local Variables" : L"Parameters";
+      if (selected == memberBefore.end() || (selected->text != groupName &&
+          (selected->parent < 0 || memberBefore[selected->parent].text != groupName)) ||
+          !TriggerGraphSingleSelection(memberTree) || SendMessageW(memberTree, TVM_GETEDITCONTROL, 0, 0)) {
+        Fail(b, L"LIVE_TRIGGER_MEMBER_GROUP_REQUIRED"); return;
+      }
+    }
+    if (mode == L"trigger.declaration") {
+      const auto fingerprint = TriggerDeclarationSnapshot(root, false);
+      const auto value = std::wstring(b->value);
+      const auto split = value.find(L':');
+      HWND tree = Control(root, 28, L"SysTreeView32");
+      auto selected = tree ? reinterpret_cast<HTREEITEM>(SendMessageW(tree, TVM_GETNEXTITEM, TVGN_CARET, 0)) : nullptr;
+      if (fingerprint.empty() || fingerprint != b->expected || split == std::wstring::npos ||
+          value.substr(0, split) != std::to_wstring(reinterpret_cast<uintptr_t>(selected))) {
+        Fail(b, L"LIVE_TRIGGER_DECLARATION_CHANGED"); return;
+      }
+      const auto id = value.substr(split + 1);
+      const auto layout = TriggerDeclarationControls(root);
+      if (layout.initial && id == std::to_wstring(layout.initial)) {
+        for (HWND h : Children(root)) if (Class(h) == L"Button" && IsWindowVisible(h) && GetDlgCtrlID(h) == layout.initial) {
+          if (declarationControl) { Fail(b, L"LIVE_TRIGGER_DECLARATION_VALUE_AMBIGUOUS"); return; }
+          declarationControl = h;
+        }
+      }
+      else if (id == std::to_wstring(layout.type + 16) || id == std::to_wstring(layout.type + 18) ||
+               id == std::to_wstring(layout.type + 20) || id == std::to_wstring(layout.type + 22)) {
+        // Dimension three shares ID 340 with Defines Default Value in another
+        // pane. Reject ambiguity; never resolve a duplicated ID arbitrarily.
+        for (HWND h : Children(root)) if (Class(h) == L"Button" && IsWindowVisible(h) &&
+            std::to_wstring(GetDlgCtrlID(h)) == id && Text(h) != L"Defines Default Value" &&
+            Clean(Text(h)) != L"Minimum Value:" && Clean(Text(h)) != L"Maximum Value:" && Clean(Text(h)) != L"Default Value:") {
+          if (declarationControl) { Fail(b, L"LIVE_TRIGGER_DECLARATION_VALUE_AMBIGUOUS"); return; }
+          declarationControl = h;
+        }
+      }
+      if (!declarationControl || !IsWindowVisible(declarationControl) || !IsWindowEnabled(declarationControl)) {
+        Fail(b, L"LIVE_TRIGGER_DECLARATION_VALUE_UNAVAILABLE"); return;
+      }
+    }
     if (TriggerPickerMode(mode)) {
       HWND rootTree = Control(root, 28, L"SysTreeView32"),
-           detailTree = Control(root, 134, L"SysTreeView32");
+           detailTree = TriggerControlTree(root, 134);
       auto left = rootTree ? ModuleTree(rootTree) : ModuleTreeView{},
            right = detailTree ? ModuleTree(detailTree) : ModuleTreeView{};
       auto trigger =
@@ -395,8 +521,8 @@ static void ComponentExecute(LiveDataRequest *b, HWND root) {
     }
     if (mode == L"trigger.real" || mode == L"trigger.choice") {
       HWND rootTree = Control(root, 28, L"SysTreeView32"),
-           detailTree = Control(root, 134, L"SysTreeView32"),
-           paramTree = Control(root, 468, L"SysTreeView32");
+           detailTree = TriggerControlTree(root, 134),
+           paramTree = TriggerControlTree(root, 468);
       auto left = rootTree ? ModuleTree(rootTree) : ModuleTreeView{},
            middle = detailTree ? ModuleTree(detailTree) : ModuleTreeView{},
            right = paramTree ? ModuleTree(paramTree) : ModuleTreeView{};
@@ -476,7 +602,7 @@ static void ComponentExecute(LiveDataRequest *b, HWND root) {
     }
     componentDialog.root = root;
     componentDialog.token = b->token;
-    componentDialog.mode = mode;
+    componentDialog.mode = mode == L"trigger.declaration" ? L"trigger.choice" : mode;
     componentDialog.path = path;
     componentDialog.chosenPath.clear();
     componentDialog.locale = mode == L"locale.import" ? b->value : L"";
@@ -500,8 +626,27 @@ static void ComponentExecute(LiveDataRequest *b, HWND root) {
     }
     SetActiveWindow(root);
     bool invoked = false;
-    if (mode == L"trigger.real" || mode == L"trigger.choice") {
-      HWND tree = Control(root, 468, L"SysTreeView32");
+    if (declarationControl) {
+      invoked = PostMessageW(declarationControl, BM_CLICK, 0, 0);
+    } else if (memberTree) {
+      SetFocus(memberTree);
+      invoked = GetFocus() == memberTree && Invoke(root, spec->command);
+      HWND edit = reinterpret_cast<HWND>(SendMessageW(memberTree, TVM_GETEDITCONTROL, 0, 0));
+      auto created = reinterpret_cast<HTREEITEM>(SendMessageW(memberTree, TVM_GETNEXTITEM, TVGN_CARET, 0));
+      const bool isNew = created && std::none_of(memberBefore.begin(), memberBefore.end(), [&](const TriggerGraphRow &r) { return r.handle == created; });
+      if (invoked && isNew && edit && Class(edit) == L"Edit") {
+        SendMessageW(edit, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(memberName.c_str()));
+        bool named = Text(edit) == memberName;
+        if (named) SendMessageW(memberTree, TVM_ENDEDITLABELNOW, FALSE, 0);
+        const auto completedMarker = ComponentMemberMarker(componentDialog.token.c_str());
+        if (!completedMarker.empty()) SetPropW(root, completedMarker.c_str(), reinterpret_cast<HANDLE>(static_cast<uintptr_t>(named ? 1 : 2)));
+        if (componentMemberReceipts.size() >= 32) componentMemberReceipts.erase(componentMemberReceipts.begin());
+        componentMemberReceipts[componentDialog.token] = {root, PlacementTitle(Text(root)), memberName, named};
+        ComponentFinish();
+        Result(b, L"{\"status\":\"created\",\"nameSubmitted\":" + std::wstring(named ? L"true" : L"false") + L",\"retryMutation\":false}"); return;
+      }
+    } else if (mode == L"trigger.real" || mode == L"trigger.choice") {
+      HWND tree = TriggerControlTree(root, 468);
       if (tree && GetFocus() == tree) {
         invoked = PostMessageW(tree, WM_KEYDOWN, VK_RETURN, 0) &&
                   PostMessageW(tree, WM_KEYUP, VK_RETURN, 0);
@@ -572,14 +717,34 @@ static void ComponentExecute(LiveDataRequest *b, HWND root) {
     ImportDialogExecute(b, dialog);
     return;
   }
+  if (mode == L"trigger.choice" && (b->operation == 58 || b->operation == 59) &&
+      std::wstring(b->field) == L"array_size") {
+    HWND edit = Control(dialog, 16, L"Edit"), literal = Control(dialog, 14, L"Button");
+    const auto value = std::wstring(b->value);
+    wchar_t *end = nullptr;
+    long size = wcstol(value.c_str(), &end, 10);
+    if (Text(dialog) != L"Array Size" || !edit || !literal || !IsWindowEnabled(edit) ||
+        SendMessageW(literal, BM_GETCHECK, 0, 0) != BST_CHECKED || value.empty() ||
+        !end || *end || size < 1 || size > 8192) {
+      Fail(b, L"LIVE_TRIGGER_ARRAY_SIZE_INVALID"); return;
+    }
+    if (b->operation == 59) {
+      SendMessageW(edit, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(value.c_str()));
+      componentDialog.initial = ComponentDialogFingerprint(dialog);
+      Result(b, L"{\"optionsSet\":true,\"fingerprint\":" + Quote(componentDialog.initial) + L",\"mapMutation\":false}");
+      return;
+    }
+    HWND accept = GetDlgItem(dialog, 11);
+    if (Text(edit) != value || !accept || !IsWindowEnabled(accept)) {
+      Fail(b, L"LIVE_TRIGGER_ARRAY_SIZE_UNCONFIRMED"); return;
+    }
+    PostMessageW(accept, BM_CLICK, 0, 0);
+    Result(b, L"{\"submitted\":true,\"retryMutation\":false}");
+    return;
+  }
   if (mode == L"trigger.choice" && b->operation == 59 && std::wstring(b->field) == L"source") {
     const auto source = std::wstring(b->value);
-    int id = source == L"function"   ? 36
-             : source == L"preset"   ? 37
-             : source == L"variable" ? 38
-             : source == L"value"    ? 39
-                                     : 0;
-    HWND radio = id ? Control(dialog, id, L"Button") : nullptr;
+    HWND radio = TriggerSourceButton(dialog, source);
     if (componentDialog.parent || componentDialog.transition || !radio || !IsWindowEnabled(radio) ||
         !Control(dialog, 15, L"ComboBox") || !Control(dialog, 11, L"Button") ||
         !Control(dialog, 12, L"Button")) {
@@ -638,12 +803,11 @@ static void ComponentExecute(LiveDataRequest *b, HWND root) {
   }
   if (mode == L"trigger.choice" && (b->operation == 59 || b->operation == 58) &&
       (std::wstring(b->field) == L"function" || std::wstring(b->field) == L"variable" ||
-       std::wstring(b->field) == L"preset" || std::wstring(b->field) == L"choices")) {
+       std::wstring(b->field) == L"preset" || std::wstring(b->field) == L"parameter" || std::wstring(b->field) == L"choices")) {
     const auto kind =
         std::wstring(b->field) == L"choices" ? std::wstring(b->value) : std::wstring(b->field);
-    int radioId = kind == L"function" ? 36 : kind == L"variable" ? 38 : kind == L"preset" ? 37 : 0;
-    int listId = kind == L"function" ? 43 : kind == L"variable" ? 67 : kind == L"preset" ? 59 : 0;
-    HWND radio = Control(dialog, radioId, L"Button"),
+    int listId = kind == L"function" ? 43 : kind == L"variable" ? 67 : kind == L"preset" ? 59 : kind == L"parameter" ? 51 : 0;
+    HWND radio = TriggerSourceButton(dialog, kind),
          list = Control(dialog, listId, L"SysListView32"), accept = Control(dialog, 11, L"Button");
     if (componentDialog.parent || componentDialog.transition || !radio || !list ||
         !IsWindowVisible(list) || SendMessageW(radio, BM_GETCHECK, 0, 0) != BST_CHECKED ||
@@ -676,7 +840,7 @@ static void ComponentExecute(LiveDataRequest *b, HWND root) {
     int match = -1;
     for (int row = 0; row < count; row++) {
       auto label = Cell(list, row, 0), name = label;
-      if (kind == L"variable") {
+      if (kind == L"variable" || kind == L"parameter") {
         const auto valueAt = name.find(L" = "), typeAt = name.find(L" <");
         name = name.substr(0, (std::min)(valueAt, typeAt));
       }
@@ -721,13 +885,31 @@ static void ComponentExecute(LiveDataRequest *b, HWND root) {
   if (mode == L"trigger.choice" && (b->operation == 59 || b->operation == 58) &&
       std::wstring(b->field) == L"binding_value") {
     const auto type = Text(Control(dialog, 15, L"ComboBox"));
+    if (type == L"Boolean") {
+      HWND literal = TriggerSourceButton(dialog, L"value"), check = Control(dialog, 84, L"Button"), accept = GetDlgItem(dialog, 11);
+      const auto value = std::wstring(b->value);
+      if (!literal || SendMessageW(literal, BM_GETCHECK, 0, 0) != BST_CHECKED || !check ||
+          !IsWindowVisible(check) || !IsWindowEnabled(check) || !accept || !IsWindowEnabled(accept) ||
+          (value != L"true" && value != L"false")) { Fail(b, L"LIVE_TRIGGER_BOOLEAN_VALUE_UNAVAILABLE"); return; }
+      if (b->operation == 59) {
+        if ((SendMessageW(check, BM_GETCHECK, 0, 0) == BST_CHECKED) != (value == L"true"))
+          SendMessageW(check, BM_CLICK, 0, 0);
+        componentDialog.initial = ComponentDialogFingerprint(dialog);
+        Result(b, L"{\"optionsSet\":true,\"fingerprint\":" + Quote(componentDialog.initial) + L",\"mapMutation\":false}"); return;
+      }
+      if ((SendMessageW(check, BM_GETCHECK, 0, 0) == BST_CHECKED) != (value == L"true")) {
+        Fail(b, L"LIVE_TRIGGER_BOOLEAN_VALUE_UNCONFIRMED"); return;
+      }
+      PostMessageW(accept, BM_CLICK, 0, 0);
+      Result(b, L"{\"submitted\":true,\"retryMutation\":false}"); return;
+    }
     bool integer = type == L"Integer";
-    HWND radio = Control(dialog, 39, L"Button"), edit = Control(dialog, 92, L"Edit"),
+    HWND radio = TriggerSourceButton(dialog, L"value"), edit = Control(dialog, 92, L"Edit"),
          accept = Control(dialog, 11, L"Button");
     wchar_t *end = nullptr;
     double value = wcstod(b->value, &end);
     if ((type != L"Integer" && type != L"Real") || !radio || !edit || !accept ||
-        !IsWindowEnabled(edit) || SendMessageW(radio, BM_GETCHECK, 0, 0) != BST_CHECKED ||
+        !IsWindowVisible(edit) || !IsWindowEnabled(edit) || SendMessageW(radio, BM_GETCHECK, 0, 0) != BST_CHECKED ||
         !b->value[0] || !end || *end || !std::isfinite(value) ||
         value < (integer ? -2147483648.0 : -3600.0) || value > (integer ? 2147483647.0 : 3600.0) ||
         (integer && std::floor(value) != value)) {
@@ -777,7 +959,7 @@ static void ComponentExecute(LiveDataRequest *b, HWND root) {
   }
   if (mode == L"trigger.choice" && (b->operation == 58 || b->operation == 59) &&
       std::wstring(b->field) == L"unit") {
-    HWND list = Control(dialog, 202, L"SysListView32"), value = Control(dialog, 39, L"Button"),
+    HWND list = Control(dialog, 202, L"SysListView32"), value = TriggerSourceButton(dialog, L"value"),
          listView = Control(dialog, 190, L"Button"), type = Control(dialog, 15, L"ComboBox"),
          accept = GetDlgItem(dialog, 11);
     const std::wstring requested = b->value;
@@ -834,7 +1016,7 @@ static void ComponentExecute(LiveDataRequest *b, HWND root) {
   }
   if (mode == L"trigger.choice" && (b->operation == 58 || b->operation == 59) &&
       std::wstring(b->field) == L"point") {
-    HWND list = Control(dialog, 125, L"SysListView32"), value = Control(dialog, 39, L"Button"),
+    HWND list = Control(dialog, 125, L"SysListView32"), value = TriggerSourceButton(dialog, L"value"),
          type = Control(dialog, 15, L"ComboBox"), accept = GetDlgItem(dialog, 11);
     const std::wstring requested = b->value;
     if (componentDialog.parent || componentDialog.transition || Text(dialog) != L"Point" || !type ||
@@ -969,7 +1151,7 @@ static void ComponentExecute(LiveDataRequest *b, HWND root) {
     }
     for (int row = 0; row < count; row++)
       if (Cell(list, row, 0) == b->field && (!b->value[0] || Cell(list, row, 1) == b->value) &&
-          Cell(list, row, 2) == L"Built-In") {
+          Cell(list, row, 2) == (b->unit[0] ? std::wstring(b->unit) : L"Built-In")) {
         if (match >= 0) {
           Fail(b, L"LIVE_TRIGGER_ACTION_AMBIGUOUS");
           return;
@@ -1012,7 +1194,7 @@ static void ComponentExecute(LiveDataRequest *b, HWND root) {
     int selected = list ? int(SendMessageW(list, LVM_GETNEXTITEM, WPARAM(-1), LVNI_SELECTED)) : -1;
     if (selected < 0 || SendMessageW(list, LVM_GETSELECTEDCOUNT, 0, 0) != 1 ||
         Cell(list, selected, 0) != b->field || Cell(list, selected, 1) != b->value ||
-        Cell(list, selected, 2) != L"Built-In" || !accept || Clean(Text(accept)) != L"OK" ||
+        Cell(list, selected, 2) != (b->unit[0] ? std::wstring(b->unit) : L"Built-In") || !accept || Clean(Text(accept)) != L"OK" ||
         !IsWindowEnabled(accept)) {
       Fail(b, L"LIVE_TRIGGER_ACTION_SELECTION_CHANGED");
       return;

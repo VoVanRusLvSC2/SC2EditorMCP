@@ -20,8 +20,9 @@ Use `mode=stage`. Units require `layer=Units owner=1`; Doodads are the default.
 Names must be exact palette display types. Each object is verified separately,
 and a failed or unknown placement stops the group without repeating it. Earlier
 objects remain in the open document; this is not an atomic transaction. Save
-the current file separately when requested. Terrain and editing existing GUI
-graphs directly still require other supported workflows.
+the current file separately when requested. Regional Terrain brushes and complete
+existing-GUI graph replacement still need additional providers; supported nested
+graph edits are described below.
 
 For a longer series, use `live.placement.job_start` or compact
 `live placement.start ... points="x,y;x,y" saveOnComplete=true` and poll
@@ -172,8 +173,8 @@ retain the selected nested action group. User paths are bounded to 16 child
 steps and full native tree reads to 8192 nodes.
 
 Existing parameters now also support `binding_options` and `bind` as described
-below. Atomic whole-library/map-root replacement, declaration/signature editing
-and translated trigger content are separate capabilities. Native GUI readback,
+below. Atomic whole-library/map-root replacement, comprehensive signature/reference
+migration and translated trigger content are separate capabilities. Native GUI readback,
 same-file Save, native compilation and gameplay are distinct checks.
 
 ### Acceptance on 2026-11-14
@@ -205,8 +206,109 @@ Editor was stopped afterward. No user document was changed or reopened.
 
 ## Existing parameter sources, types and GUI block edits
 
+For a logical multi-step edit, prefer [current-document command patches](LIVE_TRIGGER_PATCH.md):
+`live.trigger.patch` supplies fresh native hashes, a shared cursor and one process
+lease while reusing the operations below. The compact heredoc block avoids JSON
+operation arrays. It is not complete declarative graph reconciliation or atomic
+native Undo; pending validation prevents its automatic same-file Save.
+
+### Declarations, parameters and custom functions
+
+`live.trigger.declaration` reads a global variable by exact display path or unique
+name, including its native type choices and `declarationFingerprint`. Use
+`view=return_type` on a custom function to inspect its return type. Original
+controls supply the choices; no type names are fabricated.
+
+`view=local|parameter member=Name` addresses a declaration inside its owning
+trigger/function `path`. Definition bodies have separate original controls from
+ordinary triggers; the provider resolves the current pane rather than reading a
+hidden or stale trigger pane. Parameter sources use `source=parameter`, with the
+exact compatible name/origin supplied by the original chooser.
+
+`live.trigger.declaration_set` accepts that fingerprint as
+`expectedDeclarationHash`, a `field` and `value`. Supported global fields are
+`type`, `subtype`, `constant`, `array`, `dimensions`, `size` and `initial`.
+`dimension=1..4` selects a dimension's literal size. Sizes use the original
+single-dimension edit or individual Array Size dialogs, including the duplicated
+native control ID used for dimension three. Initial values support Integer,
+Real and Boolean literals, not arbitrary source code or String/Text values.
+Size values retain the original Editor's bounds semantics: the retained
+`3/4/2/5` fixture generates Galaxy dimensions `[4][5][3][6]`, not four requested
+element counts. Literal zero bounds are not qualified by this provider.
+Changing type/subtype requires `allowTypeReset=true`; changing the array shape
+requires `allowShapeChange=true`. These changes return `needs_validation` and
+stop a compact batch before subsequent edits or Save: compatible references,
+defaults and compilation need review. The native field and other main-tree
+declarations are checked; full reference-graph preservation is not claimed.
+
+`live.trigger.new_declaration` accepts an existing folder/library `path`,
+`kind=variable|function|action_definition`, a `name` and a fresh `expectedTreeHash`.
+It invokes original New, commits the new inline name once and verifies a single
+new sibling. `kind=trigger` creates an ordinary trigger in the same way. Native
+defaults return `needs_parameters`, never implied gameplay readiness. A non-void
+function must contain a valid Return action before Save.
+
+`live.trigger.member_create` adds one `kind=local|parameter` using the owning
+`path`, exact `name` and fresh `expectedDetailHash`. A journal is reserved before
+original New. If submission or observation is uncertain, retain its `pendingId`
+and call `member_verify`; never repeat creation. Native completion markers survive
+immutable adapter upgrades. Verification compares the entire root/body, including
+enabled/disabled state images, and permits only the original generated grammar's
+new parameter. Custom grammar must remain unchanged.
+
+Local declarations support the same enabled type/shape/initial controls as globals.
+Parameters additionally expose `default_enabled` and `field=option option=...`
+with exact native option names. Three-state flags distinguish false, true and
+indeterminate. Disabled controls refuse before mutation. GUI option verification
+does not certify generated semantics: the retained Integer Use Reference test
+still generated a value parameter, and its Array control was disabled.
+Reference/record/callback semantics and arbitrary typed initializers remain open.
+
+Existing nested action/binding tools also edit custom definition bodies. To call
+a custom action, use `append_action action=definition_default actionName=...`
+with exact `origin=...` and `useDefaults=true`, then configure its arguments.
+`builtin_default` continues to require the Built-In source. See the complete
+[remaining scope](LIVE_TRIGGER_COMPLETION.md).
+
+`live.trigger.declaration_rename` accepts the same declaration scope/member,
+fresh `expectedDeclarationHash` and new `name`. Original Rename edits the existing
+object; no replacement declaration is created. Same-scope collisions refuse,
+including parameter/local collisions. Readback checks the decorated name and
+topology/state images and reports changed display labels; `needs_validation`
+retains the need to inspect uses and compile. A lost reply never repeats Rename.
+Comprehensive use inventory and safe deletion remain separate work.
+
+These operations retain the current document and do not save or reopen it. Save
+status now accepts a Trigger window and can open the same document's Terrain
+module when necessary; this does not reload the archive. Native error dialogs
+are included in status diagnostics. Existing dialogs/manual input remain
+protected; an unknown Save is inspected, never replayed automatically.
+
+The declaration fixture was saved and reopened, then compiled by the original
+generator/compiler with zero compiler errors. Exported Galaxy includes
+`const bool gv_liveBooleanProbe = true`, a four-dimensional Integer array,
+the Real initializer `4.25` and two native void function definitions. A later
+Real edit to `4.5` and same-file Save passed with exactly one Save submission,
+stable saved bytes and all related modules clean. These observations do not
+qualify gameplay.
+
+A subsequent function fixture also passed same-file Save, reopen and the original
+generator/compiler with zero errors. Its exported function returns
+`((lp_base * lp_factor) + lv_bonus)` with `lv_bonus = 5`; an ordinary Map
+Initialization trigger calls it with `(7, 4)` and passes a local to a custom action.
+An injected lost local-creation reply was recovered after an adapter version
+change with exactly one original New submission. These observations qualify the
+tested declarations, bodies, bindings and recovery; not arbitrary GUI content.
+
+Renaming that referenced local, parameter and called function subsequently passed
+native Save/reopen/compilation. The saved `Triggers` component was byte-identical;
+only three existing name values changed in English TriggerStrings. Resource keys
+and reference IDs were retained. The original generator emitted the renamed
+function and updated call with the same expression. This bounded fixture proves
+identity preservation separately from the in-memory label check.
+
 `live.trigger.binding_options` opens the original parameter chooser, selects
-`source=variable|function|preset`, returns at most 32 compatible choices and
+`source=variable|parameter|function|preset`, returns at most 32 compatible choices and
 cancels the chooser without committing. Names and origins come from the open
 Editor, including current locals and committed unsaved definitions. Preserve
 `groupPath`, `parameterPath`, `itemIndex`, `parameterIndex` and both snapshot

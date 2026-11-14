@@ -30,6 +30,7 @@ export interface TriggerTreeItem {
   parent: string;
   depth: number;
   text: string;
+  stateImage?: number;
 }
 
 export function triggerItemAtPath<T extends TriggerTreeItem>(
@@ -100,7 +101,12 @@ export function structuralTree(items: readonly TriggerTreeItem[]) {
     const parent = stack.at(-1);
     if (item.parent !== (parent?.handle ?? "0")) throw Error("LIVE_TRIGGER_TREE_INVALID_ANCESTRY");
     stack.push({ handle: item.handle, index });
-    return { parent: parent?.index ?? -1, depth: item.depth, text: item.text };
+    return {
+      parent: parent?.index ?? -1,
+      depth: item.depth,
+      text: item.text,
+      stateImage: item.stateImage ?? 0,
+    };
   });
 }
 
@@ -147,7 +153,12 @@ export function verifyTriggerInsertion<T extends TriggerTreeItem>(
     retained.length !== original.length ||
     retained.some((item, index) => {
       const old = original[index];
-      return item.parent !== old.parent || item.depth !== old.depth || item.text !== old.text;
+      return (
+        item.parent !== old.parent ||
+        item.depth !== old.depth ||
+        item.text !== old.text ||
+        item.stateImage !== old.stateImage
+      );
     })
   )
     return undefined;
@@ -280,6 +291,7 @@ export function verifyParameterRebind(
       (row, index) =>
         row.parent === newShape[index].parent &&
         row.depth === newShape[index].depth &&
+        row.stateImage === newShape[index].stateImage &&
         ((row.parent !== -1 && ancestors.has(oldRest[index].handle)) ||
           row.text === newShape[index].text),
     ),

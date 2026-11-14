@@ -67,6 +67,55 @@ test("a changed revision, incomplete page or duplicate handle cannot be assemble
     await assert.rejects(readTriggerTreePages(desktop, window, 28), /LIVE_TRIGGER_TREE_PAGE_/);
   }
 });
+test("custom definition detail and parameter pages bind to their actual native control", async () => {
+  for (const [logical, actual] of [
+    [134, 154],
+    [468, 774],
+  ]) {
+    const calls: number[] = [];
+    const desktop = {
+      windows: async () => [window],
+      command: async (_w: unknown, _op: number, args: any) => {
+        calls.push(Number(args.unit));
+        const offset = Number(args.value);
+        return {
+          tree: {
+            id: actual,
+            count: rows.length,
+            total: rows.length,
+            offset,
+            fingerprint: "original",
+            truncated: false,
+            items: rows.slice(offset, offset + 128),
+          },
+        };
+      },
+    } satisfies MemoryDesktop;
+    const tree = await readTriggerTreePages(desktop, window, logical);
+    assert.equal(tree.id, actual);
+    assert.deepEqual(calls, [logical, actual, actual]);
+  }
+});
+test("a definition page cannot switch back to a trigger tree halfway through traversal", async () => {
+  const desktop = {
+    windows: async () => [window],
+    command: async (_w: unknown, _op: number, args: any) => {
+      const offset = Number(args.value);
+      return {
+        tree: {
+          id: offset ? 134 : 154,
+          count: rows.length,
+          total: rows.length,
+          offset,
+          fingerprint: "same",
+          truncated: false,
+          items: rows.slice(offset, offset + 128),
+        },
+      };
+    },
+  } satisfies MemoryDesktop;
+  await assert.rejects(readTriggerTreePages(desktop, window, 134), /PAGE_CHANGED/);
+});
 
 test("compact chat authoring preserves the tree page and its exact 64-bit fingerprint", () => {
   const fingerprint = "18160450125616126148";

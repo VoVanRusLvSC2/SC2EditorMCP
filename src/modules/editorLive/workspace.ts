@@ -15,6 +15,7 @@ import type { LiveRuntimeFactory } from "./runtime.js";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { LivePlacementJobs } from "./placementJobs.js";
 import { LiveTerrain } from "./terrain.js";
+import { LiveTriggerPatches } from "./triggerPatch.js";
 
 /** Current document providers plus explicitly selected same-file refresh; no new working map. */
 export class EditorLiveWorkspace {
@@ -25,6 +26,7 @@ export class EditorLiveWorkspace {
   readonly terrain: LiveTerrain;
   readonly data: LiveDataXml;
   readonly triggers: LiveTriggers;
+  readonly triggerPatches: LiveTriggerPatches;
   readonly ui: LiveUi;
   readonly text: LiveText;
   readonly imports: LiveImports;
@@ -40,7 +42,12 @@ export class EditorLiveWorkspace {
     readonly desktop: LiveDesktop = new WindowsLiveDesktop(),
   ) {
     const jobContext = new AsyncLocalStorage<boolean>();
-    const providersBusy = () => this.providers.some((provider) => provider.busy);
+    const patchContext = new AsyncLocalStorage<boolean>();
+    const providersBusy = () =>
+      this.providers.some(
+        (provider) =>
+          provider.busy && !(provider === this.triggerPatches && patchContext.getStore()),
+      );
     const unavailable = () =>
       this.closing ||
       blocked() ||
@@ -58,6 +65,13 @@ export class EditorLiveWorkspace {
     this.terrain = new LiveTerrain(workspace.root, undefined, unavailable);
     this.data = new LiveDataXml(workspace, factory, undefined, unavailable);
     this.triggers = new LiveTriggers(workspace, factory, undefined, unavailable);
+    this.triggerPatches = new LiveTriggerPatches(
+      workspace.root,
+      this.triggers,
+      this.document,
+      (fn) => patchContext.run(true, fn),
+      unavailable,
+    );
     this.ui = new LiveUi(workspace, factory, undefined, unavailable);
     this.text = new LiveText(workspace, factory, undefined, unavailable);
     this.imports = new LiveImports(workspace, undefined, unavailable);
@@ -69,6 +83,7 @@ export class EditorLiveWorkspace {
       this.terrain,
       this.data,
       this.triggers,
+      this.triggerPatches,
       this.ui,
       this.text,
       this.imports,
@@ -91,7 +106,7 @@ export class EditorLiveWorkspace {
   capabilities() {
     return {
       module: "editor-live",
-      apiVersion: "editor-live-2026-11-14-gui-graph",
+      apiVersion: "editor-live-2026-11-14-patches",
       backend: "current_document",
       copiesCreated: 0,
       reopensMap: false,
@@ -140,6 +155,13 @@ export class EditorLiveWorkspace {
       },
       data: this.data.capabilities(),
       triggers: this.triggers.capabilities(),
+      triggerPatches: {
+        tools: ["live.trigger.patch", "live.trigger.patch_recover"],
+        scope:
+          "Journalled compact native command sequences with one process lease; same-file Save only without pending validation",
+        atomicUndo: false,
+        inflightReplay: false,
+      },
       ui: this.ui.capabilities(),
       text: this.text.capabilities(),
       imports: this.imports.capabilities(),
@@ -148,7 +170,7 @@ export class EditorLiveWorkspace {
         "Direct in-memory mode only; explicit same_file_refresh can prepare these components with existing generators. Native model/rendering acceptance remains per component.",
       unsupported: [
         "Direct regional terrain brush and general terrain component application",
-        "Atomic whole GUI graph replacement and declaration/signature editing; general localized trigger content",
+        "Atomic whole GUI graph replacement, comprehensive signature/reference migration and general localized trigger content",
         "Atomic UI/Data batches with linked localized Text, style and import components",
         "Map settings and lighting application",
         "Placement of types absent from the current filtered palette",

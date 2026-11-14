@@ -3,6 +3,7 @@ import path from "node:path";
 import os from "node:os";
 import type * as z from "zod/v4";
 import { liveDigest } from "./identity.js";
+import { randomUUID } from "node:crypto";
 import type { EditorWindow } from "./desktop.js";
 
 interface PendingIdentity {
@@ -17,6 +18,7 @@ export class PendingComponent<T extends PendingIdentity> {
     private readonly namespace: string,
     private readonly schema: z.ZodType<T>,
     private readonly errorPrefix: string,
+    private readonly maxBytes = 16384,
   ) {}
   private async file(w: EditorWindow, archive: string) {
     const directory = path.join(os.tmpdir(), "SC2EditorToolkit-live-memory", this.namespace);
@@ -37,7 +39,7 @@ export class PendingComponent<T extends PendingIdentity> {
     try {
       const file = await this.file(w, archive),
         stat = await fs.lstat(file);
-      if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 16384)
+      if (!stat.isFile() || stat.isSymbolicLink() || stat.size > this.maxBytes)
         throw Error(this.errorPrefix + "_RECORD_INVALID");
       const value = this.schema.parse(JSON.parse(await fs.readFile(file, "utf8")));
       if (
@@ -58,7 +60,8 @@ export class PendingComponent<T extends PendingIdentity> {
       throw Error(this.errorPrefix + "_RECORD_INVALID");
     const text = JSON.stringify(record) + "\n";
     // Refuse before native mutation if recovery would be unable to read its journal.
-    if (Buffer.byteLength(text, "utf8") > 16384) throw Error(this.errorPrefix + "_RECORD_INVALID");
+    if (Buffer.byteLength(text, "utf8") > this.maxBytes)
+      throw Error(this.errorPrefix + "_RECORD_INVALID");
     await fs.writeFile(await this.file(w, record.archive), text, {
       flag: "wx",
     });
@@ -66,5 +69,24 @@ export class PendingComponent<T extends PendingIdentity> {
   async release(w: EditorWindow, archive: string, id: string) {
     if ((await this.read(w, archive))?.id !== id) throw Error(this.errorPrefix + "_ID_CHANGED");
     await fs.unlink(await this.file(w, archive));
+  }
+  async update(w: EditorWindow, input: T) {
+    const record = this.schema.parse(input),
+      file = await this.file(w, record.archive);
+    if ((await this.read(w, record.archive))?.id !== record.id)
+      throw Error(this.errorPrefix + "_ID_CHANGED");
+    const before = await fs.readFile(file, "utf8"),
+      text = JSON.stringify(record) + "\n";
+    if (Buffer.byteLength(text, "utf8") > this.maxBytes)
+      throw Error(this.errorPrefix + "_RECORD_INVALID");
+    const temporary = file + "." + randomUUID() + ".tmp";
+    try {
+      await fs.writeFile(temporary, text, { flag: "wx" });
+      if ((await fs.readFile(file, "utf8")) !== before)
+        throw Error(this.errorPrefix + "_RECORD_CHANGED");
+      await fs.rename(temporary, file);
+    } finally {
+      await fs.unlink(temporary).catch(() => {});
+    }
   }
 }

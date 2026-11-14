@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { resolveTriggerContext } from "../modules/editorLive/triggerContext.js";
+import {
+  resolveTriggerContext,
+  resolveEditorModuleContext,
+} from "../modules/editorLive/triggerContext.js";
 import type { MemoryDesktop } from "../modules/editorLive/memoryDesktop.js";
 
 const archive = "K:/Maps/User.SC2Map";
@@ -71,4 +74,27 @@ test("real modal dialogs, another process and document mismatches are not bypass
     resolveTriggerContext(changed, { archive, windowId: "1" }, async () => {}),
     /SOURCE_DOCUMENT_CHANGED/,
   );
+});
+test("a Trigger-only document can open its Terrain module for same-file Save without reopening", async () => {
+  let opened = false,
+    commands = 0;
+  const d = {
+    windows: async () => (opened ? [triggers, terrain] : [triggers]),
+    command: async (w, op, args) => {
+      commands++;
+      assert.equal(w.windowId, triggers.windowId);
+      assert.equal(op, 50);
+      assert.deepEqual(args, { field: "module", unit: "Terrain" });
+      opened = true;
+      return { moduleRequested: "Terrain" };
+    },
+  } as MemoryDesktop;
+  const r = await resolveEditorModuleContext(
+    d,
+    { archive, windowId: triggers.windowId },
+    async () => {},
+    "Terrain",
+  );
+  assert.equal(r.windowId, terrain.windowId);
+  assert.equal(commands, 1);
 });

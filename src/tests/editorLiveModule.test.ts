@@ -61,6 +61,14 @@ test("editor-live profile exposes current-document tools without checkpoint impo
       "live.trigger.edit",
       "live.trigger.move",
       "live.trigger.move_recover",
+      "live.trigger.declaration",
+      "live.trigger.declaration_set",
+      "live.trigger.new_declaration",
+      "live.trigger.patch",
+      "live.trigger.patch_recover",
+      "live.trigger.declaration_rename",
+      "live.trigger.member_create",
+      "live.trigger.member_verify",
       "live.trigger.append_configured",
       "live.refresh.prepare",
       "live.refresh.begin",
@@ -85,7 +93,7 @@ test("editor-live profile exposes current-document tools without checkpoint impo
       assert.equal(tools.has(name), false, name);
     const cap = project.live.current.capabilities();
     assert.equal(cap.module, "editor-live");
-    assert.equal(cap.apiVersion, "editor-live-2026-11-14-gui-graph");
+    assert.equal(cap.apiVersion, "editor-live-2026-11-14-patches");
     const compactCapabilities = await runMcpBatch(
       [{ id: "cap", tool: "live.capabilities", args: {} }],
       tools,

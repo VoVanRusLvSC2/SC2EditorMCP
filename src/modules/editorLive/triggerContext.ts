@@ -15,7 +15,7 @@ export async function resolveEditorModuleContext(
   desktop: MemoryDesktop,
   target: { archive: string; windowId: string },
   pause: (ms: number) => Promise<void>,
-  module: "Triggers" | "Data",
+  module: "Triggers" | "Data" | "Terrain",
 ) {
   let windows = await desktop.windows();
   const source = windows.find((w) => w.windowId === target.windowId);
@@ -46,19 +46,24 @@ export async function resolveEditorModuleContext(
     return trigger;
   }
   const terrain = await related("Terrain");
-  if (!source.enabled || !terrain?.enabled)
+  const host =
+    terrain ?? (/^(Triggers|Data|UI|Text|Import) - \[/.test(source.title) ? source : undefined);
+  if (!source.enabled || !host?.enabled)
     throw Error("LIVE_TRIGGER_USER_DIALOG_OR_TERRAIN_UNAVAILABLE");
-  await withEditorLease(terrain, async () => {
+  await withEditorLease(host, async () => {
     const current = desktop.window
-      ? await desktop.window(terrain.windowId)
-      : (await desktop.windows()).find((w) => w.windowId === terrain.windowId);
+      ? await desktop.window(host.windowId)
+      : (await desktop.windows()).find((w) => w.windowId === host.windowId);
     if (
       !current?.enabled ||
       !sameProcess(current) ||
       !(await currentDocumentMatches(desktop, current, target.archive))
     )
       throw Error("LIVE_TRIGGER_SOURCE_DOCUMENT_CHANGED");
-    const result = (await desktop.command(current, 31, { field: "module", unit: module })) as {
+    const result = (await desktop.command(current, terrain ? 31 : 50, {
+      field: "module",
+      unit: module,
+    })) as {
       moduleRequested?: string;
       error?: string;
     };

@@ -190,6 +190,7 @@ export async function runMcpBatch(
             "unknown",
             "stopped",
             "needs_parameters",
+            "needs_validation",
             "partial",
             "save_unconfirmed",
             "save_confirmed_prepare_blocked",

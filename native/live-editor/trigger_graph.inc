@@ -4,6 +4,7 @@ struct TriggerGraphRow {
   HTREEITEM handle;
   int parent, depth;
   std::wstring text;
+  unsigned stateImage = 0;
 };
 static std::vector<TriggerGraphRow> TriggerGraphRows(HWND tree) {
   struct Pending {
@@ -23,7 +24,8 @@ static std::vector<TriggerGraphRow> TriggerGraphRows(HWND tree) {
       return {};
     wchar_t text[512]{};
     TVITEMW item{};
-    item.mask = TVIF_TEXT;
+    item.mask = TVIF_TEXT | TVIF_STATE;
+    item.stateMask = TVIS_STATEIMAGEMASK;
     item.hItem = node.handle;
     item.pszText = text;
     item.cchTextMax = 512;
@@ -31,7 +33,7 @@ static std::vector<TriggerGraphRow> TriggerGraphRows(HWND tree) {
         wcslen(text) >= 511)
       return {};
     int index = int(rows.size());
-    rows.push_back({node.handle, node.parent, node.depth, text});
+    rows.push_back({node.handle, node.parent, node.depth, text, (item.state & TVIS_STATEIMAGEMASK) >> 12});
     auto next = reinterpret_cast<HTREEITEM>(
         SendMessageW(tree, TVM_GETNEXTITEM, TVGN_NEXT, reinterpret_cast<LPARAM>(node.handle)));
     auto child = reinterpret_cast<HTREEITEM>(
@@ -56,7 +58,7 @@ static std::wstring TriggerGraphShape(const std::vector<TriggerGraphRow> &rows, 
       if (parent >= 0 && !indices.count(parent))
         return L"";
       out += L"\x1e" + std::to_wstring(parent < 0 ? -1 : indices[parent]) + L":" +
-             std::to_wstring(rows[i].depth) + L":" + std::to_wstring(rows[i].text.size()) + L"#" +
+             std::to_wstring(rows[i].depth) + L":" + std::to_wstring(rows[i].stateImage) + L":" + std::to_wstring(rows[i].text.size()) + L"#" +
              rows[i].text;
       indices[i] = next++;
     }
@@ -228,7 +230,7 @@ static void TriggerTransferPending(LiveDataRequest *b) {
                 L",\"retryMutation\":false}");
 }
 static void TriggerGraphTransfer(LiveDataRequest *b, HWND root) {
-  HWND tree = Control(root, 134, L"SysTreeView32");
+  HWND tree = TriggerControlTree(root, 134);
   if (b->pid != GetCurrentProcessId() || !IsWindowEnabled(root) ||
       Text(root).rfind(L"Triggers - [", 0) != 0 ||
       PlacementTitle(Text(root)) != PlacementTitle(b->title) || !tree || !IsWindowVisible(tree)) {
@@ -237,7 +239,7 @@ static void TriggerGraphTransfer(LiveDataRequest *b, HWND root) {
   }
   if (std::wstring(b->value) != L"begin") {
     auto state = triggerTransfer;
-    if (!state || state->root != root || state->token != b->token ||
+    if (!state || state->root != root || state->tree != tree || state->token != b->token ||
         state->documentTitle != PlacementTitle(Text(root))) {
       Fail(b, L"LIVE_TRIGGER_TRANSFER_TOKEN_REQUIRED");
       return;
@@ -369,6 +371,7 @@ static void TriggerGraphTransfer(LiveDataRequest *b, HWND root) {
     Fail(b, L"LIVE_TRIGGER_TRANSFER_BUSY");
     return;
   }
+  if (TriggerPendingUserInput(root)) { Fail(b, L"LIVE_TRIGGER_MANUAL_INLINE_PRESERVED"); return; }
   if (ModuleTree(tree).hash != b->expected) {
     Fail(b, L"LIVE_MODULE_TREE_CHANGED");
     return;

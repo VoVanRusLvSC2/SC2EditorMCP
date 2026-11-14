@@ -14,6 +14,7 @@ export interface DocumentState {
   pendingXmlBuffers: number;
   pendingInput: boolean;
   dialogPresent: boolean;
+  dialogs?: unknown[];
   needsSave: boolean;
   scope: "native_related_modules" | "adapter_related_captions";
 }
@@ -31,6 +32,7 @@ export async function readDocumentState(
       pendingXmlBuffers: value.pendingXmlBuffers,
       pendingInput: value.pendingInput,
       dialogPresent: !terrain.enabled || value.dialogs.length > 0,
+      dialogs: value.dialogs,
       needsSave: value.documentDirty || value.pendingXmlBuffers > 0,
       scope: "native_related_modules",
     };

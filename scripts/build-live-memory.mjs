@@ -23,6 +23,7 @@ try {
     "import_dialog.inc",
     "module_inspection.inc",
     "trigger_graph.inc",
+    "trigger_declaration.inc",
     "data_xml.inc",
     "catalog.inc",
     "memory_protocol.h",

@@ -8,6 +8,7 @@ import { WindowsMemoryDesktop, type MemoryDesktop } from "./memoryDesktop.js";
 import { withEditorLease } from "./editorLease.js";
 import { acknowledgeSavedUiBuffers } from "./savedUiBuffer.js";
 import { readDocumentState } from "./documentState.js";
+import { resolveEditorModuleContext } from "./triggerContext.js";
 
 export const documentTargetSchema = z
   .object({
@@ -71,9 +72,17 @@ export class LiveDocument {
     };
   }
   private async window(target: Target, previous?: EditorWindow) {
-    const w = this.desktop.window
+    let w = this.desktop.window
       ? await this.desktop.window(target.windowId)
       : (await this.desktop.windows()).find((w) => w.windowId === target.windowId);
+    if (
+      w &&
+      !w.title.startsWith("Terrain - [") &&
+      /^(AI Assistant|Triggers|Data|UI|Text|Import) - \[/.test(w.title)
+    ) {
+      w = await resolveEditorModuleContext(this.desktop, target, this.pause, "Terrain");
+      target.windowId = w.windowId;
+    }
     if (
       !w ||
       !w.title.startsWith("Terrain - [") ||
@@ -98,6 +107,7 @@ export class LiveDocument {
       pendingInput: state.pendingInput,
       dirtinessScope: state.scope,
       dialogPresent: state.dialogPresent,
+      ...(state.dialogs?.length ? { dialogs: state.dialogs } : {}),
       workflow: "current_document",
       copiesCreated: 0,
       mutation: false,
@@ -168,7 +178,29 @@ export class LiveDocument {
         let reconciledStamp: string | undefined;
         for (let i = 0; i < 100; i++) {
           await this.pause(300);
-          const w = await this.window(target, window);
+          let w: EditorWindow;
+          try {
+            w = await this.window(target, window);
+          } catch (error) {
+            // Native atomic Save briefly releases the archive handle. A short
+            // caption then cannot establish archive ownership. Observe the same
+            // frame again; never repeat Save or accept a title as final proof.
+            const candidate = this.desktop.window
+              ? await this.desktop.window(window.windowId)
+              : (await this.desktop.windows()).find((w) => w.windowId === window.windowId);
+            if (
+              !(error instanceof Error) ||
+              error.message !== "LIVE_DOCUMENT_WINDOW_CHANGED" ||
+              !candidate ||
+              candidate.processId !== window.processId ||
+              candidate.processStart !== window.processStart ||
+              candidate.title.replace("*]", "]") !== window.title.replace("*]", "]")
+            )
+              throw error;
+            stable = undefined;
+            reconciledStamp = undefined;
+            continue;
+          }
           if (!w.enabled) {
             stable = undefined;
             continue;

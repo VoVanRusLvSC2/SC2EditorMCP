@@ -3,25 +3,38 @@ import * as z from "zod/v4";
 import type { MemoryDesktop } from "./memoryDesktop.js";
 import type { EditorWindow } from "./desktop.js";
 
-export interface BindingRequest {
+interface BindingCommon {
   desktop: MemoryDesktop;
   window: EditorWindow;
-  triggerHandle: string;
-  itemHandle: string;
-  parameterHandle: string;
-  leftHash: string;
-  detailHash: string;
-  parameterHash: string;
-  source: "variable" | "function" | "preset" | "value";
+  source: "variable" | "function" | "preset" | "value" | "parameter";
   name?: string;
   origin?: string;
-  value?: number;
+  value?: number | boolean;
   type?: string;
   listOnly?: boolean;
   offset?: number;
   guardArchive: () => Promise<void>;
   pause: (ms: number) => Promise<void>;
 }
+export type BindingRequest = BindingCommon &
+  (
+    | {
+        triggerHandle: string;
+        itemHandle: string;
+        parameterHandle: string;
+        leftHash: string;
+        detailHash: string;
+        parameterHash: string;
+      }
+    | {
+        declaration: {
+          handle: string;
+          fingerprint: string;
+          controlId: number;
+          arraySize?: boolean;
+        };
+      }
+  );
 const dialogSchema = z.object({
   title: z.string(),
   fingerprint: z.string(),
@@ -45,20 +58,27 @@ export async function editParameterBinding(c: BindingRequest) {
   };
   try {
     await c.guardArchive();
-    z.object({ selectionRequested: z.literal(true) }).parse(
-      await c.desktop.command(c.window, 55, {
-        unit: "468",
-        field: c.parameterHandle,
-        expected: c.parameterHash,
-      }),
-    );
+    if (!("declaration" in c))
+      z.object({ selectionRequested: z.literal(true) }).parse(
+        await c.desktop.command(c.window, 55, {
+          unit: "468",
+          field: c.parameterHandle,
+          expected: c.parameterHash,
+        }),
+      );
     z.object({ status: z.literal("pending") }).parse(
       await c.desktop.command(c.window, 51, {
         unit: randomUUID(),
-        field: "trigger.choice",
+        field: "declaration" in c ? "trigger.declaration" : "trigger.choice",
         token,
-        expected: [c.leftHash, c.detailHash, c.parameterHash].join(":"),
-        value: [c.triggerHandle, c.itemHandle, c.parameterHandle].join(":"),
+        expected:
+          "declaration" in c
+            ? c.declaration.fingerprint
+            : [c.leftHash, c.detailHash, c.parameterHash].join(":"),
+        value:
+          "declaration" in c
+            ? `${c.declaration.handle}:${c.declaration.controlId}`
+            : [c.triggerHandle, c.itemHandle, c.parameterHandle].join(":"),
       }),
     );
     opened = true;
@@ -92,8 +112,9 @@ export async function editParameterBinding(c: BindingRequest) {
       dialog = check(await read());
       return result;
     };
+    const arraySize = "declaration" in c && c.declaration.arraySize;
     if (c.type) await set("type", c.type);
-    await set("source", c.source);
+    if (!arraySize) await set("source", c.source);
     const nativeType = dialog.controls?.find((x) => x.id === 15 && x.type === "ComboBox")?.text;
     if (c.listOnly) {
       if (c.source === "value") throw Error("LIVE_TRIGGER_BINDING_CATALOG_SOURCE_REQUIRED");
@@ -124,7 +145,7 @@ export async function editParameterBinding(c: BindingRequest) {
         mapMutation: false,
       };
     }
-    const field = c.source === "value" ? "binding_value" : c.source;
+    const field = arraySize ? "array_size" : c.source === "value" ? "binding_value" : c.source;
     const value = c.source === "value" ? String(c.value) : c.name!;
     const selection = await set(field, value, c.origin);
     await c.guardArchive();

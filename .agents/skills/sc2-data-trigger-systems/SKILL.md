@@ -28,7 +28,31 @@ editable original type chooser and `allowTypeReset=true`; inspect dependent
 parameters before saving. Use `edit` for deletion/sibling reorder and `move`
 for another compatible branch. Preserve pendingId across `move_recover`; never
 repeat Cut after an uncertain transfer. See `docs/EDITOR_LIVE.md` for the bounded current scope.
+Global declarations use `live.trigger.declaration/declaration_set`; `new_declaration`
+creates an ordinary variable/function with native defaults. Inspect the returned
+type/options/fingerprint. Type changes require `allowTypeReset`; array changes
+require `allowShapeChange`. `needs_validation` stops later batch mutations/Save.
+New non-void functions require a Return action. Local/parameter declaration reads
+and edits use `view=local|parameter member=Name` on the owning trigger/function.
+`member_create kind=local|parameter` requires a fresh detail hash and verifies the
+native generated grammar. Preserve a pendingId and recover with `member_verify`
+instead of repeating New, including after reconnect/adapter upgrades. Definition
+bodies reuse action/binding tools; bind arguments with `source=parameter`.
+Custom actions use `append_action action=definition_default` and exact `origin`.
+Use `declaration_rename` with a fresh declaration hash for original Rename;
+never recreate a referenced declaration merely to change its name. Inspect its
+changed labels and compile affected uses before Save. Unknown Rename never replays.
+Enabled parameter options are native GUI fields, not proof of generated reference
+semantics. Comprehensive use migration, full signatures and general graph patches
+remain unfinished. See `docs/LIVE_TRIGGER_COMPLETION.md`.
 For a requested Save, use `live.document.status/save` after successful application.
+For related edits, prefer one `live trigger.patch ... <<TAG` block in stage mode.
+Use existing native command arguments and omit archive/window/hash fields inside
+the block. Append aliases use `as=Name` and `itemIndex=@Name`; the adapter refreshes
+guards and retains a shared cursor. `saveOnComplete=true` saves the same file only
+without pending validation. Recover a pending patch by patchId, preserving any
+distinct nativePendingId for its own recovery tool. Never repeat a whole script
+because a reply or observation was lost. See `docs/LIVE_TRIGGER_PATCH.md`.
 Inspect the returned native graph verification and preserve uncertain results
 without repeating import. Unit/Actor inspection and conversion guides below are
 only relevant when the request actually involves those systems or conversion.

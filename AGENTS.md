@@ -61,7 +61,33 @@ localization, resource IDs and original catalog source annotations.
   A pending transfer must finish/cancel through `move_recover` with its pendingId,
   never repeat Cut. Clipboard formats stay native and are restored after the
   complete expected graph is confirmed. Declaration/signature editing and
-  atomic whole-graph replacement remain outside these operations.
+  atomic whole-graph replacement remain outside these operations. Global variable
+  declarations and custom return types use `live.trigger.declaration` and
+  `declaration_set`; original creation uses `new_declaration`. Type/shape changes
+  require explicit reset acknowledgement and return `needs_validation`. Inspect
+  references and native compilation before Save; a new non-void function needs
+  a Return action. `view=local|parameter member=...` addresses declarations inside
+  the owning trigger/function. `member_create` uses original New and reserves a
+  shared recovery journal; retain its pendingId and use `member_verify`, never
+  repeat creation. Function bodies reuse nested action/binding tools, with
+  `source=parameter` for compatible arguments. Custom action calls use
+  `append_action action=definition_default` with an exact native origin.
+  Three-state flags retain indeterminate separately from false. Native option
+  readback is not proof of generated reference semantics; inspect the export.
+  `declaration_rename` uses original Rename with a fresh declaration hash,
+  preserves native objects and reports changed labels; validate uses/compilation
+  before Save. Never replace a referenced declaration just to rename it.
+  Comprehensive use migration and full signatures remain unfinished. Track the
+  complete scope in `docs/LIVE_TRIGGER_COMPLETION.md`.
+  Logical current-document GUI batches use `live.trigger.patch` with a compact
+  script and one default owner path. Omit target/hash arguments inside the block;
+  it preflights static schemas, obtains live guards and journals each submission.
+  Original validation-required results can be retained while related planned
+  edits finish, but prohibit automatic Save. A pending patch uses `patch_recover`,
+  never another start. A distinct nativePendingId belongs to the underlying
+  native recovery tool. Completed step cursors never replay; acknowledged append
+  adoption requires the exact observed insertion. No atomic Undo is claimed.
+  See `docs/LIVE_TRIGGER_PATCH.md`.
   Current map-local UI layouts use `live.ui.create/read/author` in the exact UI
   window. Existing compact `ui frame/property/anchor/remove/template` commands
   reuse the typed writer; omit file=. A pending current buffer is captured without
