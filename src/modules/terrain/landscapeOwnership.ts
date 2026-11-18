@@ -13,7 +13,7 @@ import {landscapePadSourceSchema,landscapePadBindingSchema} from './landscapePad
 const name=z.string().regex(/^[A-Za-z][A-Za-z0-9_-]{0,63}$/);
 export const landscapeConfigSchema=createLocationSchema.extend({terrain:terrainLocationSchema,includeUnits:z.literal(false).default(false),objectCount:z.number().int().min(0).max(5000).optional(),groups:z.array(measuredGroupSchema).max(16).default([])}).strict();
 export const landscapeZoneSchema=z.object({id:name,dependsOn:z.array(name).max(31).default([]),purpose:z.string().max(160).default(''),condition:z.enum(['operational','abandoned','damaged','destroyed']).default('operational'),config:landscapeConfigSchema}).strict();
-export const landscapeIntentSchema=z.object({zones:z.array(landscapeZoneSchema).min(1).max(32),routeSource:landscapeRouteSourceSchema.nullable().optional(),padSource:landscapePadSourceSchema.nullable().optional()}).strict();
+export const landscapeIntentSchema=z.object({zones:z.array(landscapeZoneSchema).min(1).max(32),routeSource:landscapeRouteSourceSchema.nullable().optional(),padSource:landscapePadSourceSchema.nullable().optional(),lighting:z.string().min(1).max(255).optional()}).strict();
 export const landscapePlanSchema=z.union([terrainLandscapeSchema,z.object({intent:landscapeIntentSchema}).strict()]);
 export const LANDSCAPE_RECIPE_REVISION=4;
 const hash=z.string().regex(/^[a-f0-9]{64}$/),encoded=z.string().max(2**24);

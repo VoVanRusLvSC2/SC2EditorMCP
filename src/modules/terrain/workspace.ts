@@ -947,6 +947,16 @@ export class TerrainWorkspace {
         issues.push(...terrainPlan.issues);changedVertices+=terrainPlan.changedVertices;changedTexturePixels+=terrainPlan.changedTexturePixels;
         queue.push({id,area});lastTerrainPlanId=terrainPlan.id;
       }
+      // Optional global binding uses the existing dependency-checked lighting
+      // writer; all catalog/registration bytes join this same transaction.
+      let lightingDependencySnapshot:string|undefined;
+      if(intent.lighting){
+        if(operations.length>=100)throw Error('LANDSCAPE_OPERATION_LIMIT: lighting must fit the same 100-operation transaction');
+        const lightingPlan=await this.plan({operations:[{op:'lighting.assign',id:intent.lighting}]},sources),stored=await this.checked(lightingPlan.id);
+        sources.clear();for(const name of TERRAIN_COMPONENTS)sources.set(name,Buffer.from(stored.next.get(name)!));
+        operations.push({op:'lighting.assign',id:intent.lighting});issues.push(...lightingPlan.issues);
+        lightingDependencySnapshot=stored.waterDependencySnapshot;
+      }
       // Every placement samples the complete dependency stack, not its parent's
       // intermediate surface before a later clearing/road has been generated.
       const finalState=parseState(sources),surface=lastTerrainPlanId?await this.surface('',lastTerrainPlanId):undefined;
@@ -1006,12 +1016,14 @@ export class TerrainWorkspace {
       for(const [name,text]of [['Objects',objectRaw.text],['ComponentList.SC2Components',componentRaw.text],[file,raw.text]]){before.set(name,Buffer.from(text));sourceSha256[name]=bytesHash(Buffer.from(text));diskSha256[name]=bytesHash((await this.workspace.binary.read(name,false)).bytes);}
       if(routeBinding){sourceSha256[routeBinding.file]=routeBinding.sha256;diskSha256[routeBinding.file]=bytesHash((await this.workspace.binary.read(routeBinding.file,false)).bytes);}
       if(padBinding){sourceSha256[padBinding.file]=padBinding.sha256;diskSha256[padBinding.file]=bytesHash((await this.workspace.binary.read(padBinding.file,false)).bytes);}
-      next.set('Objects',Buffer.from(doc.source));next.set('ComponentList.SC2Components',Buffer.from(rebuild.size?componentListWithObjects(componentRaw.text):componentRaw.text));
+      const registeredComponents=sources.get('ComponentList.SC2Components')?.toString('utf8')??componentRaw.text;
+      next.set('Objects',Buffer.from(doc.source));next.set('ComponentList.SC2Components',Buffer.from(rebuild.size?componentListWithObjects(registeredComponents):registeredComponents));
       const ledger={version:1 as const,context:outputContext,...routeBinding?{routeSource:routeBinding}:{},...padBinding?{padSource:padBinding}:{},zones:order.map(id=>{const record=records.get(id)!,original=originalRecords.get(id);return original&&!rebuild.has(id)?resnapped.some(r=>r.id===id)?{...original,objects:record.objects}:original:record;})};landscapeStateSchema.parse(ledger);
       const text=rebuild.size||routeBindingChanged||padBindingChanged?JSON.stringify(ledger)+'\n':raw.text;
       if(Buffer.byteLength(text)>64*1024*1024)throw Error('LANDSCAPE_STATE_TOO_LARGE');next.set(file,Buffer.from(text));
       issues.push({severity:'warning',code:'LANDSCAPE_NATIVE_REVIEW_REQUIRED',message:'Owned height/texture cells, supported native cliff/ramp rows and decoration are reconciled. Declared overlays are rebuilt; model footprints, engine navigation and unowned-object resnapping require separate review.'});
       const summary=this.remember('',operations,before,next,sourceSha256,diskSha256,{},issues,changedVertices,changedTexturePixels);this.plans.get(summary.id)!.browseFingerprint=fingerprint;
+      if(lightingDependencySnapshot)this.plans.get(summary.id)!.waterDependencySnapshot=lightingDependencySnapshot;
       if(routeBinding)this.plans.get(summary.id)!.routeSourceSnapshot={file:routeBinding.file,sha256:routeBinding.sha256};
       if(padBinding)this.plans.get(summary.id)!.padSourceSnapshot={file:padBinding.file,sha256:padBinding.sha256};
       return {...summary,ownership:{file,rebuilt,resnapped,unchanged:order.filter(id=>!rebuild.has(id)&&!resnapped.some(r=>r.id===id)),totalZones:records.size,topologyZones:[...records.values()].filter(r=>r.topology).map(r=>r.id),foundationPreparation,...(routeBinding||old.routeSource||intent.routeSource===null)?{routeSource:{file:routeBinding?.file,sha256:routeBinding?.sha256,clearWidth:routeBinding?.clearWidth,corridors:routeBinding?.corridors.length??0,blockedRouteIds:routeBinding?.blockedRouteIds??[],geometryChanged:routeGeometryChanged,metadataOnly:routeBindingChanged&&!rebuild.size,disabled:!routeBinding,manifestMap:resolvedRouteSource?.manifestMap,mapIdentity:'not_verified',scope:'Positive route and per-member formation center corridors with explicit authored width. Owned measured rest bounds/scatter centers only; no native navigation, unowned-object or collision certification.'}}:{},...(padBinding||old.padSource||intent.padSource===null)?{padSource:{file:padBinding?.file,sha256:padBinding?.sha256,reservations:padBinding?.reservations??[],geometryChanged:padGeometryChanged,metadataOnly:padBindingChanged&&!rebuild.size,disabled:!padBinding,manifestMap:resolvedPadSource?.manifestMap,mapIdentity:'not_verified',scope:'Explicit design rectangles from selected exact placement checks. Owned measured rest bounds/scatter centers only; native predicate execution, engine footprint, unowned objects and terrain flattening remain separate.'}}:{},scope:'Regional height/texture masks, supported native cliff/ramp rows, owned decoration and measured groups with explicit overlay dependencies',preservationScope:'Unselected zones are not rewritten. Changed route/pad-source geometry reviews their owned measured bounds or scatter centers and rejects conflicts; affected ancestor objects receive guarded height-only resnaps.'},atomicComponents:'terrain + Objects + ComponentList + location ownership'};

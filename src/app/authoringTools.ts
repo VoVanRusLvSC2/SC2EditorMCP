@@ -21,6 +21,8 @@ import {
 } from "../modules/placement/decorPalette.js";
 import { DecorPrefabs, prefabSchema, assembleSchema } from "../modules/placement/decorPrefabs.js";
 import { siteSchema, siteZone } from "../modules/placement/sitePlanner.js";
+import { sceneSchema, designScene } from "../modules/placement/scenePlanner.js";
+import { scenePng, sceneSurfaceReview } from "../modules/placement/sceneReview.js";
 const result = (value: unknown) => ({
   content: [{ type: "text" as const, text: JSON.stringify(value) }],
 });
@@ -118,6 +120,60 @@ export function registerAuthoringTools(
       async (a) => visual(() => palette.palette(a), a.includeImage),
     );
     server.registerTool(
+      "terrain.scene.plan",
+      {
+        description:
+          "Plan a whole outpost or woodland composition from bounds and scalar material/Actor IDs: focal group, open plaza, connected reserved routes, asymmetric measured support groups and coherent materials. Reuses two measured templates without per-group images and the existing owned Terrain transaction; preserves heights by default. Optional topology uses the existing qualified cliff/ramp writer. Density controls group count, never shrinks models or silently drops groups. preview=false skips the single schematic PNG. Returns the usual plan ID for apply/save, sampling diagnostics and native review viewpoints. No automatic art score or engine-pathing verdict; stale/manual changes remain guarded.",
+        inputSchema: sceneSchema,
+      },
+      async (args) =>
+        result(
+          await project.workspace.withReadSet(() =>
+            project.browse.withSnapshot(async () => {
+              const design = await designScene(
+                  args,
+                  prefabs,
+                  args.topology ? undefined : await project.terrain.surface(),
+                ),
+                plan = await project.terrain.ownedLandscape(design.intent),
+                ground = sceneSurfaceReview(design, await project.terrain.state("", plan.id)),
+                image = args.preview
+                  ? await project.assets.measurements.writeDerived(
+                      {
+                        scene: "composition-v1",
+                        args,
+                        boxes: design.boxes,
+                        routes: design.routes,
+                        plaza: design.plaza,
+                      },
+                      "png",
+                      () => scenePng(design),
+                    )
+                  : undefined;
+              return {
+                ...plan,
+                ...(image ? { pngFile: image.file } : {}),
+                scene: {
+                  profile: args.profile,
+                  zone: args.zone,
+                  metrics: design.metrics,
+                  groups: design.groups,
+                  routes: design.routes,
+                  plaza: design.plaza,
+                  selection: design.selection,
+                  surface: ground,
+                  review: design.review,
+                  performance: {
+                    ...design.performance,
+                    schematicCacheHit: image?.cacheHit ?? null,
+                  },
+                },
+              };
+            }),
+          ),
+        ),
+    );
+    server.registerTool(
       "terrain.site.plan",
       {
         description:
@@ -162,7 +218,7 @@ export function registerAuthoringTools(
       "terrain.prefab",
       {
         description:
-          "Preview a measured base_entrance, service_yard, landing_pad, forest_edge, supply_cluster, checkpoint or forest_clearing. Asymmetric groups reserve an open corridor. Optional fence/light/prop/secondaryProp/tree IDs override target-verified candidates. Returns top/isometric PNGs, reserved corridor, geometric fence joins and composeArgs. terrain.site.plan combines supported finished sites with owned materials/road. No map writes.",
+          "Preview a measured base_entrance, service_yard, landing_pad, forest_edge, woodland_cluster, supply_cluster, checkpoint or forest_clearing. Asymmetric groups reserve an open corridor. Optional fence/light/prop/secondaryProp/tree IDs override target-verified candidates. Returns top/isometric PNGs, reserved corridor, geometric fence joins and composeArgs. terrain.site.plan combines supported finished sites with owned materials/road. No map writes.",
         inputSchema: prefabSchema,
       },
       async (a) => visual(() => prefabs.plan(a), a.includeImage),

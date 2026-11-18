@@ -13,6 +13,7 @@ const keys = [
   "sessionId",
   "snapshotId",
   "sceneHash",
+  "scene",
   "layer",
   "selectedKey",
   "count",

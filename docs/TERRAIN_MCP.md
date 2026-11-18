@@ -33,6 +33,7 @@ For the new scoped `terrain.surface.*` inspection tools, see the [complete modul
 | `terrain.sample`, `terrain.analyze` | Heights, slopes, mask and texture diagnostics; optional planned result |
 | `terrain.palette.get`, `terrain.assets` | Actual palette/block sets and Browse catalog searches |
 | `terrain.styles.list` | Ten deterministic recipe presets |
+| `terrain.scene.plan` | Whole outpost/woodland composition: measured hierarchy, reserved routes/plaza, materials, optional existing lighting and one schematic; [workflow](SCENE_COMPOSITION.md) |
 | `terrain.plan` | Isolated plan from 1–100 validated operations |
 | `terrain.paint`, `terrain.blend` | Real texture brush plans; blend defaults to strength 0.5 |
 | `terrain.cliff.repair`, `terrain.ramp.repair` | Bounded supported cliff normalization or diagnosed legacy direction repair; guarded plan, no automatic save |

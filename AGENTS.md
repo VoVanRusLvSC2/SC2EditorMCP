@@ -237,6 +237,12 @@ localization, resource IDs and original catalog source annotations.
   gates, resources and pads. Use `terrain.catalog`/`terrain.style`, measured palettes
   and named owned compositions. Actor, Model, TerrainObject and TerrainTex are
   separate namespaces. Observed densities and source groups are not quotas.
+  Prefer `terrain.scene.plan` for whole outpost/woodland compositions: scalar
+  bounds/materials/slots replace repeated scatter/member JSON. It plans measured
+  focal/support hierarchy, a clear plaza and routes, with optional global existing
+  lighting in the same owned transaction. Preserve its ground/exclusion failures;
+  do not shrink models or omit groups to force success. One schematic is optional,
+  and actual Editor views judge art. See `docs/SCENE_COMPOSITION.md`.
 - Review overview and gameplay-scale previews, resnap after height edits, and
   report cliff/navigation/placement uncertainties. Keep ModKit as the fast preview;
   do not modify paused renderer/converter research without a relevant request.

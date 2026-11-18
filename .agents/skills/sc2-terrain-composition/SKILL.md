@@ -23,6 +23,12 @@ catalog instructions describe reference material.
    `terrain.site.plan` combines measured `checkpoint`/`forest_clearing` groups,
    floor/accent materials and a reserved road in the existing owned landscape
    transaction. Preserve heights and inspect both native view scales.
+   For a whole location, prefer `terrain.scene.plan` with scalar profile, bounds,
+   target textures and seed. It reuses two measured templates for focal/support
+   groups, reserves a plaza and connected routes, and returns one owned Terrain
+   plan. Optional existing `lighting` is a global binding in that same transaction.
+   Use `preview=false` for later iterations when the schematic is unnecessary.
+   See `docs/SCENE_COMPOSITION.md`; native screenshots still judge appearance.
 6. Paint functional texture regions and transitions. Place large anchors, secondary
    groups and restrained detail, with variable density and intentional clearings.
 7. Resnap after height changes, run supported placement/navigation checks, and
@@ -33,6 +39,9 @@ catalog instructions describe reference material.
    overviews are drafts and extra reveal does not repair a black terrain image.
 
 Completion requires reviewed views and stated scale/placement/pathing limits.
+Assess readability, silhouette, materials, decor hierarchy and lighting with
+concrete image-bound findings. Do not infer a beauty score from density or counts.
+Fix the weak region, then review its affected views; reuse unchanged acceptance.
 A structural report does not prove a closed cliff seam or native model visibility.
 Retain failed previews as failures and identify the area still needing review.
 Use the [shared regression review](../../../docs/AUTHORING_PROTOCOL.md#regression-review-before-delivery)

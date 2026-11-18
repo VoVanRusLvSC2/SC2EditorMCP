@@ -58,7 +58,7 @@ export const authoringGuide = {
   testPolicy:
     "project.test.plan file=tests.json resolves a reusable saved-map suite; project.test.run planId=... in stage mode explicitly launches checks. Existing retained bridges are leased sequentially. Read compact status/report; source changes invalidate prior acceptance. Five trigger folders are recommended, never mandatory.",
   landscapePolicy:
-    "Inspect named owned zones with terrain landscape.inspect; use zone and field to page exact config values. Refine with terrain landscape.zone zone=... expectedRequestHash=... changes.config.clusterRadius=8. Only config/terrain merge; nested objects and arrays replace whole fields. Omitted values and bindings remain unchanged. Stage/save uses the existing Terrain transaction.",
+    "For a whole designed location, prefer terrain scene.plan profile=outpost|woodland zone=... tileset=... rect=... baseTexture=... pathTexture=...; optional accentTexture/detailTexture/lighting use verified target IDs. This combines measured hierarchy, clear routes/plaza, materials and optional lighting in the owned Terrain transaction; preview=false skips the one schematic. Inspect named owned zones with terrain landscape.inspect; use zone and field to page exact config values. Refine with terrain landscape.zone zone=... expectedRequestHash=... changes.config.clusterRadius=8. Only config/terrain merge; nested objects and arrays replace whole fields. Omitted values and bindings remain unchanged. Stage/save uses the existing Terrain transaction.",
   qualityPolicy:
     "project quality.plan prepares a bounded reusable review plan without starting native jobs. Retain separate static, Editor, rendered and gameplay evidence.",
   presentationPolicy:
@@ -93,6 +93,7 @@ export const authoringGuide = {
     "terrain measure id=ChainLinkFenceStraight includeImage=false",
     "terrain load.inspect",
     "terrain prefab tileset=Agria recipe=base_entrance clearance=6 includeImage=false",
+    "terrain scene.plan zone=west_outpost profile=outpost tileset=Agria rect=8,8,96,96 baseTexture=AgriaDirt pathTexture=AgriaDirtRoad accentTexture=AgriaGrass density=standard preview=false",
     "terrain assemble zone=north_gate tileset=Agria recipe=base_entrance at=40,50 clearance=6 includeImage=false",
     "terrain compose zone=west_forest tileset=Agria profile=forest rect=10,10,30,30 count=40 seed=42",
     "map status",
@@ -138,7 +139,7 @@ export const authoringGuide = {
     map: "status/check/preview/create/clone",
     document: "empty/status",
     terrain:
-      "status/check/paint/blend/raise/lower/flatten/pathing/nav/decorate/cliff/cliff.repair/ramp/ramp.place/landscape/landscape.inspect/landscape.zone/catalog/style/compose/measure/palette_preview/prefab/assemble",
+      "status/check/paint/blend/raise/lower/flatten/pathing/nav/decorate/cliff/cliff.repair/ramp/ramp.place/landscape/landscape.inspect/landscape.zone/catalog/style/compose/scene.plan/measure/palette_preview/prefab/assemble",
     objects: "status/check/unit/doodad/remove",
     data: "unit/unit.configure/spell/spell.configure/find/check/set/ability.instant/ability.target/ability.charges/hero.veterancy/hero.learn/actor.ability_animation",
     logic: "status/check/symbols/file/function/body (Galaxy)",
@@ -317,6 +318,7 @@ const directCommands = new Set([
   "terrain.visual_reference",
   "terrain.prefab",
   "terrain.site.plan",
+  "terrain.scene.plan",
   "terrain.assemble",
   "assets.measure",
   "data.presentation.check",
@@ -753,6 +755,14 @@ function shorthand(
       args.anchor = { x, y };
     }
   }
+  if (name === "terrain.scene.plan") {
+    const bounds = take(args, "rect");
+    if (bounds !== undefined) {
+      if (args.bounds !== undefined) throw Error("AUTHOR_SCENE_BOUNDS_CONFLICT");
+      const [minX, minY, maxX, maxY] = point(bounds, 4, "RECT");
+      args.bounds = { minX, minY, maxX, maxY };
+    }
+  }
   if (name === "trigger.recipe_hero_select") {
     if (typeof args.heroes === "string") args.heroes = args.heroes.split(",");
     if (typeof args.players === "string") args.players = args.players.split(",").map(Number);
@@ -1127,6 +1137,7 @@ function lifecycle(
   } else if (
     command.tool === "terrain.plan" ||
     command.tool === "terrain.site.plan" ||
+    command.tool === "terrain.scene.plan" ||
     command.tool === "terrain.plan_file" ||
     command.tool === "terrain.landscape.plan" ||
     command.tool === "terrain.landscape.plan_file" ||

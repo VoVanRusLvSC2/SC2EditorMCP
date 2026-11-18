@@ -4,7 +4,7 @@ import {DecorPalette,type DecorModel} from './decorPalette.js';
 import {structuralDamageHint} from './styleCatalog.js';
 import {measureGeometry,transformPoint,type Geometry,type MeasuredModel} from '../assets/measurement.js';
 
-export const prefabRecipeSchema=z.enum(['base_entrance','service_yard','landing_pad','forest_edge','supply_cluster','checkpoint','forest_clearing']);
+export const prefabRecipeSchema=z.enum(['base_entrance','service_yard','landing_pad','forest_edge','woodland_cluster','supply_cluster','checkpoint','forest_clearing']);
 export const prefabSchema=z.object({tileset:z.string().min(1),recipe:prefabRecipeSchema,anchor:z.object({x:z.number().finite(),y:z.number().finite()}).strict().default({x:0,y:0}),angle:z.number().finite().default(0),clearance:z.number().min(3).max(40).default(6),fence:z.string().optional(),light:z.string().optional(),prop:z.string().optional(),secondaryProp:z.string().optional(),tree:z.string().optional(),seed:z.number().int().default(42),includeImage:z.boolean().default(true)}).strict();
 export const assembleSchema=prefabSchema.extend({zone:z.string().regex(/^[A-Za-z][A-Za-z0-9_-]{0,63}$/),maxSlope:z.number().nonnegative().default(.5),directory:z.string().default(''),dryRun:z.boolean().default(true),stage:z.boolean().default(true)}).strict();
 type Rect={minX:number;minY:number;maxX:number;maxY:number};
@@ -14,7 +14,7 @@ export interface Slot {name:string;decor:DecorModel}
 /** Deterministic local layout using measured geometry, with no inference of game collision. */
 export function layoutPrefab(recipe:z.infer<typeof prefabSchema>['recipe'],slots:Slot[],clearance:number,seed:number){
  const members:Member[]=[],bounds:Rect[]=[],models:MeasuredModel[]=[],connections:Array<Record<string,unknown>>=[];
- const reserved:Rect=recipe==='landing_pad'?{minX:-clearance/2,minY:-clearance/2,maxX:clearance/2,maxY:clearance/2}:recipe==='supply_cluster'?{minX:-1e6,minY:-clearance,maxX:1e6,maxY:0}:{minX:-clearance/2,minY:-1e6,maxX:clearance/2,maxY:1e6};
+ const reserved:Rect=recipe==='landing_pad'?{minX:-clearance/2,minY:-clearance/2,maxX:clearance/2,maxY:clearance/2}:['supply_cluster','woodland_cluster'].includes(recipe)?{minX:-1e6,minY:-clearance,maxX:1e6,maxY:0}:{minX:-clearance/2,minY:-1e6,maxX:clearance/2,maxY:1e6};
  const slot=(name:string)=>{const found=slots.find(s=>s.name===name);if(!found)throw new Error('PREFAB_SLOT_REQUIRED: '+name);return found.decor;};
  const add=(name:string,x:number,y:number,rotation=0)=>{
   const d=slot(name),g=d.measured.geometry,initial=measureGeometry(g,{...d.measured.transform,rotation}),unrotated=measureGeometry(g,{...d.measured.transform,rotation:0}),center=initial.center;
@@ -24,7 +24,22 @@ export function layoutPrefab(recipe:z.infer<typeof prefabSchema>['recipe'],slots
   if(bounds.some(b=>overlaps(r,b)))throw new Error('PREFAB_VISUAL_BOUNDS_OVERLAP: '+d.actor.id);
   members.push({id:d.actor.id,key:d.actor.key,offset,heightOffset:-initial.bottom,horizontalBounds:{minX:unrotated.bounds.min[0],maxX:unrotated.bounds.max[0],minY:unrotated.bounds.min[1],maxY:unrotated.bounds.max[1]},boundsFrame:'member',rotation,scale:1,variation:d.variation??0});bounds.push(r);models.push({...d.measured,transform,measurement});
  };
- if(recipe==='checkpoint'){
+ if(recipe==='woodland_cluster'){
+  let state=seed>>>0;const random=()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
+  const d=slot('tree').measured.measurement.dimensions,radius=Math.hypot(d.width,d.depth)/2;
+  if(radius<.1)throw Error('PREFAB_TREE_DIMENSIONS');
+  // Bounded rejection gives a compact organic silhouette, rather than a row of trees.
+  for(const [name,count]of [['tree',5],['secondaryProp',3]] as const)for(let n=0;n<count;n++){
+   let placed=false;
+   for(let attempt=0;attempt<256;attempt++){
+    const x=(random()-.5)*radius*9,y=.8+radius+(random()*6*radius),angle=random()*Math.PI*2;
+    try{add(name,x,y,angle);placed=true;break;}catch(error){if(!/PREFAB_VISUAL_BOUNDS_(OVERLAP|INTRUDE_RESERVED_PATH)/.test(String(error)))throw error;}
+   }
+   if(!placed)throw Error('PREFAB_ORGANIC_CLUSTER_DOES_NOT_FIT: '+name);
+  }
+  reserved.minX=Math.min(...bounds.map(b=>b.minX))-.5;reserved.maxX=Math.max(...bounds.map(b=>b.maxX))+.5;
+  connections.push({type:'organic_canopy',anchor:'five nonaligned measured trees',detail:'three smaller rock anchors',evidence:'Seeded bounded placement with rest-bound clearance; not engine foliage/collision'});
+ }else if(recipe==='checkpoint'){
   const f=slot('fence').measured.measurement.dimensions,rotation=f.depth>f.width?Math.PI/2:0,length=Math.max(f.width,f.depth),thickness=Math.min(f.width,f.depth),p=slot('prop').measured.measurement.dimensions,s=slot('secondaryProp').measured.measurement.dimensions,l=slot('light').measured.measurement.dimensions;
   if(length<.1)throw Error('PREFAB_FENCE_DIMENSIONS');
   for(const side of [-1,1])for(let i=0;i<(side<0?3:2);i++)add('fence',side*(clearance/2+length/2+.25+i*(length+.08)),0,rotation);
@@ -74,20 +89,24 @@ export function layoutPrefab(recipe:z.infer<typeof prefabSchema>['recipe'],slots
   const radius=Math.hypot(d.width,d.depth)/2,step=radius*2+1;
   for(const sign of [-1,1])for(let i=0;i<4;i++)add('tree',sign*(clearance/2+radius+.6+random()*.6),(i-1.5)*step,random()*Math.PI*2);
  }
- if(recipe!=='landing_pad'&&recipe!=='supply_cluster'){reserved.minY=Math.min(...bounds.map(b=>b.minY))-2;reserved.maxY=Math.max(...bounds.map(b=>b.maxY))+2;}
+ if(!['landing_pad','supply_cluster','woodland_cluster'].includes(recipe)){reserved.minY=Math.min(...bounds.map(b=>b.minY))-2;reserved.maxY=Math.max(...bounds.map(b=>b.maxY))+2;}
  return {members,bounds,models,reserved:[reserved],connections,clearance,checks:{visualBoundsVsReservedPath:'pass',visualBoundsOverlap:'pass',enginePathing:'not_checked'}};
 }
 export class DecorPrefabs {
  constructor(readonly palette:DecorPalette){}
- async plan(input:z.input<typeof prefabSchema>){return this.palette.browse.withSnapshot(async()=>{
+ /** Scene composition needs measurements once, without rendering each repeated group. */
+ async layout(input:z.input<typeof prefabSchema>,resolved?:Map<string,Promise<DecorModel>>){return this.palette.browse.withSnapshot(async()=>{
   const a=prefabSchema.parse(input),pack=await this.palette.catalog.pack(a.tileset),rows=[...pack.sections.decor??[],...pack.sections.vegetation??[]];
-  const patterns:Record<string,RegExp>={fence:/FenceStraight$/,light:/LandingLights|StreetLight|Lamp|CableLight/,prop:['supply_cluster','checkpoint'].includes(a.recipe)?/SupplyTanks|Container|Crate/:/Barrels|Crate|SupplyTanks/,secondaryProp:a.recipe==='forest_clearing'?/Rock/:/Barrels|Crate|SupplyTanks/,tree:/Tree$/};
-  const required=a.recipe==='checkpoint'?['fence','light','prop','secondaryProp']:a.recipe==='forest_clearing'?['tree','secondaryProp']:a.recipe==='base_entrance'?['fence','light']:a.recipe==='forest_edge'?['tree']:a.recipe==='supply_cluster'?['light','prop','secondaryProp']:['light','prop'],slots:Slot[]=[],selectionDiagnostics:Array<{slot:string;id:string;error:string}>=[];
+  const patterns:Record<string,RegExp>={fence:/FenceStraight$/,light:/LandingLights|StreetLight|Lamp|CableLight/,prop:['supply_cluster','checkpoint'].includes(a.recipe)?/SupplyTanks|Container|Crate/:/Barrels|Crate|SupplyTanks/,secondaryProp:['forest_clearing','woodland_cluster'].includes(a.recipe)?/Rock/:/Barrels|Crate|SupplyTanks/,tree:/Tree$/};
+  const required=a.recipe==='checkpoint'?['fence','light','prop','secondaryProp']:['forest_clearing','woodland_cluster'].includes(a.recipe)?['tree','secondaryProp']:a.recipe==='base_entrance'?['fence','light']:a.recipe==='forest_edge'?['tree']:a.recipe==='supply_cluster'?['light','prop','secondaryProp']:['light','prop'],slots:Slot[]=[],selectionDiagnostics:Array<{slot:string;id:string;error:string}>=[];
   for(const name of required){const explicit=a[name as keyof typeof a] as string|undefined,candidates=explicit?[explicit]:rows.filter(r=>patterns[name].test(r.id)&&(!['supply_cluster','checkpoint'].includes(a.recipe)||!structuralDamageHint(r))).map(r=>r.id).slice(0,8);let found=false;
-   for(const id of candidates){try{const decor=await this.palette.resolve({id,variation:0});if(['supply_cluster','checkpoint'].includes(a.recipe)&&!explicit&&slots.some(s=>s.decor.actor.key===decor.actor.key)){selectionDiagnostics.push({slot:name,id,error:'PREFAB_DISTINCT_AUTOMATIC_SLOT_REQUIRED'});continue;}slots.push({name,decor});found=true;break;}catch(e){selectionDiagnostics.push({slot:name,id,error:e instanceof Error?e.message:String(e)});}}
+   for(const id of candidates){try{let pending=resolved?.get(id);if(!pending){pending=this.palette.resolve({id,variation:0});resolved?.set(id,pending);}const decor=await pending;if(['supply_cluster','checkpoint'].includes(a.recipe)&&!explicit&&slots.some(s=>s.decor.actor.key===decor.actor.key)){selectionDiagnostics.push({slot:name,id,error:'PREFAB_DISTINCT_AUTOMATIC_SLOT_REQUIRED'});continue;}slots.push({name,decor});found=true;break;}catch(e){selectionDiagnostics.push({slot:name,id,error:e instanceof Error?e.message:String(e)});}}
    if(!found)throw new Error('PREFAB_NO_MEASURABLE_SLOT: '+name+'; '+JSON.stringify(selectionDiagnostics));
   }
-  const layout=layoutPrefab(a.recipe,slots,a.clearance,a.seed),positions:number[]=[],indices:number[]=[];
+  return {args:a,layout:layoutPrefab(a.recipe,slots,a.clearance,a.seed),slots,selectionDiagnostics};
+ });}
+ async plan(input:z.input<typeof prefabSchema>){
+  const {args:a,layout,slots,selectionDiagnostics}=await this.layout(input),positions:number[]=[],indices:number[]=[];
   for(const m of layout.models){const base=positions.length/3;for(let i=0;i<m.geometry.positions.length;i+=3)positions.push(...transformPoint(m.geometry.positions.slice(i,i+3),m.transform));indices.push(...m.geometry.indices.map(i=>i+base));}
   const geometry={positions,indices,vertexCount:positions.length/3,triangleCount:indices.length/3,regions:layout.models.length,stride:12,bounds:{min:[0,0,0],max:[0,0,0]},pose:'raw-rest-geometry',materials:false,animations:false} as Geometry;
   const model:MeasuredModel={file:'prefab:'+a.recipe,sha256:createHash('sha256').update(JSON.stringify({slots:slots.map(s=>({name:s.name,sha:s.decor.measured.sha256,scales:s.decor.scales})),members:layout.members})).digest('hex'),build:slots[0].decor.measured.build,geometry,transform:{},measurement:measureGeometry(geometry),attachmentNames:[],cacheHit:false};
@@ -95,7 +114,7 @@ export class DecorPrefabs {
   const c=Math.cos(a.angle),s=Math.sin(a.angle),reservedWorld=layout.reserved.map(r=>{const points=[[r.minX,r.minY],[r.minX,r.maxY],[r.maxX,r.minY],[r.maxX,r.maxY]].map(([x,y])=>[a.anchor.x+c*x-s*y,a.anchor.y+s*x+c*y]);return {type:'rectangle' as const,minX:Math.min(...points.map(p=>p[0])),maxX:Math.max(...points.map(p=>p[0])),minY:Math.min(...points.map(p=>p[1])),maxY:Math.max(...points.map(p=>p[1]))};});
   // Keep the exact local corridor for geometry checks. A rotated corridor's enclosing AABB
   // would wrongly reject valid members, so compose does not use that approximate exclusion.
-  const composeArgs={tileset:a.tileset,profile:['forest_edge','forest_clearing'].includes(a.recipe)?'forest':'terran_fortified',recipe:'measured_group' as const,prefabRecipe:a.recipe,anchor:a.anchor,angle:a.angle,members:layout.members,seed:a.seed};
+  const composeArgs={tileset:a.tileset,profile:['forest_edge','forest_clearing','woodland_cluster'].includes(a.recipe)?'forest':'terran_fortified',recipe:'measured_group' as const,prefabRecipe:a.recipe,anchor:a.anchor,angle:a.angle,members:layout.members,seed:a.seed};
   return {recipe:a.recipe,tileset:a.tileset,members:layout.members,reservedLocal:layout.reserved,reservedWorld,clearance:a.clearance,connections:layout.connections,slots:slots.map(s=>({slot:s.name,...this.palette.summary(s.decor)})),selectionDiagnostics,checks:layout.checks,composeArgs,pngFile:image.pngFile,topPngFile:top.pngFile,note:'Measured rest geometry layout. No terrain paint or engine footprint claim. Placement uses nominal variation 0; random actor scale/variations require in-engine review.'};
- });}
+ }
 }

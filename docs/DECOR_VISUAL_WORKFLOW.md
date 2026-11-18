@@ -8,6 +8,13 @@ the zone's material regions, reserved road and asymmetric prefab group. Inspect
 native overview and gameplay scale before acceptance; a valid plan is not an
 art verdict. See [five-point workflow](FIVE_POINT_QUALITY_SYSTEM.md).
 
+For a whole multi-group location, use `terrain.scene.plan` with `profile=outpost`
+or `profile=woodland`, bounds and scalar texture IDs. It reserves an open plaza
+and connected routes, fits measured groups to suitable existing ground and can
+assign a verified existing global lighting preset in the same owned transaction.
+Only two templates are resolved; one optional schematic replaces per-group
+renders. See [whole-location composition](SCENE_COMPOSITION.md).
+
 The decor workflow extends `terrain.catalog` and its tileset packs. It does not introduce a second asset catalogue. All map authoring runs through MCP; the previews are derived files and require neither the SC2 Editor nor the game.
 
 ## Short commands
@@ -25,7 +32,7 @@ terrain prefab tileset=Agria recipe=supply_cluster prop=SupplyTanks secondaryPro
 `plan` is the default mode. `stage` stages the owned group; `save` invokes the existing complete-group save with stale guards. Reusing the zone replaces its recorded objects rather than adding duplicates. Manual changes to owned objects block replacement. Existing unrelated objects are preserved.
 
 The ready groups are `base_entrance`, `service_yard`, `landing_pad`, `forest_edge`,
-`supply_cluster`, `checkpoint` and `forest_clearing`. Override automatic tileset choices with scalar `fence`,
+`supply_cluster`, `checkpoint`, `forest_clearing` and `woodland_cluster`. Override automatic tileset choices with scalar `fence`,
 `light`, `prop`, `secondaryProp`, or `tree` Actor IDs. Set `anchor.x` / `anchor.y`,
 or use `at=x,y` in short commands. Angles are radians. A seed makes the forest
 layout repeatable. An explicit measured Actor can come from the declared target
