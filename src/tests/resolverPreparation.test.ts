@@ -39,3 +39,24 @@ test("cross-file metadata reuses exact source while keeping file identity, calle
   assert.equal(changed.hasStyle("Example"), false);
   assert.equal(changed.hasStyle("NewStyle"), true);
 });
+
+test("template hookup indexing keeps nested paths inside the exact top-level owner", async () => {
+  const source =
+    '<Desc><Frame name="A"><Frame name="Child"><Frame name="Deep"/></Frame></Frame>' +
+    '<Frame name="AB"><Frame name="Child"/><Frame name="Other"/></Frame>' +
+    '<Frame name="Empty"/><Frame name="Escaped/Root~"><Frame name="Child/Name~"/></Frame></Desc>';
+  const resolver = await CrossFileResolver.build(["Owners.SC2Layout"], [], async () => source);
+  const entry = resolver.layouts.get("owners.sc2layout")!;
+  assert.deepEqual(
+    [...entry.templateFramePaths],
+    [
+      ["A", new Set(["Child", "Child/Deep"])],
+      ["AB", new Set(["Child", "Other"])],
+      ["Empty", new Set()],
+      ["Escaped/Root~", new Set(["Child~1Name~0"])],
+    ],
+  );
+  assert.equal(resolver.templateProvidesHookup("Owners/A", "", "Other"), false);
+  assert.equal(resolver.templateProvidesHookup("Owners/AB", "", "Child/Deep"), false);
+  assert.equal(resolver.templateProvidesHookup("Owners/A", "", "Child/Deep"), true);
+});

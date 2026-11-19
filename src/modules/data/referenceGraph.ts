@@ -94,8 +94,12 @@ export class DataReferenceGraph {
             .map((object) => ({ ...object, file: record.file, layer: record.layer })),
         );
       const byId = new Map<string, typeof objects>();
-      for (const object of objects)
-        if (object.id) byId.set(object.id, [...(byId.get(object.id) ?? []), object]);
+      for (const object of objects) {
+        if (!object.id) continue;
+        const matches = byId.get(object.id);
+        if (matches) matches.push(object);
+        else byId.set(object.id, [object]);
+      }
       const resolve = this.referenceTokenResolver(objects),
         byDomain = new Map<string, typeof objects>();
       for (const o of objects) {
@@ -205,7 +209,8 @@ export class DataReferenceGraph {
   private async buildCrossReferences() {
     const references: CrossReference[] = [],
       issues: CrossIssue[] = [],
-      consumerFiles: Array<{ file: string; sha256: string }> = [];
+      consumerFiles: Array<{ file: string; sha256: string }> = [],
+      processed = new Set<string>();
     let bytes = 0,
       files = 0;
     const walk = async (dir: string) => {
@@ -226,6 +231,7 @@ export class DataReferenceGraph {
             source = (await this.workspace.readRaw(file)).text;
           if ((bytes += Buffer.byteLength(source)) > 64 * 1024 * 1024)
             throw new Error("REFERENCE_BYTE_LIMIT");
+          processed.add(file);
           consumerFiles.push({ file, sha256: createHash("sha256").update(source).digest("hex") });
           const result =
             e.name === "Triggers"
@@ -240,9 +246,10 @@ export class DataReferenceGraph {
     };
     await walk(this.workspace.root);
     for (const file of ["Triggers", "Objects"]) {
+      if (processed.has(file)) continue;
       const raw = await this.workspace.readRaw(file);
       if (!raw.exists && !raw.staged) continue;
-      if (references.some((r) => r.file === file) || issues.some((r) => r.file === file)) continue;
+      processed.add(file);
       consumerFiles.push({ file, sha256: createHash("sha256").update(raw.text).digest("hex") });
       const result =
         file === "Triggers" ? guiReferences(file, raw.text) : objectReferences(file, raw.text);
@@ -252,11 +259,9 @@ export class DataReferenceGraph {
     for (const file of this.workspace
       .draftFiles()
       .filter((file) => /\.galaxy$/i.test(file) || ["Triggers", "Objects"].includes(file))) {
-      if (
-        references.some((ref) => ref.file === file) ||
-        issues.some((issue) => issue.file === file)
-      )
-        continue;
+      // Files without links or diagnostics have still been processed. Tracking
+      // file identity also avoids searching the growing reference list per draft.
+      if (processed.has(file)) continue;
       const source = (await this.workspace.readRaw(file)).text;
       consumerFiles.push({ file, sha256: createHash("sha256").update(source).digest("hex") });
       const result =

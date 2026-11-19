@@ -75,7 +75,11 @@ only relevant when the request actually involves those systems or conversion.
    Inspect `eventScopeReview` for point effects; do not automatically add
    `At Target`. Read launch/action diagnostics and review actual rendered frames:
    working damage or an actor count alone does not prove a visible model.
-4. Use Galaxy by default. For requested GUI, create native elements and real
+4. Use native GUI triggers by default for new gameplay logic. Hand-authored Galaxy
+   requires an explicit request; preserve existing source during targeted repairs.
+   Preplace known starting units/resources through Placement tools and bind their
+   identities in initialization. Runtime creation is for genuinely dynamic spawns.
+   Create native elements and real
    folders without an undisclosed parallel script. Keep locals and state with
    their owning system and shared helpers with shared functions.
    Read `docs/TRIGGER_MCP.md` conversion preservation requirements for runtime

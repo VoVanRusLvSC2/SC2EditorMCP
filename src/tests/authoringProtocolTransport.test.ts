@@ -18,7 +18,7 @@ test('workflow MCP discovers and executes organization/catalog through compact a
  const invoke=async(name:string,args:unknown)=>{const r=await rpc('tools/call',{name,arguments:args});assert.ok(!r.isError,JSON.stringify(r));return JSON.parse(r.content[0].text);};
  const tools=await invoke('modkit.tools',{query:'terrain.compose'});assert.equal(tools.items[0].name,'terrain.compose');
  const plan=await invoke('modkit.author',{script:'project organize genre=mission\nterrain catalog tileset=Agria section=vegetation limit=4',mode:'plan'});assert.equal(plan.ok,true);assert.equal(plan.steps[1].result.items.length,4);assert.equal(await fs.stat(path.join(root,'.sc2mcp/organization.json')).catch(()=>null),null);
- const saved=await invoke('modkit.author',{script:'project organize genre=mission',mode:'save'});assert.equal(saved.ok,true);assert.equal(JSON.parse(await fs.readFile(path.join(root,'.sc2mcp/organization.json'),'utf8')).logicDefault,'galaxy');
+ const saved=await invoke('modkit.author',{script:'project organize genre=mission',mode:'save'});assert.equal(saved.ok,true);assert.match(await fs.readFile(path.join(root,'Triggers'),'utf8'), /<TriggerData/);assert.equal(await fs.stat(path.join(root,'.sc2mcp/organization.json')).catch(()=>null),null);
  const checked=await invoke('modkit.author',{script:'project check'});assert.equal(checked.ok,true);
  const repeated=await invoke('modkit.author',{script:'project organize genre=mission',mode:'save'});assert.equal(repeated.ok,true);
  for(const n of await fs.readdir('src/tests/fixtures/terrain-native/nydus'))await fs.writeFile(path.join(root,n.slice(0,-3)),gunzipSync(await fs.readFile(path.join('src/tests/fixtures/terrain-native/nydus',n))));

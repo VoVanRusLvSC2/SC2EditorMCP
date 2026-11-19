@@ -54,7 +54,10 @@ rendering every image, use `assets inspect_many files=Path/A.m3,Path/B.m3`
 `cutscene show file=Scene.SC2Cutscene times=0,1000,2500`; times are native ticks.
 See [performance contracts and measurements](PERFORMANCE.md).
 
-**Galaxy is the default logic language.** Literal source blocks preserve code:
+**Native GUI triggers are the default for new gameplay logic.** Use `gui plan`
+or `trigger.plan` for real GUI elements. The explicit legacy `logic`/`galaxy`
+source commands below remain available when Galaxy is requested; they preserve
+literal code and do not convert it into GUI:
 
 ```text
 logic function file=Scripts/GAMEPLAY/WAVES/Module.galaxy <<GALAXY
@@ -77,10 +80,11 @@ types are checked; aliases, arrays, references and the full target grammar retai
 their explicit partial-coverage status. A successful structural plan still needs
 target compilation for native readiness.
 
-`project organize` creates a genre-based system scaffold and ownership manifest.
-Mission systems are FUNCTIONS, MAIN, GAMEPLAY, OBJECTIVES and CINEMATICS. Existing
-source files remain intact. The scaffold does not activate itself in InitMap.
-For GUI, use `target=gui`, or `trigger.organize` with exact element assignments.
+`project organize` defaults to real GUI folders. Suggested mission systems are
+FUNCTIONS, MAIN, GAMEPLAY, OBJECTIVES and CINEMATICS; existing source remains intact.
+Use `trigger.organize` for exact element assignments. Explicit `target=galaxy`
+retains legacy script scaffolding and its ownership manifest; that scaffold does
+not activate itself in InitMap.
 New typed GUI plans accept `create.folder`, for example GAMEPLAY/WAVES.
 
 For a large Galaxy authoring request, `script.plan_file` reads a strict JSON

@@ -36,7 +36,7 @@ export function registerAuthoringTools(
       "project.organize",
       {
         description:
-          "Organize a project by genre. Default Galaxy scaffolds preserve existing code and keep system ownership in a manifest. Explicit target=gui creates editor categories. Dry-run by default; save complete draft group using modkit.save.",
+          "Organize a project by genre. Default target=gui creates native editor categories and preserves executable logic. Explicit target=galaxy retains legacy script scaffolding and its ownership manifest. Dry-run by default; save the complete draft group using modkit.save.",
         inputSchema: projectOrganizationSchema,
       },
       async (a) => result(await organizeProject(project.workspace, project.trigger, a)),

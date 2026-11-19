@@ -4,7 +4,7 @@ Add-Type -AssemblyName System.Windows.Forms
 function Show-Error([string]$Message) {
     [System.Windows.Forms.MessageBox]::Show(
         $Message,
-        "SC2 UI Workbench",
+        "SC2EditorMCP Workbench",
         [System.Windows.Forms.MessageBoxButtons]::OK,
         [System.Windows.Forms.MessageBoxIcon]::Error
     ) | Out-Null
@@ -73,8 +73,8 @@ try {
 
     Start-Process "http://127.0.0.1:4312" | Out-Null
     [System.Windows.Forms.MessageBox]::Show(
-        "SC2 UI Workbench is running at http://127.0.0.1:4312`n`nWorkspace:`n$workspace`n`nSave changes in the browser. Click OK here when you want to stop the local server.",
-        "SC2 UI Workbench",
+        "SC2EditorMCP Workbench is running at http://127.0.0.1:4312`n`nWorkspace:`n$workspace`n`nSave changes in the browser. Click OK here when you want to stop the local server.",
+        "SC2EditorMCP Workbench",
         [System.Windows.Forms.MessageBoxButtons]::OK,
         [System.Windows.Forms.MessageBoxIcon]::Information
     ) | Out-Null

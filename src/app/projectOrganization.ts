@@ -13,7 +13,7 @@ import type { TriggerWorkspace } from "../modules/trigger/workspace.js";
 export const projectOrganizationSchema = z
   .object({
     genre: organizationSchema.shape.genre,
-    target: z.enum(["galaxy", "gui"]).default("galaxy"),
+    target: z.enum(["galaxy", "gui"]).default("gui"),
     folders: z.array(folderPath).max(40).default([]),
     files: z
       .array(

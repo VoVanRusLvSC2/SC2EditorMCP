@@ -131,7 +131,7 @@ test("GUI static workbench contains the frame inspector and safe staged controls
     fs.readFile(path.join(publicRoot, "app.js"), "utf8"),
     fs.readFile(path.join(publicRoot, "styles.css"), "utf8"),
   ]);
-  assert.match(page, /SC2 UI Workbench/);
+  assert.match(page, /SC2EditorMCP Workbench/);
   assert.match(page, /Save \+ backup/);
   assert.match(script, /\/api\/property\/set/);
   assert.match(script, /\/api\/apply/);

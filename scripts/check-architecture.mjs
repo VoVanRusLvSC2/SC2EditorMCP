@@ -78,6 +78,9 @@ export async function checkArchitecture(root) {
     graph.set(file, emittedDependencies(file, await fs.readFile(path.join(root, file), "utf8")));
   const violations = [];
   const boundaries = {
+    "src/app/batchTypes.ts": [],
+    "src/app/batchReferences.ts": [],
+    "src/app/batchMedia.ts": [],
     "src/app/telemetry.ts": [],
     "src/modules/assets/transform.ts": [],
     "src/modules/data/effectiveData.ts": ["src/modules/data/parentClasses.ts"],

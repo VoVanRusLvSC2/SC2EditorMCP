@@ -85,7 +85,12 @@ export interface PlacementValidationReport {
   issues: PlacementValidationIssue[];
   editorVisibility: {
     placedObjects: number;
+    placedUnits: number | null;
+    placedDoodads: number | null;
+    unitPresence: "UNREADABLE_OBJECTS" | "NO_PLACED_UNITS" | "PLACED_UNITS_PRESENT";
     editorLayerState: "UNOBSERVABLE";
+    nativeRendering: "NOT_VERIFIED";
+    runtimeCreation: "NOT_INSPECTED";
     hint: string;
   };
   checks: {

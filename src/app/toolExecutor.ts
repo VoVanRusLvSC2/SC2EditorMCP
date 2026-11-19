@@ -21,6 +21,8 @@ export class ToolExecutor {
   ) {}
 
   async drain() {
+    // An active invocation can still start nested work while shutdown waits.
+    // Drain to a fixed point before flushing its final telemetry records.
     while (this.running.size) await Promise.allSettled([...this.running]);
     await this.telemetry.flush?.();
   }

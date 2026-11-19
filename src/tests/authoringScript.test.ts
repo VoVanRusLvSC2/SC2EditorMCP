@@ -120,7 +120,7 @@ test('compact commands cover terrain, placement, Data, UI, cutscene and settings
   assert.deepEqual(steps[2].args.ids,['Marine']);
 });
 
-test('logic defaults to guarded Galaxy source and GUI is explicit',()=>{
+test('explicit legacy logic source remains Galaxy while GUI plans use native elements',()=>{
   const source='logic function file=Scripts/Waves.galaxy <<GALAXY\nvoid Wave() {\n  UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, "Ready");\n}\nGALAXY';
   const steps=compileAuthorScript(source,'save');
   assert.deepEqual(steps.map(s=>s.tool),['script.plan','script.apply','script.save']);

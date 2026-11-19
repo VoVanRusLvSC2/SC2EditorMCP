@@ -13,9 +13,14 @@ only when their subsystem is being authored.
    Establish genre, bounds, player roles and complete success/failure/restart flow.
 2. Reserve a connected layout for routes, combat, objectives and service areas.
    Give zones readable landmarks before adding decorative details.
-3. Implement a complete representative interaction: Data mechanics, coordinating
+3. Preplace the known starting bases, resources, armies and permanent guards in
+   `Objects` through Placement tools. Bind initialization to placed identities;
+   do not recreate that roster at startup. Dynamic waves/reinforcements may spawn
+   at runtime. New gameplay logic defaults to native GUI triggers; retain existing
+   source during targeted repairs unless migration is requested.
+   Implement a complete representative interaction: Data mechanics, coordinating
    logic, feedback, UI and localization. Extend working patterns to other content.
-4. Organize real GUI elements when GUI is requested; use the user's folder limits
+4. Organize real GUI elements by default; use the user's folder limits
    and the documented genre conventions. Keep ownership and per-player state clear.
 5. Develop terrain at overview and gameplay scale using the terrain skill.
 6. Check startup, inputs, objectives, failure/death, success, cleanup and repeat.

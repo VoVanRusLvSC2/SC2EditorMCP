@@ -35,6 +35,8 @@ before retained bridges close. Native handlers keep graceful EOF and ownership.
 | commandTools.ts | Compact authoring, discovery, usage and batch tools |
 | authoringScript.ts | Compact commands to existing typed tool steps |
 | mcpBatch.ts | Schema preflight, ordering, result references and stopping |
+| batchTypes.ts / batchReferences.ts | Shared step contracts and guarded references to earlier results |
+| batchMedia.ts | Explicit image forwarding and shared response budgets |
 | toolResults.ts | Bounded summaries and diagnostic continuations |
 | telemetry.ts | Payload metrics and durations, without registration policy |
 

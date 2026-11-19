@@ -150,9 +150,21 @@ native inspection. Prepare Data and editable GUI changes through MCP first;
 do not use repeated Editor DLL calls as the authoring loop. A failed final test
 returns to an MCP correction and a targeted final retest of the changed scope.
 
-Galaxy is the default logic language. `logic file/function/body` use guarded
-`script.plan` workflows. GUI authoring requires an explicit `gui plan` or
-`trigger.plan` request; Galaxy is not automatically converted into GUI elements.
+Native GUI triggers are the default source for new gameplay logic. Use `gui plan`,
+`trigger.plan` and real GUI folders; Custom Script wrappers do not satisfy that
+default. Hand-authored Galaxy requires an explicit request. Existing Galaxy is
+preserved during targeted repairs, not silently converted. Legacy explicit
+`logic file/function/body` and `galaxy file/function/body` commands still accept
+Galaxy source through guarded `script.plan`; they do not convert it into GUI.
+
+Place the known starting bases, resources, armies and permanent guards in `Objects`
+through Placement tools. Initialization binds to those placed identities rather
+than creating the same roster again. Runtime creation is appropriate for actual
+waves, reinforcements, summons and other dynamic spawns. Never add disposable
+editor-only copies to conceal a runtime-only roster. Check `placement.scan` and
+`placement.validate` unit counts before delivery: zero placed units is different
+from missing Actor models or hidden Editor layers. Preload repair cannot turn a
+runtime spawn into a placed object.
 
 When the user requests a graphical organization, create real `Triggers`
 categories and place executable elements there with `trigger.organize` or
@@ -292,9 +304,10 @@ in their owning GAMEPLAY system; native tasks in OBJECTIVES; scenes and their
 dialogue in CINEMATICS. Dedicated helpers and state stay with their system. Local
 variables stay inside their trigger/function. No MISC/OTHER catch-all folders.
 
-`project.organize genre=mission` defaults to Galaxy scaffolding and a versioned
-ownership manifest. It preserves existing source. The scaffold entry is not
-connected to InitMap until initialization is implemented and explicitly connected.
+`project.organize genre=mission` defaults to native GUI folders and preserves
+existing executable logic. Explicit `target=galaxy` retains the legacy script
+scaffolding and versioned ownership manifest. That scaffold is not connected to
+InitMap until initialization is implemented and explicitly connected.
 Other genres start with FUNCTIONS, MAIN and GAMEPLAY, adding necessary systems.
 
 For GUI, `trigger.organize` accepts nested folder paths and exact element IDs.

@@ -66,15 +66,20 @@ export class CrossFileResolver {
           frames.map((frame) => frame.handle).filter((value): value is string => Boolean(value)),
         ),
       };
-      for (const template of frames.filter((frame) => !frame.path.includes("/"))) {
-        entry.templateFramePaths.set(
-          template.name,
-          new Set(
-            frames
-              .filter((frame) => frame.path.startsWith(`${template.path}/`))
-              .map((frame) => frame.path.slice(template.path.length + 1)),
-          ),
-        );
+      const pathsByRoot = new Map<string, Set<string>>();
+      for (const frame of frames) {
+        if (frame.path.includes("/")) continue;
+        const paths = new Set<string>();
+        entry.templateFramePaths.set(frame.name, paths);
+        // Display names and encoded paths differ for names containing '/' or '~'.
+        pathsByRoot.set(frame.path, paths);
+      }
+      // A frame belongs to exactly one top-level template. Bucket by its first
+      // path segment instead of scanning every frame again for each template.
+      for (const frame of frames) {
+        const separator = frame.path.indexOf("/");
+        if (separator < 0) continue;
+        pathsByRoot.get(frame.path.slice(0, separator))?.add(frame.path.slice(separator + 1));
       }
       resolver.layouts.set(normalize(file), entry);
       for (const handle of entry.handles) resolver.handles.add(handle);
@@ -105,7 +110,10 @@ export class CrossFileResolver {
     return this.layouts.get(normalize(includePath));
   }
 
-  resolveTemplate(reference: string, currentFile: string): { found: boolean; file?: string; template?: string } {
+  resolveTemplate(
+    reference: string,
+    currentFile: string,
+  ): { found: boolean; file?: string; template?: string } {
     const clean = reference.replace(/^\$root\//i, "");
     const parts = clean.split("/").filter(Boolean);
     let entry: LayoutIndexEntry | undefined;

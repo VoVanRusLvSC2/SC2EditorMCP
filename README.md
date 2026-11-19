@@ -1,112 +1,136 @@
-# SC2EditorToolkit
+# SC2EditorMCP
 
-**Verified scope:** supported MCP authoring workflows and original Editor checks
-on recorded fixtures. The optional Toolkit integration is pinned to
-1.1.0-rc.1/protocol16. Native compilation, Data, save/reopen and original Editor
-rendering evidence remains versioned by the actual tested runtime.
-Compilation, save/reopen and exact saved-artifact gameplay have their own dated
-acceptance records; the complete quality roadmap remains open. See the
-[acceptance matrix and reproducible checks](docs/VERIFICATION.md) for evidence and
-the features still awaiting engine/gameplay validation.
+MCP tools and a local workbench for authoring StarCraft II maps and mods.
+Create Data objects, GUI triggers, layouts and landscape compositions through
+compact commands, with shared validation, source guards and grouped saves.
 
-The public project name is **SC2EditorToolkit**. The existing repository URL,
+TypeScript implements the authoring server; native adapters handle archives,
+installed-game resources and supported operations in the original SC2 Editor.
+
+[Quick start](#quick-start) · [Open Editor](#edit-the-current-editor-document) ·
+[Modules](#modules) · [Development](#development) · [Verification](docs/VERIFICATION.md)
+
+The public project name is **SC2EditorMCP**. The existing repository URL,
 `sc2editor-mcp` protocol identifier, environment variables and tool names remain
 compatible; the historical source and license attribution are retained.
 
-Current agent workflow: [Authoring protocol](docs/AUTHORING_PROTOCOL.md), [compact commands](docs/MCP_AUTHORING_SCRIPT.md), and [trigger organization](docs/TRIGGER_ORGANIZATION_PROTOCOL.md). Galaxy is the default logic language. Terrain profiles and reference palettes are available through `terrain.catalog`, `terrain.style`, and `terrain.compose`. Maintained documentation is English.
+## Quick start
 
-For grouped balance edits, bounded asset inspection and verified preparation reuse,
-see [authoring performance](docs/PERFORMANCE.md).
+Requires Node.js 20+ for the source distribution. Run these commands from the
+project directory in PowerShell:
 
-The source includes the [authoring reference catalog](resources/authoring-catalog/README.md),
-[measured decor workflow](docs/DECOR_VISUAL_WORKFLOW.md), portable [agent rules](AGENTS.md)
-and three scoped [project skills](.agents/skills/README.md). These are runtime and
-authoring inputs, not optional local reports. Verify them with
-`npm run catalog:verify` and `npm run docs:check-language`.
+```powershell
+npm ci
+npm run build
+$env:SC2_UI_ROOT = "C:\Maps\Arena.components"
+$env:SC2_MCP_PROFILE = "workflow"
+node dist/index.js
+```
 
-[Native Editor checks](docs/NATIVE_EDITOR.md) use the optional pinned Toolkit 1.1.0-rc.1
-backend; `map.preview` remains the fast ModKit preview. Native compilation,
-save/reopen, rendered appearance and gameplay have distinct verification scopes.
+`SC2_UI_ROOT` points to an existing unpacked map/mod component directory.
+Use `map.import` to unpack an MPQ archive before offline authoring. stdout is
+reserved for MCP traffic; configure your MCP client to launch the same entry point
+and pass these environment variables.
 
-[Private game tests](docs/NATIVE_GAME.md) can use a separately installed
-SC2GameToolkit through `game.status/tools/attach/call/detach`. The integration
-does not bundle its private sources or instrument delivered maps. Game launch
-requires explicit local configuration; the existing Editor adapter is independent.
+Choose a focused profile such as `data`, `landscape`, `script` or `editor-live`
+when appropriate. `SC2_MCP_MODULES` overrides profile selection.
+`modkit.capabilities` reports the active configuration and runtime availability.
 
-Original code: Copyright (c) 2026 **VoVanRusLvSC2**
-(vladimir.lencmanis@gmail.com), under the [custom attribution license](LICENSE).
-Projects using our code or modules must credit VoVanRusLvSC2 and identify
-SC2Editor-MCP-Codex as their source in README, Credits or About, in addition
-to retaining copyright and license notices. Surface Toolkit author: **vise**
-(attribution provided by the project owner). Third-party components keep their
-own licenses; see [credits](CREDITS.md), [license scope](THIRD_PARTY_LICENSES.md) and the
-[source publication checklist](PUBLISHING.md).
+The optional web workbench starts with `npm run gui` at
+`http://127.0.0.1:4312`. For Windows packaging use `npm run windows:portable`.
+See [MCP and portable setup](windows/README-WINDOWS.md) and the
+[workbench guide](docs/GUI_WORKBENCH.md).
 
-A single MCP server and local workbench for StarCraft II map/mod files. TypeScript/Node.js implements semantic tools and shared transactions; the C++ backend in `native/` handles MPQ archives.
+## Edit the current Editor document
 
-[Legacy guide](README_LEGACY.md) · [TERRAIN module](docs/TERRAIN.md) · [Repository structure](docs/REPOSITORY_STRUCTURE.md)
+Select `SC2_MCP_PROFILE=editor-live` for current-document tools. Supported providers
+reuse the original Editor controls for placement, Data XML, GUI trigger operations,
+UI layouts, localized text, resource imports and same-file Save. Each provider has
+its own limits and recovery rules; see [current-document editing](docs/EDITOR_LIVE.md).
 
-Installed SC2 resources can now be read directly through `casc.*`, with a verified build-specific cache and explicit Data/Browse mounts. [CASC guide](docs/CASC.md) · [Current capabilities and gaps](docs/CAPABILITIES_REPORT.md).
+Regional terrain brushes and complete arbitrary GUI graph replacement still need
+additional direct providers. The accepted same-file refresh workflow can prepare
+broader component changes, then reload the same archive in the same Editor window;
+it resets native Undo and preserves pending-buffer guards. It is distinct from
+editing the document continuously in memory.
 
-**Renderer v61:** original DDS 2D/cube mip chains, native material UV/detail-normal and reflection LOD handling, and scoped static sampler bias. Blue Director UI and the authored-property inspector are retained. [Changes](CHANGELOG.md); [historical v42 status](docs/RENDER_STATUS_V42.txt). SC2 engine parity remains unvalidated; native shadow passes and complete postprocessing remain unfinished.
-
-**MCP frame capture:** [`cutscene.render` WebGL2 frame capture for MCP](docs/CUTSCENE_MCP.md#preview-and-frame-capture), using installed Edge/Chrome and the same player as interactive preview. Protocol/controller tests pass; actual browser capture of this version is not yet verified. Rebuild and reconnect MCP to load the new tool.
-
-**Settings:** [map attributes, variants, players and game options](docs/SETTINGS.md). Portable packages include `SC2-MCP.cmd`; [MCP setup](windows/README-WINDOWS.md).
+Current-document work defaults to the open map. A checkpoint/Save As copy is an
+explicitly selected alternative, documented in the [legacy live guide](docs/LIVE_EDITOR.md).
+Unknown native outcomes require inspection or recovery, never blind replay.
 
 ## Modules
 
-The optional [Live Editor module](docs/LIVE_EDITOR.md) defaults to the current
-open document: bounded existing Unit numeric edits and native same-file Save,
-without exporting or reopening a map copy. Saved-checkpoint collaboration is
-an explicitly selected alternative. Direct in-memory Terrain, placement and
-trigger edits remain unimplemented. Select `SC2_MCP_PROFILE=live` for focused tools.
-
 | Module | Scope | Documentation |
 | --- | --- | --- |
-| Live | Current-document Unit scalar edits, native same-file Save and explicit checkpoint workflows | [Live Editor](docs/LIVE_EDITOR.md) |
+| Editor live | Supported current-document providers, recovery and same-file Save/refresh | [Editor live](docs/EDITOR_LIVE.md) |
 | UI | Layout frames, properties, anchors, states, animations | [UI guide](docs/CODEX_GUIDE.md) |
 | Text | Localization, Font Styles and rich text | [Text](docs/TEXT_MCP.md) |
 | Cutscene | Scenes, cameras, shots and animation tracks | [Cutscene](docs/CUTSCENE_MCP.md) |
 | Data | Native Catalog XML, references and batch edits | [Data](docs/DATA_MCP.md) |
 | AI | CustomAI metadata and bounded authoring | [AI](docs/AI_MCP.md) |
 | Browse / Placement | Available assets, dependencies, Unit/Doodad/ObjectPoint plans | [Browse / Placement](docs/BROWSE_PLACEMENT_MCP.md) |
-| Terrain | Height, textures, recipes, flat water, lighting and component inspection | [TERRAIN](docs/TERRAIN.md), [API](docs/TERRAIN_MCP.md) |
+| Terrain / composition | Height, materials, measured decor groups, reserved routes, water and lighting | [Terrain API](docs/TERRAIN_MCP.md), [scene composition](docs/SCENE_COMPOSITION.md) |
 | CASC | Installed-game MNDX/BLTE reads, search, byte/semantic cache and metadata mounts | [CASC](docs/CASC.md) |
 | Settings | Map attributes, native game variants, v39 players and game options | [Settings](docs/SETTINGS.md) |
 | Document | Fresh empty dependent/extension mods and Arcade map foundations | [Document](docs/DOCUMENT_CREATION.md) |
 | Map | MPQ import/export, MapInfo and template-based creation | [Map](docs/MAP_MCP.md) |
 | Script | Galaxy and bounded GUI trigger authoring | [Script](SCRIPT-GUIDE.md), [Trigger](docs/TRIGGER_MCP.md) |
+| Native checks | Original Editor compilation/capture and separately configured private game tests | [Editor](docs/NATIVE_EDITOR.md), [Game](docs/NATIVE_GAME.md) |
 
-The supplied Surface Toolkit is integrated into Terrain through ten `terrain.surface.*` tools. They expose component inventories, bounded raw samples, structural validation, preview-only byte edits and authored terrain catalog inspection. They share the existing workspace and observe staged drafts. Native cliff/ramp rebuild, full pathing semantics, complex water-body editing and engine validation remain unavailable.
+## Authoring workflow
 
-Terrain authoring also exposes `terrain.paint`, `terrain.blend`, `terrain.hide`, `terrain.show` and visibility inspection. Ground hiding/restoration was visually confirmed by the user on the supplied p.SC2Map; pathing regeneration remains unavailable.
+Start with the [authoring protocol](docs/AUTHORING_PROTOCOL.md) and
+[compact commands](docs/MCP_AUTHORING_SCRIPT.md). Keep one MCP process for a workflow,
+group related edits and save complete transaction groups. New gameplay logic
+defaults to native GUI triggers and real folders. Hand-authored Galaxy requires
+an explicit request; existing code is preserved during targeted repairs.
 
-## Run
+Preplace known starting bases, resources, armies and permanent guards through
+Placement tools so they are visible in Terrain. Use runtime creation for waves,
+reinforcements, summons and other dynamic spawns.
 
-Requires Node.js 20+. In PowerShell:
+The [reference catalog](resources/authoring-catalog/README.md),
+[measured decor workflow](docs/DECOR_VISUAL_WORKFLOW.md), [agent rules](AGENTS.md)
+and [project skills](.agents/skills/README.md) are maintained authoring inputs.
+For preparation reuse and grouped edits see [performance](docs/PERFORMANCE.md).
 
-```powershell
-npm ci
-npm run build
-$env:SC2_UI_ROOT = "K:\Maps\MyMap.SC2Map"
-$env:SC2_MCP_PROFILE = "terrain"
-node dist/index.js
-```
+## Verification and limits
 
-Use an unpacked map/mod; use `map.import` for MPQ input. stdout is reserved for MCP traffic. Profiles include `all` (default), `ui`, `cutscene`, `data`, `terrain`, `casc`, `settings`, `landscape`, `script`, `authoring` and focused variants. `SC2_MCP_MODULES` overrides the profile. `modkit.capabilities` reports the actual selection.
+Static validation, native compilation, saved-component readback, rendered appearance
+and gameplay are separate results. The [acceptance matrix](docs/VERIFICATION.md)
+records tested scope; it does not claim universal engine compatibility.
 
-Existing authoring tools prepare plans/drafts, validate them and save complete groups with stale guards and backups. The new `terrain.surface.plan.cell` is an in-memory diagnostic and cannot be passed to `terrain.apply`.
+Cliff/ramp combinations, engine pathing regeneration, complex water and complete
+renderer parity remain limited. A composition schematic or ModKit preview does
+not prove native visuals, navigation or balance. Detailed versioned findings belong
+in subsystem guides and [the changelog](CHANGELOG.md).
 
-GUI: `npm run gui`, then `http://127.0.0.1:4312`. [Workbench](docs/GUI_WORKBENCH.md). Windows portable build: `npm run windows:portable`; [EXE guide](docs/WINDOWS_EXE.md).
+Native checks use separately configured, pinned runtimes. Private SC2GameToolkit
+sources and instrumented maps are excluded from ordinary distribution.
 
 ## Development
 
 ```powershell
+npm run build
+npm run architecture:check
+npm run docs:check-language
+npm run catalog:verify
 npm test
 npm run lint
-npm run build:release
-npm run terrain:schemas
 ```
 
-Tests include source codec regressions and real SDK stdio checks for Terrain profile selection. [Architecture](docs/ARCHITECTURE.md), [status](docs/PROJECT_STATUS.md), [changelog](CHANGELOG.md).
+Run targeted regressions during development; use `npm run build:release` for
+distribution. Rebuild and reconnect MCP to load changed server code.
+
+[Architecture](docs/ARCHITECTURE.md) · [review and refactoring priorities](docs/ARCHITECTURE_REVIEW_2026-11-19.md) ·
+[repository structure](docs/REPOSITORY_STRUCTURE.md) · [publication checklist](PUBLISHING.md)
+
+## License and credits
+
+Original code: Copyright (c) 2026 **VoVanRusLvSC2**
+(vladimir.lencmanis@gmail.com), under the [custom attribution license](LICENSE).
+Projects using our code or modules must credit VoVanRusLvSC2 and identify
+SC2Editor-MCP-Codex as their source in README, Credits or About, in addition to
+retaining copyright and license notices. Surface Toolkit author: **vise**
+(attribution provided by the project owner). Third-party components retain their
+own licenses; see [credits](CREDITS.md) and [license scope](THIRD_PARTY_LICENSES.md).

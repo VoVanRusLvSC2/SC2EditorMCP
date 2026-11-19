@@ -131,7 +131,9 @@ export const authoringGuide = {
     "document empty kind=map width=64 height=64 destination=NewMap",
   ],
   logicDefault:
-    "Galaxy. logic file/function/body and galaxy file/function/body build guarded script plans. GUI is only gui.plan or trigger.plan; no Galaxy-to-GUI conversion.",
+    "Native GUI triggers and real folders for new gameplay logic. Hand-authored Galaxy requires an explicit request; legacy logic/galaxy file/function/body commands still accept explicit Galaxy source without conversion.",
+  unitPlacementDefault:
+    "Preplace known starting bases, resources, armies and permanent guards in Objects using Placement tools. Initialization binds to those identities; do not recreate them at startup. Runtime creation is for dynamic waves, reinforcements and summons.",
   ownershipDefault:
     "Hero abilities, native costs/cooldowns/buttons and XP/levels belong in Data. Triggers coordinate rounds, objectives, UI and Banks and issue native ability orders. When graphical organization is requested, use actual Triggers folders, not Galaxy directories. Explicit visible Custom Script blocks may contain complex Galaxy code; generate runtime from that same GUI source.",
   sections: {
@@ -1117,7 +1119,7 @@ function lifecycle(
           file: ["terrain.compose", "terrain.assemble"].includes(command.tool)
             ? { $from: base + ".saveFile" }
             : ["trigger.organize", "trigger.custom_script"].includes(command.tool) ||
-                command.args.target === "gui"
+                (command.tool === "project.organize" && command.args.target !== "galaxy")
               ? "Triggers"
               : ".sc2mcp/organization.json",
         },

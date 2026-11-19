@@ -52,11 +52,30 @@ test('GUI organization localizes folders, dry-runs, stages atomically and reject
  await fs.appendFile(path.join(root,'Triggers'),'\n');await assert.rejects(ws.save('Triggers'),/STALE/);
 });
 
-test('Galaxy is default and existing source and manifest ownership survive repeated organization',async t=>{
+test('new project organization defaults to native GUI while preserving existing source',async t=>{
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'sc2-gui-default-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+ const source='<TriggerData><Root><Item Type="Trigger" Id="A"/></Root><Element Type="Trigger" Id="A"><Identifier>Manual</Identifier></Element></TriggerData>';
+ await fs.writeFile(path.join(root,'Triggers'),source);await fs.mkdir(path.join(root,'Scripts'));
+ await fs.writeFile(path.join(root,'Scripts/Manual.galaxy'),'// Existing source stays intact\n');
+ const ws=new Workspace(root),trigger=new TriggerWorkspace(ws);
+ await organizeProject(ws,trigger,{});assert.deepEqual(ws.draftFiles(),[]);
+ await organizeProject(ws,trigger,{dryRun:false});
+ const generated=(await ws.readRaw('Triggers')).text;
+ assert.ok(generated.includes('<Identifier>Manual</Identifier>'));
+ assert.equal(organizeTriggerXml(generated,{}).changed,false);
+ assert.deepEqual(await fs.readdir(path.join(root,'Scripts')),['Manual.galaxy']);
+ assert.equal(await fs.readFile(path.join(root,'Scripts/Manual.galaxy'),'utf8'),'// Existing source stays intact\n');
+ assert.equal((await ws.readRaw('.sc2mcp/organization.json')).exists,false);
+ const steps=compileAuthorScript('project organize genre=mission','save');
+ assert.equal(steps[1].args.file,'Triggers');
+ assert.equal(compileAuthorScript('project organize target=galaxy','save')[1].args.file,'.sc2mcp/organization.json');
+});
+
+test('explicit Galaxy organization preserves existing source and manifest ownership survive repeated organization',async t=>{
  const root=await fs.mkdtemp(path.join(os.tmpdir(),'sc2-galaxy-org-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));const ws=new Workspace(root),trigger=new TriggerWorkspace(ws);
- await organizeProject(ws,trigger,{folders:['GAMEPLAY/WAVES'],dryRun:false});await ws.save('.sc2mcp/organization.json');
+ await organizeProject(ws,trigger,{target:'galaxy',folders:['GAMEPLAY/WAVES'],dryRun:false});await ws.save('.sc2mcp/organization.json');
  const file=path.join(root,'Scripts/GAMEPLAY/WAVES/Module.galaxy');await fs.writeFile(file,'// Manual source\nvoid Waves() {}\n');
- await organizeProject(ws,trigger,{dryRun:false});await ws.save('.sc2mcp/organization.json');
+ await organizeProject(ws,trigger,{target:'galaxy',dryRun:false});await ws.save('.sc2mcp/organization.json');
  assert.equal(await fs.readFile(file,'utf8'),'// Manual source\nvoid Waves() {}\n');assert.equal((await checkProjectOrganization(ws)).status,'pass');
  const manifest=JSON.parse(await fs.readFile(path.join(root,'.sc2mcp/organization.json'),'utf8'));assert.ok(manifest.systems.includes('GAMEPLAY/WAVES'));assert.ok(manifest.files.some((f:{file:string})=>f.file==='Scripts/GAMEPLAY/WAVES/Module.galaxy'));
  assert.equal(await fs.stat(path.join(root,'Triggers')).catch(()=>null),null);
@@ -73,10 +92,10 @@ test('five folders are a default suggestion, while explicit and existing organiz
  }
  const root=await fs.mkdtemp(path.join(os.tmpdir(),'sc2-custom-org-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
  const ws=new Workspace(root),trigger=new TriggerWorkspace(ws);
- await organizeProject(ws,trigger,{folders:['STARTUP','ROUNDS','UI'],dryRun:false});
+ await organizeProject(ws,trigger,{target:'galaxy',folders:['STARTUP','ROUNDS','UI'],dryRun:false});
  const checked=await checkProjectOrganization(ws);assert.equal(checked.status,'pass');
  assert.deepEqual('systems' in checked?checked.systems:[],['STARTUP','ROUNDS','UI']);
- const again=await organizeProject(ws,trigger,{dryRun:false});assert.ok('systems' in again);if('systems' in again)assert.deepEqual(again.systems,['STARTUP','ROUNDS','UI']);
+ const again=await organizeProject(ws,trigger,{target:'galaxy',dryRun:false});assert.ok('systems' in again);if('systems' in again)assert.deepEqual(again.systems,['STARTUP','ROUNDS','UI']);
 });
 
 test('catalog pagination is complete, typed and bounded, including compressed data',async()=>{

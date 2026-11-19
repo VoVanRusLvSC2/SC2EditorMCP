@@ -5,7 +5,7 @@ const state = {
   layout: null,
   selected: null,
   type: null,
-  output: { activity: "SC2 UI Workbench is ready.", validation: "No validation run yet.", diff: "No staged diff loaded." },
+  output: { activity: "SC2EditorMCP Workbench is ready.", validation: "No validation run yet.", diff: "No staged diff loaded." },
   outputView: "activity",
   propertySchema: null,
   stateSchema: { conditions: [], actions: [] },

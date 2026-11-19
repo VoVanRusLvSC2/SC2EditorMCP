@@ -530,3 +530,46 @@ test("consumer memo replays content and directory guards without retaining calle
   await assert.rejects(workspace.save("test.txt"), /STALE_(?:DEPENDENCY|FILE_TRANSACTION)/);
   await assert.rejects(fs.stat(path.join(root, "test.txt")), { code: "ENOENT" });
 });
+
+test("consumer discovery reads reference-free saved and staged files once and retains their guards", async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "data-empty-consumers-"));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  await fs.writeFile(path.join(root, "Triggers"), "<TriggerData/>");
+  await fs.writeFile(path.join(root, "Objects"), "<PlacedObjects/>");
+  await fs.writeFile(path.join(root, "empty.galaxy"), "void Empty(){}");
+  const workspace = new Workspace(root);
+  await workspace.applyRawTransaction(
+    ["empty.galaxy", "new.galaxy", "Objects"],
+    (sources) =>
+      new Map([
+        ["empty.galaxy", sources.get("empty.galaxy")! + "\n"],
+        ["new.galaxy", "void New(){}"],
+        ["Objects", "<PlacedObjects> </PlacedObjects>"],
+      ]),
+    { dryRun: false, stage: true },
+  );
+  const reads = new Map<string, number>();
+  const originalRead = workspace.readRaw.bind(workspace);
+  workspace.readRaw = async (...args) => {
+    reads.set(args[0], (reads.get(args[0]) ?? 0) + 1);
+    return originalRead(...args);
+  };
+  const graph = new DataReferenceGraph(workspace);
+  const result = await graph.crossReferences();
+  assert.deepEqual(result.references, []);
+  assert.deepEqual(
+    result.files.map((file) => file.file),
+    ["empty.galaxy", "new.galaxy", "Objects", "Triggers"],
+  );
+  for (const file of result.files) assert.equal(reads.get(file.file), 1, file.file);
+  // Even a file with no references remains a dependency of a later mutation.
+  await workspace.withReadSet(async () => {
+    await graph.crossReferences();
+    await workspace.applyRawTransaction(["test.txt"], () => new Map([["test.txt", "pending"]]), {
+      dryRun: false,
+      stage: true,
+    });
+  });
+  await fs.writeFile(path.join(root, "Triggers"), "<TriggerData> </TriggerData>");
+  await assert.rejects(workspace.save("test.txt"), /STALE_(?:DEPENDENCY|FILE_TRANSACTION)/);
+});

@@ -190,7 +190,9 @@ localization, resource IDs and original catalog source annotations.
   only changed scalar parameters. They preserve existing graphs and manual fields.
   Adjacent compatible Text, Settings, Terrain and single-object placements also
   coalesce; inspect compilation receipts and keep reads/advanced guards as boundaries.
-- Galaxy is the default. When GUI is requested, create native GUI elements and
+- New gameplay logic defaults to native GUI triggers. Hand-authored Galaxy requires
+  an explicit request or preservation of existing source; generated Galaxy remains
+  derived output. Create native GUI elements and
   actual trigger folders; filesystem script folders and Custom Script wrappers do
   not satisfy full GUI authoring. Use genre-appropriate ownership and organization.
 - Inspect `nativeProfile` from GUI plans/validation before original Editor checks.
@@ -210,6 +212,11 @@ localization, resource IDs and original catalog source annotations.
   Keep runtime event registration's explicit target trigger and call timing, plus
   the matching localized TriggerStrings. Native compile and semantic equivalence
   require separate checks; an event-only GUI definition is not an ordinary action.
+- Preplace the known starting bases, resources, armies and permanent guards in
+  `Objects` through Placement tools so the user can inspect them in Terrain.
+  Bind initialization to those placed identities; do not create a duplicate army
+  at map start or simulate visibility with preview-only units. Runtime creation
+  is for actual waves, reinforcements, summons and other dynamic spawns.
 - Abilities, costs, cooldowns, command cards, effects and XP/veterancy belong in
   Data by default. Triggers coordinate match flow, objectives, UI and persistence,
   issue native orders and read/restore authoritative Data state.

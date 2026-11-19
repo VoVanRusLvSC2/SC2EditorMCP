@@ -11,6 +11,8 @@ export class ModuleContainer<T extends object> {
       Object.defineProperty(this.services, name, {
         enumerable: true,
         get: () => {
+          // Existing services remain accessible during dependent cleanup. Sealing
+          // prevents new construction, rather than invalidating live resources.
           if (this.values.has(name)) return this.values.get(name);
           if (this.closed) throw new Error("PROJECT_CLOSED: " + String(name));
           if (this.constructing.has(name))
@@ -18,6 +20,7 @@ export class ModuleContainer<T extends object> {
           this.constructing.add(name);
           try {
             const value = factories[name]();
+            // Cache only successful construction; a failed factory can retry.
             this.values.set(name, value);
             return value;
           } finally {

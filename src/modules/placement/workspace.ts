@@ -7,6 +7,7 @@ import { Workspace } from "../../core/workspace.js";
 import { BrowseWorkspace } from "../browse/workspace.js";
 import type { BrowseSearchResult } from "../browse/types.js";
 import { componentListWithObjects, PlacementDocument } from "./document.js";
+import { editorPlacementPresence } from "./editorPresence.js";
 import { planPositions, seededRandom,placementAreaBounds,scatterClusters } from "./planner.js";
 import { DistanceIndex } from "./spatialIndex.js";
 import { compactPlacementPlan } from "./summary.js";
@@ -786,6 +787,7 @@ export class PlacementWorkspace {
         ? new PlacementDocument(raw.text, raw.file)
         : PlacementDocument.create(raw.file);
     const objects = document.list();
+    const validation = await this.validateDocument(document);
     return {
       file: raw.file,
       exists: raw.exists,
@@ -799,7 +801,8 @@ export class PlacementWorkspace {
           objects.filter((entry) => entry.kind === kind).length,
         ]),
       ),
-      validation: await this.validateDocument(document),
+      editorVisibility: validation.editorVisibility,
+      validation,
     };
   }
 
@@ -1169,11 +1172,14 @@ export class PlacementWorkspace {
       errors,
       warnings,
       issues,
-      editorVisibility: {
-        placedObjects: (() => { try { return document.list().length; } catch { return 0; } })(),
-        editorLayerState: "UNOBSERVABLE" as const,
-        hint: "Object presence/XML validity do not prove native 3D rendering. Check View > Show Layer and Layer > All for the live Units/Doodads layers. If they are already enabled, investigate generated placement, terrain heights, catalog/actor initialization and Editor diagnostics. Saved TerrainLayersVisible bits alone are not a diagnosis.",
-      },
+      editorVisibility: editorPlacementPresence((() => {
+        try {
+          if (issues.some((issue) => issue.code === "MALFORMED_XML")) return undefined;
+          return document.list();
+        } catch {
+          return undefined;
+        }
+      })()),
       checks: {
         xml: issues.some((entry) => entry.code === "MALFORMED_XML")
           ? "FAIL"

@@ -1,66 +1,44 @@
 import * as z from "zod/v4";
 import type { McpServer } from "@modelcontextprotocol/server";
-export interface BatchTool {
-  schema: { parse: (value: unknown) => unknown };
-  invoke: (args: unknown, context: unknown) => Promise<unknown>;
-}
-export interface BatchStep {
-  id: string;
-  tool: string;
-  args: Record<string, unknown>;
-  select?: string[];
-}
-type BatchImage = {
-  type: "image";
-  mimeType: "image/png" | "image/jpeg" | "image/webp";
-  data: string;
-};
-type BatchMedia = { type: "text"; text: string } | BatchImage;
+import type { BatchStep, BatchTool } from "./batchTypes.js";
+import { BatchMediaCollector } from "./batchMedia.js";
+import { resolveBatchReferences, hasBatchReference } from "./batchReferences.js";
+import { compactResult } from "./toolResults.js";
 
-/** Explicit opt-in media stays outside the compact JSON and has one shared response budget. */
-export class BatchMediaCollector {
-  readonly content: BatchMedia[] = [];
-  included = 0;
-  omitted = 0;
-  private bytes = 0;
-  collect(step: BatchStep, result: unknown) {
-    if (step.args.includeImages !== true && step.args.includeImage !== true) return;
-    const blocks = (result as { content?: unknown })?.content;
-    if (!Array.isArray(blocks)) return;
-    let label = "";
-    for (const block of blocks) {
-      if (!block || typeof block !== "object") continue;
-      if (block.type === "text" && typeof block.text === "string") {
-        label = block.text.startsWith("{") ? "" : block.text.slice(0, 200);
-        continue;
-      }
-      if (block.type !== "image") continue;
-      const data = block.data,
-        mimeType = block.mimeType;
-      if (
-        typeof data !== "string" ||
-        !["image/png", "image/jpeg", "image/webp"].includes(mimeType) ||
-        data.length > 700_000 ||
-        !/^[A-Za-z0-9+/]*={0,2}$/.test(data) ||
-        this.included >= 4 ||
-        this.bytes + data.length > 1_500_000
-      ) {
-        this.omitted++;
-        continue;
-      }
-      this.content.push(
-        { type: "text", text: `Step ${step.id} (${step.tool})${label ? ": " + label : ""}` },
-        { type: "image", mimeType, data } as BatchImage,
-      );
-      this.included++;
-      this.bytes += data.length;
-      label = "";
-    }
-  }
-  receipt() {
-    return { included: this.included, omitted: this.omitted };
-  }
-}
+// Keep the original import surface for existing SDK and internal consumers.
+export type { BatchStep, BatchTool } from "./batchTypes.js";
+export { BatchMediaCollector } from "./batchMedia.js";
+export { resolveBatchReferences } from "./batchReferences.js";
+export { compactResult } from "./toolResults.js";
+
+// An uncertain native result must stop dependent edits and Save. Reuse the set
+// across steps; this is recovery policy, not a list of ordinary tool errors.
+const STOPPING_LIVE_STATUSES = new Set([
+  "unknown",
+  "stopped",
+  "needs_parameters",
+  "needs_validation",
+  "partial",
+  "save_unconfirmed",
+  "save_confirmed_prepare_blocked",
+  "prepare_failed",
+  "compile_pending",
+  "compile_stale",
+  "compile_failed",
+  "adopting",
+  "adoption_unknown",
+  "preparation_failed",
+  "attention_required",
+  "save_required",
+  "recovery_required",
+  "pending_native",
+  "pending_open",
+  "not_published",
+  "context_changed",
+  "conflict",
+  "verification_failed",
+]);
+
 function jsonResult(result: unknown) {
   const structured = (result as { structuredContent?: unknown })?.structuredContent;
   if (structured !== undefined) return structured;
@@ -73,49 +51,9 @@ function jsonResult(result: unknown) {
     return { message: text.slice(0, 1000) };
   }
 }
-export { compactResult } from "./toolResults.js";
-import { compactResult } from "./toolResults.js";
-export function resolveBatchReferences(
-  value: unknown,
-  results: Map<string, unknown>,
-  depth = 0,
-): unknown {
-  if (depth > 30) throw new Error("MCP_BATCH_DEPTH");
-  if (Array.isArray(value)) return value.map((v) => resolveBatchReferences(v, results, depth + 1));
-  if (value && typeof value === "object") {
-    const v = value as Record<string, unknown>;
-    if (Object.keys(v).length === 1 && typeof v.$from === "string") {
-      const parts = v.$from.split(".");
-      if (
-        parts.length > 12 ||
-        parts.some((p) => !/^\w+$/.test(p) || ["__proto__", "prototype", "constructor"].includes(p))
-      )
-        throw new Error("MCP_BATCH_REFERENCE_UNSAFE");
-      let found = results.get(parts.shift()!);
-      for (const key of parts) {
-        if (!found || typeof found !== "object" || !Object.hasOwn(found, key))
-          throw new Error("MCP_BATCH_REFERENCE_MISSING: " + v.$from);
-        found = (found as Record<string, unknown>)[key];
-      }
-      if (found === undefined) throw new Error("MCP_BATCH_REFERENCE_MISSING: " + v.$from);
-      return structuredClone(found);
-    }
-    const out: Record<string, unknown> = {};
-    for (const [key, item] of Object.entries(v)) {
-      if (["__proto__", "prototype", "constructor"].includes(key))
-        throw new Error("MCP_BATCH_KEY_UNSAFE");
-      out[key] = resolveBatchReferences(item, results, depth + 1);
-    }
-    return out;
-  }
-  return value;
-}
-const hasBatchReference = (value: unknown): boolean =>
-  Array.isArray(value)
-    ? value.some(hasBatchReference)
-    : value && typeof value === "object"
-      ? Object.entries(value).some(([key, item]) => key === "$from" || hasBatchReference(item))
-      : false;
+
+/** Validate static arguments before invoking any step. Result-dependent arguments
+ * are validated just before use; earlier committed steps are never rolled back. */
 export async function runMcpBatch(
   steps: BatchStep[],
   tools: ReadonlyMap<string, BatchTool>,
@@ -186,31 +124,7 @@ export async function runMcpBatch(
         // Stop dependent steps; earlier native mutations cannot be rolled back
         // by treating this batch as an ordinary failed JSON request.
         (s.tool.startsWith("live.") &&
-          [
-            "unknown",
-            "stopped",
-            "needs_parameters",
-            "needs_validation",
-            "partial",
-            "save_unconfirmed",
-            "save_confirmed_prepare_blocked",
-            "prepare_failed",
-            "compile_pending",
-            "compile_stale",
-            "compile_failed",
-            "adopting",
-            "adoption_unknown",
-            "preparation_failed",
-            "attention_required",
-            "save_required",
-            "recovery_required",
-            "pending_native",
-            "pending_open",
-            "not_published",
-            "context_changed",
-            "conflict",
-            "verification_failed",
-          ].includes(String((json as { status?: unknown })?.status)))
+          STOPPING_LIVE_STATUSES.has(String((json as { status?: unknown })?.status)))
       ) {
         rows.push({
           id: s.id,

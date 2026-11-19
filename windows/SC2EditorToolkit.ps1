@@ -82,7 +82,7 @@ try {
     if ($editors.Count -eq 0) { throw 'Start StarCraft II Editor x64 and open your map, then run this EXE again.' }
     if ($editors.Count -gt 1) {
         $form = New-Object System.Windows.Forms.Form
-        $form.Text = 'SC2EditorToolkit - choose Editor'
+        $form.Text = 'SC2EditorMCP - choose Editor'
         $form.ClientSize = New-Object System.Drawing.Size(650, 125)
         $form.StartPosition = 'CenterScreen'
         $list = New-Object System.Windows.Forms.ComboBox
@@ -127,10 +127,10 @@ try {
     }
     [System.Windows.Forms.MessageBox]::Show(
         "AI Button connected to Editor PID $EditorPid. Click AI on its toolbar.`nThe module reuses your configured sc2editor MCP.",
-        'SC2EditorToolkit') | Out-Null
+        'SC2EditorMCP') | Out-Null
 } catch {
     if ($ValidateOnly) { Write-Error $_.Exception.Message; exit 1 }
     Add-Type -AssemblyName System.Windows.Forms
-    [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'SC2EditorToolkit', 'OK', 'Error') | Out-Null
+    [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'SC2EditorMCP', 'OK', 'Error') | Out-Null
     exit 1
 }
