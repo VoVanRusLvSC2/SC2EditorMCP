@@ -1,4 +1,11 @@
-# SC2EditorToolkit: verified scope
+# SC2EditorMCP: verified scope
+
+For the current public feature inventory, commands and links to scoped evidence,
+start with [README capabilities](../README.md#capabilities-and-confirmation),
+reviewed on 2026-11-20. The records below retain their original artifact, runtime
+and observation scopes. Tool availability, static validity, original compilation,
+rendering and gameplay are separate kinds of confirmation; this documentation
+review does not renew historical native runs on newer code or runtimes.
 
 - The [current-document record](verification/live-current-document-2026-11-07.json)
   qualifies native same-file Save after an MCP Unit scalar change/restoration in the
