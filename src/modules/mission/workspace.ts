@@ -118,6 +118,18 @@ const creationSchema = z
         baseTrimMs: z.number().int().nonnegative(),
       })
       .optional(),
+    bridge: z
+      .object({
+        actor: z.string(),
+        position: terrainPointSchema.extend({ z: z.number() }),
+        left: terrainPointSchema,
+        right: terrainPointSchema,
+        span: z.number().positive(),
+        width: z.number().positive(),
+        scale: z.number().positive(),
+        rotation: z.number(),
+      })
+      .optional(),
     river: z
       .object({
         samples: z.number().int().positive(),
@@ -329,6 +341,7 @@ export class MissionWorkspace {
           previews: built.previews,
           decor: built.decor,
           decorTiming: built.decorTiming,
+          bridge: built.bridge,
           river: built.river,
           baseTrim: built.baseTrim,
           gameplay: built.gameplay,

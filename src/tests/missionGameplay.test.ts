@@ -14,6 +14,7 @@ import { planMissionLayouts, routeSamples } from "../modules/mission/layout.js";
 import { sculptMissionSurface } from "../modules/mission/surface.js";
 import { riverSection } from "../modules/mission/river.js";
 import { landformOperations } from "../modules/mission/nativeLandforms.js";
+import { planRiverBridge } from "../modules/mission/riverBridge.js";
 
 test("mission recipes link real GUI triggers to the placed scout, guard and bonus IDs", () => {
   const spec = gameplaySchema.parse({
@@ -154,6 +155,10 @@ test("river channels reach both map edges and keep the dry banks inside the nati
   });
   const layout = planMissionLayouts(spec).variants[0];
   const river = layout.river!;
+  const bridge = planRiverBridge(layout, "Dirt");
+  assert.equal(bridge.operations.length, 2);
+  assert.ok(bridge.left.x < riverSection(river, bridge.left.y).x);
+  assert.ok(bridge.right.x > riverSection(river, bridge.right.y).x);
   const flat = createFlatTerrain(
     128,
     128,
@@ -176,6 +181,8 @@ test("river channels reach both map edges and keep the dry banks inside the nati
   });
   assert.equal(plan.valid, true, JSON.stringify(plan.issues));
   const { sample } = await terrain.surface("", plan.id);
+  assert.ok(sample(bridge.left).height > waterLevel + 0.4);
+  assert.ok(sample(bridge.right).height > waterLevel + 0.4);
   for (const [i, ramp] of landform.ramps.entries()) {
     for (let y = ramp.center.y - 4; y <= ramp.center.y + 4; y++)
       assert.ok(

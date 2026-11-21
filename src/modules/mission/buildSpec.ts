@@ -35,6 +35,7 @@ export const missionBuildSpecSchema = z
         profile: z.enum(["wetland", "highland"]).optional(),
         landform: z.enum(["riverTerraces", "splitRidge"]).optional(),
         cliffEdge: z.enum(["natural", "engineered"]).optional(),
+        bridge: z.boolean().optional(),
         lighting: z.string().trim().min(1).max(128).optional(),
         initialTexture: z.string().min(1).max(128).optional(),
         trailTexture: z.string().min(1).max(128).optional(),
@@ -80,6 +81,12 @@ export const missionBuildSpecSchema = z
   })
   .strict()
   .superRefine(({ layout, gameplay, terrain, decor, campaignDecor, decorDensity }, ctx) => {
+    if (terrain.bridge && layout.pattern !== "riverValley")
+      ctx.addIssue({
+        code: "custom",
+        path: ["terrain", "bridge"],
+        message: "The bridge requires a river valley",
+      });
     if (decorDensity && !campaignDecor)
       ctx.addIssue({
         code: "custom",

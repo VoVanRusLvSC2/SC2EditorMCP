@@ -23,6 +23,7 @@ import { StyleCatalog } from "../placement/styleCatalog.js";
 import { missionStylePack } from "./campaignStyles.js";
 import { decorateCampaignRiver } from "./campaignDecor.js";
 import { reviewMissionRiver } from "./river.js";
+import { planRiverBridge, placeRiverBridge } from "./riverBridge.js";
 import { chooseMissionMaterial, missionMaterialCatalog } from "./materialStyles.js";
 
 export interface MissionBuildProviders {
@@ -82,6 +83,7 @@ export async function buildMissionMap(
     const copy = new Workspace(path.join(staging, "map"));
     const browse =
       spec.decor ||
+      spec.terrain.bridge ||
       spec.terrain.water ||
       spec.terrain.lighting ||
       spec.terrain.baseSurface?.trimBorder ||
@@ -206,6 +208,8 @@ export async function buildMissionMap(
     }
     if (spec.terrain.lighting)
       operations.push({ op: "lighting.assign", id: spec.terrain.lighting });
+    const crossing = spec.terrain.bridge ? planRiverBridge(layout, trail) : undefined;
+    if (crossing) operations.push(...crossing.operations);
     async function applyTerrain(operations: TerrainOperation[]) {
       const plan = await terrain.plan({ operations });
       if (!plan.valid) throw Error("MISSION_TERRAIN_PLAN_INVALID: " + JSON.stringify(plan.issues));
@@ -231,6 +235,20 @@ export async function buildMissionMap(
     await copy.save("Objects", { backup: false });
 
     const decorStarted = performance.now();
+    const bridge =
+      crossing && browse
+        ? await browse.withSnapshot(() =>
+            placeRiverBridge(
+              copy,
+              browse,
+              providers.casc,
+              terrain,
+              crossing,
+              spec.terrain.styleCampaign,
+              waterLevel,
+            ),
+          )
+        : undefined;
     const decor =
       spec.campaignDecor && style && browse
         ? await browse.withSnapshot(() =>
@@ -243,6 +261,7 @@ export async function buildMissionMap(
               spec,
               style,
               waterLevel,
+              crossing?.clearance,
             ),
           )
         : spec.decor && browse
@@ -379,6 +398,7 @@ export async function buildMissionMap(
       repairs,
       baseHeight,
       decor,
+      ...(bridge ? { bridge } : {}),
       ...(decor || baseTrim ? { decorTiming: { placementMs, surfaceFinishMs, baseTrimMs } } : {}),
       ...(river ? { river } : {}),
       ...(baseTrim ? { baseTrim } : {}),

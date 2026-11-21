@@ -62,6 +62,7 @@ export async function decorateCampaignRiver(
   spec: MissionBuildSpec,
   pack: Pack,
   waterLevel: number,
+  bridgeClearance?: ExclusionZone,
 ) {
   if (!layout.river) throw Error("CAMPAIGN_DECOR_REQUIRES_RIVER");
   const river = layout.river;
@@ -69,6 +70,7 @@ export async function decorateCampaignRiver(
   const surface = await terrain.surface();
   const routes = layout.routes.map((r) => ({ ...r, width: r.width + 0.8 }));
   const terrainExclusions: ExclusionZone[] = (layout.landform?.ramps ?? []).map((r) => r.clearance);
+  if (bridgeClearance) terrainExclusions.push(bridgeClearance);
   const padExclusions: ExclusionZone[] = layout.zones.map((z) => ({
     type: "circle",
     center: z.center,
