@@ -13,6 +13,7 @@ export const publicModules = [
   "casc",
   "settings",
   "document",
+  "mission",
   "assets",
   "lighting",
   "editor",

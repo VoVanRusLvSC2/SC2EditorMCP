@@ -47,6 +47,7 @@ export class NativeStdioClient implements NativeClient {
     private command: string,
     private args: string[],
     private cwd: string,
+    private expectedVersion = nativeRelease.version,
   ) {}
   info() {
     return {
@@ -79,16 +80,40 @@ export class NativeStdioClient implements NativeClient {
     this.serverInfo = initialized.serverInfo;
     if (
       initialized.serverInfo?.name !== "sc2-native-toolkit" ||
-      initialized.serverInfo?.version !== nativeRelease.version
+      initialized.serverInfo?.version !== this.expectedVersion
     ) {
       await this.close();
-      throw Error("NATIVE_TOOLKIT_VERSION_MISMATCH: expected " + nativeRelease.version);
+      throw Error("NATIVE_TOOLKIT_VERSION_MISMATCH: expected " + this.expectedVersion);
     }
     this.process.notify("notifications/initialized");
     const listed = await this.rpc("tools/list", {});
     this.definitions = listed.tools;
     this.tools = new Set(listed.tools.map((tool: { name: string }) => tool.name));
+    if (this.expectedVersion !== nativeRelease.version) {
+      try {
+        const capabilities = await this.callCapabilities();
+        if (
+          capabilities.version !== this.expectedVersion ||
+          capabilities.apiContractVersion !== 1 ||
+          capabilities.nativeProtocol !== nativeRelease.nativeProtocol
+        )
+          throw Error("NATIVE_TOOLKIT_LOCAL_CONTRACT_MISMATCH");
+      } catch (error) {
+        await this.close();
+        throw error;
+      }
+    }
   }
+  private async callCapabilities() {
+    if (!this.tools.has("sc2_modules")) throw Error("NATIVE_TOOLKIT_LOCAL_CONTRACT_MISSING");
+    const response = (await this.rpc("tools/call", {
+      name: "sc2_modules",
+      arguments: {},
+    })) as NativeResult;
+    if (response.isError) throw Error("NATIVE_TOOLKIT_LOCAL_CONTRACT_UNAVAILABLE");
+    return this.value(response);
+  }
+
   private rpc(method: string, params: unknown): Promise<any> {
     return this.process.request(method, params);
   }

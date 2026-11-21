@@ -11,6 +11,7 @@ import { DataWorkspace } from "../data/workspace.js";
 import { DataDocument,referenceSchema } from "../data/document.js";
 import {mergeAssetEntries} from './assetIndex.js';
 import { BrowseDefinitionIndexes } from "./definitionIndex.js";
+import { doodadDescriptionSource, doodadWords, matchesDoodadFacets, readDoodadDescriptions } from "./doodadDescriptions.js";
 import type { DataField, DataObject } from "../data/types.js";
 import { StringTableDocument } from "../text/stringTable.js";
 import type {
@@ -369,10 +370,12 @@ export class BrowseWorkspace {
     };
   }
 
-  async search(query: BrowseSearchQuery): Promise<{ total: number; offset: number; limit: number; results: BrowseSearchResult[] }> {
+  async search(query: BrowseSearchQuery): Promise<{ total: number; offset: number; limit: number; results: BrowseSearchResult[]; descriptionSource?: typeof doodadDescriptionSource }> {
     const index = await this.index();
+    const descriptions = query.doodads && await readDoodadDescriptions();
     const needle = query.query?.trim().toLowerCase() ?? "";
     const terms = tokenize(needle);
+    const decorTerms = descriptions ? doodadWords(needle) : [];
     const ids = new Set((query.ids ?? []).map((value) => value.toLowerCase()));
     const scored = index.entries.flatMap((entry): BrowseSearchResult[] => {
       if (ids.size && !ids.has(entry.id.toLowerCase())) return [];
@@ -384,6 +387,13 @@ export class BrowseWorkspace {
       if (query.placeable !== undefined && entry.placeable !== query.placeable) return [];
       if (query.hasModel !== undefined && entry.assetPaths.some((value) => /\.(?:m3|m3a)$/i.test(value)) !== query.hasModel) return [];
       if (query.hasTexture !== undefined && entry.assetPaths.some((value) => /\.(?:dds|tga|png|jpg|jpeg)$/i.test(value)) !== query.hasTexture) return [];
+      const described = descriptions?.get(entry.id);
+      if (query.doodads && (
+        entry.placeableRepresentation?.kind !== "Doodad" ||
+        entry.engineActive === false ||
+        (entry.availability !== "MAP_LOCAL" && entry.availability !== "AVAILABLE_THROUGH_DEPENDENCY") ||
+        !matchesDoodadFacets(query.doodads, described?.description)
+      )) return [];
       const localeNames = query.locale ? Object.entries(entry.localizedNames).filter(([locale]) => locale.toLowerCase() === query.locale!.toLowerCase()).map(([, value]) => value) : Object.values(entry.localizedNames);
       const haystacks = [entry.id, entry.ctype, entry.catalogType, entry.displayName, entry.file, ...entry.textKeys, ...localeNames, ...entry.assetPaths, ...entry.outgoing.map((reference) => reference.id)];
       let score = ids.has(entry.id.toLowerCase()) ? 1200 : 0;
@@ -398,14 +408,21 @@ export class BrowseWorkspace {
           if (hits) { score += hits * 55; matchedBy.push("tokens"); }
         }
       } else score = Math.max(score, 1);
+      if (described && decorTerms.length) {
+        const hits = decorTerms.filter((word) => described.words.has(word)).length;
+        if (hits) {
+          score += hits * 145 + (hits === decorTerms.length ? 200 : 0);
+          matchedBy.push("doodad-description");
+        }
+      }
       if (needle && score === 0) return [];
       if (entry.placeable) score += 10;
       const confidence = Math.min(1, 0.45 + (entry.evidence.includes("OBSERVED_CATALOG_XML") ? 0.25 : 0) + (entry.evidence.includes("OBSERVED_STRING_TABLE") ? 0.15 : 0) + (entry.placeable ? 0.15 : 0));
-      return [{ key: entry.key, id: entry.id, ctype: entry.ctype, catalogType: entry.catalogType, objectKind: entry.objectKind, displayName: entry.displayName, source: entry.file, sourceLayer: entry.sourceLayer, dependency: entry.dependency, availability: entry.availability, assetPaths: entry.assetPaths, related: entry.outgoing.slice(0, query.compact === false ? 50 : 8).map((reference) => ({ catalogType: reference.catalogType, id: reference.id })), placeable: entry.placeable, ...(entry.placeableRepresentation ? { placeableRepresentation: entry.placeableRepresentation } : {}), score, confidence, matchedBy: unique(matchedBy), evidence: entry.evidence, warnings: entry.warnings }];
+      return [{ key: entry.key, id: entry.id, ctype: entry.ctype, catalogType: entry.catalogType, objectKind: entry.objectKind, displayName: entry.displayName, source: entry.file, sourceLayer: entry.sourceLayer, dependency: entry.dependency, availability: entry.availability, assetPaths: entry.assetPaths, related: entry.outgoing.slice(0, query.compact === false ? 50 : 8).map((reference) => ({ catalogType: reference.catalogType, id: reference.id })), placeable: entry.placeable, ...(entry.placeableRepresentation ? { placeableRepresentation: entry.placeableRepresentation } : {}), score, confidence, matchedBy: unique(matchedBy), evidence: entry.evidence, warnings: entry.warnings, ...(described ? { stockDescription: described.description } : {}) }];
     }).sort((a, b) => b.score - a.score || b.confidence - a.confidence || a.id.localeCompare(b.id) || a.key.localeCompare(b.key));
     const offset = Math.max(0, query.offset ?? 0);
     const limit = Math.max(1, Math.min(query.limit ?? 25, 200));
-    return { total: scored.length, offset, limit, results: scored.slice(offset, offset + limit) };
+    return { total: scored.length, offset, limit, results: scored.slice(offset, offset + limit), ...(descriptions ? { descriptionSource: doodadDescriptionSource } : {}) };
   }
 
   async get(selector: {

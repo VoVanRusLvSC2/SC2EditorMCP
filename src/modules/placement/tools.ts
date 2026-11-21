@@ -1,6 +1,7 @@
 import {checkPlacementGeometry} from './geometryCheck.js';
 import {editorVisibility} from './editorVisibility.js';
 import {PointWorkspace,pointPlanSchema} from "./points.js";
+import {RegionWorkspace,regionApplyInput} from "./regions.js";
 import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import { PlacementWorkspace } from "./workspace.js";
@@ -146,6 +147,25 @@ export function registerPlacementTools(server: McpServer, context: PlacementTool
         .strict(),
     },
     async (a) => textResult(await points().apply(a.planId, a.dryRun)),
+  );
+
+  server.registerTool(
+    "placement.regions.inspect",
+    {
+      description: "Inspect native Regions XML and return the revision required for a guarded edit.",
+      inputSchema: z.object({ directory: z.string().default("") }).strict(),
+      annotations: { readOnlyHint: true },
+    },
+    async (a) => textResult(await new RegionWorkspace(placement.workspace).inspect(a.directory)),
+  );
+  server.registerTool(
+    "placement.regions.apply",
+    {
+      description: "Create, edit or delete map regions by exact revision. Deletion checks literal RegionFromId and RegionFromName references. Stages or saves the native XML and its component registration together. Defaults to dry run.",
+      inputSchema: regionApplyInput,
+      annotations: { destructiveHint: true },
+    },
+    async (a) => textResult(await new RegionWorkspace(placement.workspace).apply(a)),
   );
 
   server.registerTool(

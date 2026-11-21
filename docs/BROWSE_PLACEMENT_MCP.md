@@ -66,6 +66,28 @@ All 25 tools below have executable implementations and generated JSON input sche
 | placement.apply | Shared guarded staged or disk transaction | Dry-run/stage/backup default true |
 | placement.rollback | Discard drafts or restore available backups | Dry-run default true; one backup generation |
 
+## Map regions
+
+Call `placement.regions.inspect` on an unpacked map workspace. Pass its
+`sha256` to `placement.regions.apply` as `expectedSha256`, together with
+one or more operations. For a packed file use `map.import` first. Both tools
+are available in the placement module and through `modkit.batch`.
+
+    {"op":"create","name":"Ambush Zone","shape":{"type":"rectangle","minX":16,"minY":21,"maxX":24,"maxY":32}}
+    {"op":"create","name":"Shrine","shape":{"type":"circle","x":48,"y":44,"radius":4}}
+    {"op":"update","id":1,"name":"Lower Ambush"}
+    {"op":"delete","id":2}
+
+The writer preserves IDs and unrelated XML. Geometry edits require one plain
+circle or rectangle. It checks bounds against v39 MapInfo and couples the
+Regions XML, version and manifest registration. Deletion preserves unrelated XML
+and rejects literal `RegionFromId` and `RegionFromName` references in the
+document's script and triggers. Review library, GUI graph and dynamically
+computed uses before deleting a region. Dry run is the default.
+To save the checked update directly set `dryRun=false` and `stage=false`.
+For staged changes use `modkit.save`. Native load and trigger use are separate
+checks.
+
 ## Placement safety contract
 
 Plans pin both the effective draft and disk hashes of Objects/ComponentList. Any intervening edit rejects the plan as `STALE_PLACEMENT_PLAN`. Dependencies are rechecked before apply. ID allocation uses max+1 within positive signed32, with a first-free fallback; this is a conservative allocator, not an editor algorithm recovered from the EXE.

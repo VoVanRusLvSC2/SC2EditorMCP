@@ -112,8 +112,10 @@ export type TerrainOperation =
         texture: string;
         minHeight?: number;
         maxHeight?: number;
+        heightFade?: number;
         minSlope?: number;
         maxSlope?: number;
+        slopeFade?: number;
       }>;
     } & Brush)
   | {

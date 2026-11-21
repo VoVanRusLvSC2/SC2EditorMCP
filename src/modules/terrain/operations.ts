@@ -6,7 +6,7 @@ import { componentListWithGameData, gameDataIndexWithCatalog } from "../data/cat
 import { LightingCatalog } from "./lighting.js";
 import { WaterCatalog } from "./waterCatalog.js";
 import { areaBounds, areaWeight, valueNoise } from "./geometry.js";
-import {materialPatternWeight} from './materialPattern.js';
+import { materialPatternWeight, selectTerrainMaterial } from "./materialPattern.js";
 import {
   HeightMap,
   SyncHeightMap,
@@ -612,15 +612,11 @@ export function applyOperations(
           continue;
         }
         let texture: string | undefined;
-        if (operation.op === "texture.paint_rules")
-          texture = operation.rules.find(
-            (r) =>
-              (r.minHeight === undefined || sample.height >= r.minHeight) &&
-              (r.maxHeight === undefined || sample.height <= r.maxHeight) &&
-              (r.minSlope === undefined || sample.slope >= r.minSlope) &&
-              (r.maxSlope === undefined || sample.slope <= r.maxSlope),
-          )?.texture;
-        else texture = operation.texture;
+        if (operation.op === "texture.paint_rules") {
+          const selected = selectTerrainMaterial(operation.rules, sample.height, sample.slope);
+          texture = selected.texture;
+          weight *= selected.weight;
+        } else texture = operation.texture;
         if (!texture) continue;
         const slot = slots.get(`${set}:${texture}`);
         if (slot === undefined)

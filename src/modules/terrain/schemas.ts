@@ -154,8 +154,10 @@ export const terrainOperationSchema = z.discriminatedUnion("op", [
               texture: z.string().min(1),
               minHeight: number.optional(),
               maxHeight: number.optional(),
+              heightFade: number.positive().max(32).optional(),
               minSlope: number.nonnegative().optional(),
               maxSlope: number.nonnegative().optional(),
+              slopeFade: number.positive().max(8).optional(),
             })
             .strict(),
         )

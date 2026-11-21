@@ -18,6 +18,7 @@ import {runFormationCheck} from './formationChecks.js';
 import {runCombatCheck} from './combatChecks.js';
 import {runPresentationCheck,readOwnedRecordingMedia} from './presentationChecks.js';
 import {runRouteCheck} from './routeChecks.js';
+import {runCounterattack} from './counterattack.js';
 import {preparePadProbe} from './padPreparation.js';
 import {observePadQueries} from './padChecks.js';
 import {planQuality,qualityPlanSchema} from './qualityPlan.js';
@@ -227,7 +228,7 @@ export class ProjectTestWorkspace {
     j.checks.push(check);if(check.status!=='passed')return;
    }
    if(m.game&&(m.game.pads.length||m.game.pathing.length)&&!await this.pads(j,runtime))return;
-   const mainGame=m.game&&(!(m.game.pads.length||m.game.pathing.length)||m.game.ready||m.game.startupEvents.length||m.game.routes.length||m.game.formations.length||m.game.combats.length||m.game.scenarios.length||m.game.actions.length||m.game.presentations.length||m.game.views.length||m.game.capture||m.game.diagnostics.required);
+   const mainGame=m.game&&(!(m.game.pads.length||m.game.pathing.length)||m.game.ready||m.game.startupEvents.length||m.game.routes.length||m.game.formations.length||m.game.combats.length||m.game.scenarios.length||m.game.counterattack||m.game.actions.length||m.game.presentations.length||m.game.views.length||m.game.capture||m.game.diagnostics.required);
    if(m.game&&mainGame){this.checkCancel(j);j.phase='launch';const config=runtime.game.configuration();if(!config.configured||!config.launchEnabled){j.checks.push({id:'game.launch',status:'unsupported',required:m.game.required,reason:'Game runtime or explicit launch configuration unavailable'});return;}attemptedAttach=true;const attached=await runtime.game.attach(privateArchive,m.game.timeout,m.game.renderBackend);j.gameRuntime=runtime.game.configuration().runtimeIdentity;await this.record(j,'launch',attached);
     j.checks.push(gameLaunchCheck(attached,m.game.required));
     if(j.checks.at(-1)!.status!=='passed'){
@@ -319,6 +320,13 @@ export class ProjectTestWorkspace {
     const diagnostics=[...testBody(before).messages??[],...testBody(after).messages??[]];const unexpected=diagnostics.filter((d:any)=>d.severity==='error'&&!m.game!.diagnostics.expected.some(e=>e.source===d.source&&e.text===(d.text??d.message)&&e.build===build));
     j.checks.push({id:'game.diagnostics',status:unexpected.length?'failed':'inconclusive',required:m.game.diagnostics.required,reason:unexpected.length?'Observed unexpected runtime errors':'No unexpected errors observed in available sources; diagnostic coverage is partial',evidence:{unexpected:unexpected.slice(0,16),sources:testBody(after).sources??null}});
     if(m.game.capture){this.checkCancel(j);j.phase='capture';const r=await runtime.game.call('game.capture',{include_ui:true});const png=r.content.find(c=>c.type==='image');if(png?.type==='image'){const b=Buffer.from(png.data,'base64');await fs.writeFile(path.join(j.directory,'Game.png'),b);j.checks.push({id:'game.capture',status:responseState(r),required:false,evidence:{file:path.join(j.directory,'Game.png'),sha256:digest(b),visualReview:'not_checked'}});}else j.checks.push({id:'game.capture',status:'inconclusive',required:false,reason:'No native image returned'});}
+    if(m.game.counterattack){
+     j.phase='counterattack';
+     j.checks.push(...await runCounterattack(m.game.counterattack,{
+      call:(method,args)=>runtime!.game.call(method,args),checkCancel:()=>this.checkCancel(j),pollMs:this.options.pollMs,
+      record:async(name,result)=>{const stem='counterattack_'+name;await this.record(j,stem,result);return path.join(j.directory,stem+'.json');},
+     }));
+    }
    }
   }catch(e){const reason=e instanceof Error?e.message:String(e);if(reason!=='TEST_CANCEL_REQUESTED')j.checks.push({id:j.phase||'runner',status:'failed',required:true,reason});}
   finally{

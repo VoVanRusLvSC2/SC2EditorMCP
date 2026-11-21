@@ -3,6 +3,7 @@ import {actionCheckSchema} from './actionChecks.js';
 import {combatSchema} from './combatChecks.js';
 import {presentationSchema} from './presentationChecks.js';
 import {padSchema,padProbeSchema,pathingSchema,pathingPointNames} from './padQueries.js';
+import {counterattackSchema} from './counterattack.js';
 
 const name=z.string().regex(/^[A-Za-z][A-Za-z0-9_-]{0,63}$/);
 const point=z.object({x:z.number().finite(),y:z.number().finite()}).strict();
@@ -32,6 +33,7 @@ export const testManifestSchema=z.object({
   combats:z.array(combatSchema).max(8).default([]),
   presentations:z.array(presentationSchema).max(4).default([]),
   scenarios:z.array(z.object({id:name,required:z.boolean().default(true),steps:z.array(step).min(1).max(32)}).strict()).max(16).default([]),
+  counterattack:counterattackSchema.optional(),
   actions:z.array(actionCheckSchema).max(16).default([]),
   views:z.array(view).max(8).default([]),
   diagnostics:z.object({required:z.boolean().default(false),expected:z.array(z.object({source:z.string().min(1),text:z.string().min(1),build:z.string().min(1)}).strict()).max(32).default([])}).strict().default({required:false,expected:[]}),

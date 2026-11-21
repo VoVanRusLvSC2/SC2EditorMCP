@@ -42,7 +42,8 @@ export class NativeEditorBridge {
   private connecting?:Promise<void>;
   private home:string;
   private ownedDocument?:Source;
-  private loadedCaptureSource?:Source;
+  private loadedCaptureSource?:Source & {renderBackend:string};
+  private expectedVersion:string;
   private loadedDataDocument?:DataDocument;
   private dataDocumentVersion=0;
   private readonly workerId=randomUUID().replaceAll('-','');
@@ -57,6 +58,9 @@ export class NativeEditorBridge {
   readonly work:string;
   constructor(readonly workspace:Workspace,options:Options={}){
     this.client=options.client;this.env={...(options.env??process.env)};this.home=options.home??nativeHome(this.env);
+    this.expectedVersion=this.env.SC2_NATIVE_TOOLKIT_VERSION??nativeRelease.version;
+    if(this.expectedVersion!==nativeRelease.version&&(!this.env.SC2_NATIVE_MCP_PATH||this.expectedVersion!=='1.2.0-rc.1'))
+      throw Error('NATIVE_TOOLKIT_LOCAL_VERSION_NOT_SUPPORTED: use SC2_NATIVE_MCP_PATH with verified Toolkit 1.2.0-rc.1');
     // The upstream Windows archive extractor still has MAX_PATH-bound operations.
     // Keep the owned prefix compact; preserve the full UUID entropy and guards.
     this.storage=new NativeStorage(workspace.root,this.env.SC2_NATIVE_MCP_PATH?path.dirname(path.resolve(this.env.SC2_NATIVE_MCP_PATH)):this.home,this.workerId,this.env.SC2_NATIVE_WORK_ROOT||undefined);
@@ -71,7 +75,7 @@ export class NativeEditorBridge {
     return this.storage.readCaptureArtifact(file,directory);
   }
   configuration(){return {available:!!this.client||existsSync(path.join(this.home,'sc2-mcp-runtime.json'))||!!this.env.SC2_NATIVE_MCP_PATH,
-    expectedVersion:nativeRelease.version,nativeProtocol:nativeRelease.nativeProtocol,runtimeHome:this.home,transport:'retained stdio MCP',launchPolicy:'Explicit editor.check/editor.capture may start an owned hidden Editor on private map copies',
+    expectedVersion:this.expectedVersion,nativeProtocol:nativeRelease.nativeProtocol,runtimeHome:this.home,transport:'retained stdio MCP',launchPolicy:'Explicit editor.check/editor.capture may start an owned hidden Editor on private map copies',
     stability:'Pinned1.1 release candidate with API contract1; native startup, compilation and rendering require local evidence',updatePolicy:'Pinned complete release; setup does not auto-upgrade or start an Editor',workerDirectory:this.workerDirectory(),storageLayout:'compact-owned-v1',artifactStorage:this.storage.external?'configured_external':'workspace_default',pathBudget:nativePathBudget(this.workerDirectory()),
     setup:'npm run native:setup',gameplayValidation:false,fastMapPreview:'map.preview (ModKit)',terrainCameraControl:'Saved cameras or explicit target XYZ/angles/distance/FOV; fresh native readback required'};}
   private async connect(){
@@ -95,7 +99,7 @@ export class NativeEditorBridge {
         if(hash(await fs.readFile(executable))!==receipt.executableSha256)throw Error('NATIVE_EXECUTABLE_HASH_MISMATCH');
       }
       await fs.mkdir(this.work,{recursive:true});
-      this.client=new NativeStdioClient(executable,['--work',this.workerDirectory()],path.dirname(executable));
+      this.client=new NativeStdioClient(executable,['--work',this.workerDirectory()],path.dirname(executable),this.expectedVersion);
     }
     await this.client.start();
   }
@@ -408,8 +412,9 @@ export class NativeEditorBridge {
       await fs.writeFile(job.report,JSON.stringify(result,null,2)+'\n');return result;
     });
   }
-  async capture(args:{archive:string;mode:'viewport'|'map'|'region';cameraId?:string;terrainCamera?:NativeTerrainCamera;bounds?:{left:number;bottom:number;right:number;top:number};includeUnits?:boolean;includeDoodads?:boolean;size:number;deadlineSeconds:number;renderBackend?:'auto'|'legacy'|'vulkan'}){
+  async capture(args:{archive:string;expectedSha256?:string;mode:'viewport'|'map'|'region';cameraId?:string;terrainCamera?:NativeTerrainCamera;bounds?:{left:number;bottom:number;right:number;top:number};includeUnits?:boolean;includeDoodads?:boolean;size:number;deadlineSeconds:number;renderBackend?:'auto'|'legacy'|'vulkan'}){
     const source=await this.source(args.archive);
+    if(args.expectedSha256&&args.expectedSha256!==source.sha256)throw Error('NATIVE_CAPTURE_REVISION_CHANGED');
     if(args.mode==='region'&&!args.bounds)throw Error('NATIVE_REGION_BOUNDS_REQUIRED');
     if((args.cameraId||args.terrainCamera)&&args.mode!=='viewport')throw Error('NATIVE_CAMERA_REQUIRES_VIEWPORT');
     if(args.cameraId&&args.terrainCamera)throw Error('NATIVE_CAMERA_SELECTOR_CONFLICT');
@@ -418,12 +423,16 @@ export class NativeEditorBridge {
     if(args.cameraId&&!/\.sc2map$/i.test(source.absolute))throw Error('NATIVE_MAP_REQUIRED');
     return this.enqueue('capture',args.deadlineSeconds,async job=>{
       if(!await this.unchanged(source))throw Error('NATIVE_SOURCE_CHANGED_WHILE_QUEUED');
-      const directory=path.dirname(job.report),copy=path.join(directory,'Input'+path.extname(source.absolute));await fs.copyFile(source.absolute,copy);
-      if(hash(await fs.readFile(copy))!==source.sha256)throw Error('NATIVE_SNAPSHOT_CHANGED');
+      const directory=path.dirname(job.report),copy=path.join(directory,'Input'+path.extname(source.absolute));
       job.phase=args.mode;
       const tool=args.mode==='viewport'?'sc2_capture_terrain':args.mode==='map'?'sc2_export_map_image':'sc2_capture_map_region';
       const filters={include_units:args.includeUnits??true,include_doodads:args.includeDoodads??true};
-      const reusedLoadedMap=this.loadedCaptureSource?.absolute===source.absolute&&this.loadedCaptureSource.sha256===source.sha256&&this.ownedDocument?.sha256===source.sha256;
+      const renderBackend=args.renderBackend??'auto';
+      const reusedLoadedMap=this.loadedCaptureSource?.absolute===source.absolute&&this.loadedCaptureSource.sha256===source.sha256&&this.loadedCaptureSource.renderBackend===renderBackend&&this.ownedDocument?.sha256===source.sha256;
+      if(!reusedLoadedMap){
+        await fs.copyFile(source.absolute,copy);
+        if(hash(await fs.readFile(copy))!==source.sha256)throw Error('NATIVE_SNAPSHOT_CHANGED');
+      }
       const value=await this.invoke(tool,{...(reusedLoadedMap?{}:{map:copy}),render_backend:args.renderBackend??'auto',...(args.cameraId?{map_camera_id:args.cameraId}:{}),...(args.terrainCamera?{terrain_camera:args.terrainCamera}:{}),...(args.mode==='viewport'?{}:{size:args.size,...filters}),...(args.mode==='region'?{bounds:args.bounds}:{})},directory);
       const readback=value.native?.terrainExport;
       const objectFilters=args.mode==='viewport'?undefined:{requested:{units:filters.include_units,doodads:filters.include_doodads},
@@ -435,7 +444,8 @@ export class NativeEditorBridge {
       const failed=value.isError||value.status==='FAILED'||!sourceUnchanged||capture.artifactOwnershipVerified===false,incomplete=['incomplete','pending'].includes(nativeOutcome(value)??'');
       this.ownedDocument=failed||incomplete?undefined:source;
       if(capture.artifactOwnershipVerified===true)this.captureDirectories.set(job,directory);
-      if(!failed&&!incomplete&&value.wholeMapVerified===true)this.loadedCaptureSource=source;
+      const verifiedViewport=args.mode==='viewport'&&value.status==='TERRAIN_FRAME_CAPTURED'&&value.requestedTerrainFrameVerified===true&&capture.artifactOwnershipVerified===true;
+      this.loadedCaptureSource=!failed&&!incomplete&&(value.wholeMapVerified===true||verifiedViewport)?{...source,renderBackend}:undefined;
       await fs.writeFile(job.report,JSON.stringify({source:source.absolute,sourceSha256:source.sha256,sourceUnchanged,reusedLoadedMap,objectFilters,result:value},null,2)+'\n');
       return {failed,outcome:failed?'failed':incomplete||objectFilters&&!objectFilters.verified?'incomplete':'completed',source:source.absolute,sourceSha256:source.sha256,sourceUnchanged,reusedLoadedMap,
         capture,...(objectFilters?{objectFilters}:{}),report:job.report,limitations:['Water coverage requires separate review. Region mode crops a full image. Saved-camera captures show editor placements, not running triggers or gameplay.',...(objectFilters&&!objectFilters.verified?['Requested object filters are not confirmed by matching native readback.']:[])]};

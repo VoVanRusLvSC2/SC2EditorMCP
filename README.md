@@ -59,6 +59,29 @@ Current-document work defaults to the open map. A checkpoint/Save As copy is an
 explicitly selected alternative, documented in the [legacy live guide](docs/LIVE_EDITOR.md).
 Unknown native outcomes require inspection or recovery, never blind replay.
 
+## Build a map through MCP
+
+Use `mission.contract` to discover the planner inputs. Call `mission.layout`
+to review reserved routes and the selected relief, then `mission.build` to
+create a packed candidate. `mission.resume` returns the saved revision and
+receipts across MCP sessions. The river terrace and split ridge combine
+continuous height shaping with native cliff tiers and cardinal ramps. Natural
+cliff edges, feathered terrain materials and paved pads with crisp trim can
+coexist on one map. The builder selects materials from the installed tileset,
+assigns the selected light, places measured decoration and writes water after placement. Review
+matching native 3D views through `mission.views` or `editor.capture`.
+[Mission workflow](docs/MISSION_MCP.md)
+
+`mission.styles` lists observed palettes from Wings of Liberty, Heart of the
+Swarm, Legacy of the Void and Nova Covert Ops. `mission.materials` supplies
+texture roles from names and reviewed descriptions. The `riverValley`
+layout combines a continuous native river, cliff terraces, dry approaches
+and an optional decorated base in one new map.
+
+`mission.decor_density` compares authoring density with campaign main missions.
+Use `decorDensity: "lush"` with campaign decor for inland groves and undergrowth.
+`mission.checkpoint` names and restores verified archive revisions.
+
 ## Capabilities and confirmation
 
 Reviewed against the public server registrations, implementation and retained
