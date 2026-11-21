@@ -13,6 +13,7 @@ import { registerDialogPreviewTools } from "../modules/uiPreview/dialogTools.js"
 import { registerUiPreviewTools } from "../modules/uiPreview/tools.js";
 import { registerAssetTools } from "../modules/assets/tools.js";
 import { registerDocumentTools } from "../modules/document/tools.js";
+import { registerMissionTools } from "../modules/mission/tools.js";
 import { registerSettingsTools } from "../modules/settings/tools.js";
 import { registerCascTools } from "../modules/casc/tools.js";
 import { projectPreflight } from "./preflight.js";
@@ -70,6 +71,11 @@ export function createProjectServer(project: Project) {
     registerPreviewBatch(server, project.dialogPreview);
   }
   if (enabled("map")) registerMapTools(server, project.map);
+  if (enabled("mission"))
+    registerMissionTools(server, project.mission, {
+      tests: () => project.testing,
+      editor: () => project.nativeGate.protect(project.nativeEditor),
+    });
   if (enabled("live") || enabled("editor-live"))
     project.live.current.refresh.nativeCompiled = (id) =>
       project.nativeGate.protect(project.nativeEditor).compiledGalaxy(id);

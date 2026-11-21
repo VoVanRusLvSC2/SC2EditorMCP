@@ -7,6 +7,7 @@ export function refreshAuthoringAllowed(name: string, args?: Record<string, unkn
   )
     return true;
   if (["modkit.save", "modkit.discard", "modkit.author_help"].includes(name)) return true;
+  if (/^document\.(components|metadata)\.(inspect|apply)$/.test(name)) return true;
   if (
     !name.startsWith("map.") ||
     /^(map\.(export|import|clone|create|blueprint\.register))$/.test(name)

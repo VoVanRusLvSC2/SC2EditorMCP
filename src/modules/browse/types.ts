@@ -1,4 +1,5 @@
 import type { DataField, DataObject } from "../data/types.js";
+import type { DoodadDescription, DoodadSearch } from "./doodadDescriptions.js";
 
 export type BrowseAvailability =
   | "MAP_LOCAL"
@@ -68,6 +69,7 @@ export interface BrowseEntry {
 
 export interface BrowseSearchQuery {
   query?: string;
+  doodads?: DoodadSearch;
   ids?: string[];
   catalogType?: string;
   objectKind?: string;
@@ -103,6 +105,7 @@ export interface BrowseSearchResult {
   matchedBy: string[];
   evidence: BrowseEvidence[];
   warnings: string[];
+  stockDescription?: DoodadDescription;
 }
 
 export interface PhysicalAssetEntry {

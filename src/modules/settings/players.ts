@@ -93,6 +93,28 @@ export class PlayersDocument {
         const head=Buffer.from(this.bytes.subarray(0,this.tableEnd));head.writeUInt32LE(this.players.length+1,this.playerCountOffset);
         const next=Buffer.concat([head,record,this.bytes.subarray(this.tableEnd)]);new PlayersDocument(next);return next;
     }
+    setHumanSlots(operation: Extract<SettingsOperation, { op: "player.slots" }>): Buffer {
+        const patches: Array<Extract<SettingsOperation, { op: "player.set" }>> = [];
+        const present = new Map(this.players.map((player) => [player.id, player]));
+        let bytes = this.bytes;
+        for (let playerId = 1; playerId <= operation.count; playerId++) {
+            const player = present.get(playerId);
+            if (!player) {
+                bytes = new PlayersDocument(bytes).createPlayer({ op: "player.create", playerId, color: 0, control: "User", aiName: "" });
+                continue;
+            }
+            if (player.control === "Neutral" || player.control === "Hostile" || (player.control === "Computer" && !operation.disableComputerPlayers))
+                throw Error("PLAYER_SLOT_CONTROL_CONFLICT: " + playerId);
+            if (player.control !== "User")
+                patches.push({ op: "player.set", playerId, patch: { control: "User" } });
+        }
+        for (const player of this.players) {
+            if (player.id >= 1 && player.id <= operation.count) continue;
+            if (player.control === "User" || (player.control === "Computer" && operation.disableComputerPlayers))
+                patches.push({ op: "player.set", playerId: player.id, patch: { control: "None" } });
+        }
+        return new PlayersDocument(bytes).patchMany(patches);
+    }
     patch(
     operation: Extract<
       SettingsOperation,

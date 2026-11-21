@@ -16,7 +16,7 @@ try {
     "Microsoft.NET/Framework64/v4.0.30319/csc.exe",
   );
   const base = path.join(root, "native/bin/windows-x64"),
-    names = ["Program.cs", "MemoryData.cs", "ArchiveIdentity.cs", "DesktopContext.cs"];
+    names = ["Program.cs", "MemoryData.cs", "ArchiveIdentity.cs", "DesktopContext.cs", "PortableDocumentRefresh.cs"];
   const sources = new Map(
     names.map((name) => [name, readFileSync(path.join(root, "native/live-editor", name))]),
   );
@@ -73,7 +73,7 @@ try {
       JSON.stringify({
         built: output,
         scope:
-          "Inventory/file-drop without DLL; explicit memory commands require the separately built visible Data adapter",
+          "Inventory, file-drop and qualified 98745 document refresh without DLL; other memory commands use the separately built adapter",
       }) + "\n",
     );
   }

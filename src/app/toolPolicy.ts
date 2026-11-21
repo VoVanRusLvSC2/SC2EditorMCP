@@ -1,6 +1,24 @@
 import type { ModuleSelection } from "./moduleSelection.js";
 
+const missionTools = [
+  "mission.contract",
+  "mission.inspect",
+  "mission.resume",
+  "mission.plan",
+  "mission.apply",
+  "mission.layout",
+  "mission.build",
+  "mission.buildMod",
+  "mission.checkpoint",
+  "mission.decor_density",
+  "mission.materials",
+  "mission.styles",
+  "mission.verify",
+  "mission.views",
+];
+
 const builderTools = new Set([
+  ...missionTools,
   "map.preview",
   "data.modkit.query",
   "document.inspect",
@@ -35,6 +53,8 @@ const builderTools = new Set([
   "placement.apply",
   "placement.validate",
   "placement.scan",
+  "placement.regions.inspect",
+  "placement.regions.apply",
   "ui.recipe_timer",
   "ui.assets.register",
   "ui.assets.save",
@@ -77,7 +97,7 @@ export class ToolVisibilityPolicy {
       "modkit.usage",
       ...(selection.profile === "cutscene-preview"
         ? ["cutscene.preview", "cutscene.render"]
-        : ["ui.preview_batch"]),
+        : ["ui.preview_batch", ...missionTools]),
     ]);
   }
 

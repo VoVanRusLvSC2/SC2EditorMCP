@@ -3,6 +3,7 @@ import {landscapeInspectSchema,landscapeZonePlanSchema} from './landscapeEditing
 import {readJsonPlanFile} from '../../core/jsonPlanFile.js';
 import {landscapePlanSchema} from './landscapeOwnership.js';
 import { registerTerrainSurfaceTools } from "./surface/tools.js";
+import { registerTerrainBinaryTools } from "./cellFlagTools.js";
 import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import { TerrainWorkspace } from "./workspace.js";
@@ -29,6 +30,7 @@ export function registerTerrainTools(
   context: TerrainToolContext,
 ): void {
   const terrain = context.workspace;
+  registerTerrainBinaryTools(server, terrain.workspace);
   server.registerTool('terrain.plan_file',{description:'Plan the strict module request from a workspace JSON file (max 1 MiB). No execution, no staging until apply; avoids repeating large schemas.',inputSchema:z.object({file:z.string().min(1).max(512)}).strict()},async a=>({content:[{type:'text' as const,text:JSON.stringify(await terrain.plan(await readJsonPlanFile(terrain.workspace,a.file)))}]}));
 
   registerTerrainSurfaceTools(server, context);

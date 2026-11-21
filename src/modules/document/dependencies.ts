@@ -194,7 +194,7 @@ interface CatalogRecord {
     paths: string[];
     unsupported: string[];
 }
-/** Bounded CTerrain rules needed by the allocator: ordered overrides, direct arrays and ##id## parent tokens. */
+/** Bounded CTerrain rules needed by the allocator: ordered overrides, complete direct or indexed arrays and ##id## parent tokens. */
 export function resolveTerrainCatalogs(catalogs: Array<{
     path: string;
     bytes: Buffer;
@@ -210,11 +210,15 @@ export function resolveTerrainCatalogs(catalogs: Array<{
                 const nodes = node.childIds.map(i => xml.nodes[i]).filter(n => n.tag === field);
                 if (!nodes.length)
                     continue;
-                if (nodes.some(n => Object.keys(n.attrs).some(a => a !== 'value') || n.childIds.length || n.attrs.value === undefined)) {
+                const indexed = nodes.every(n => /^(0|[1-9]\d*)$/.test(n.attrs.index ?? ""));
+                const ordered = indexed ? [...nodes].sort((a, b) => Number(a.attrs.index) - Number(b.attrs.index)) : nodes;
+                if (ordered.some((n, i) => n.childIds.length || n.attrs.value === undefined ||
+                    Object.keys(n.attrs).some(a => a !== 'value' && (!indexed || a !== 'index')) ||
+                    (indexed && Number(n.attrs.index) !== i))) {
                     r.unsupported.push(field + ' uses unsupported array semantics');
                     continue;
                 }
-                const value = nodes.map(n => n.attrs.value);
+                const value = ordered.map(n => n.attrs.value);
                 if (field === 'BlendTextures')
                     r.textures = value;
                 else

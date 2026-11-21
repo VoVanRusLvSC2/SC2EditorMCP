@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import { BrowseWorkspace } from "./workspace.js";
 import type { BrowseSearchQuery, PhysicalAssetEntry } from "./types.js";
+import { doodadSearchSchema } from "./doodadDescriptions.js";
 
 function textResult(value: unknown) { return { content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }] }; }
 
@@ -27,9 +28,10 @@ export function registerBrowseTools(server: McpServer, context: BrowseToolContex
   }, async () => textResult(await browse.status()));
 
   server.registerTool("browse.search", {
-    description: "Ranked and paginated search over real SC2 catalog ids, localized names, text keys, filenames, asset paths and related object ids. Results explain ranking and placeability.",
+    description: "Ranked search over real SC2 catalog IDs, labels, files and linked objects. Set doodads={} to search the English stock descriptions of dependency-ready Doodads by appearance, with optional kind, size, role, biome and story filters.",
     inputSchema: z.object({
       query: z.string().optional(), ids: z.array(z.string()).max(500).optional(), catalogType: z.string().optional(), objectKind: z.string().optional(), dependency: z.string().optional(),
+      doodads: doodadSearchSchema.optional(),
       sourceLayer: z.enum(["workspace", "dependency", "installed"]).optional(), locale: z.string().optional(),
       availability: z.enum(["MAP_LOCAL", "AVAILABLE_THROUGH_DEPENDENCY", "INSTALLED_BUT_NOT_DECLARED", "MISSING_DEPENDENCY", "UNRESOLVED", "UNKNOWN"]).optional(),
       hasModel: z.boolean().optional(), hasTexture: z.boolean().optional(), placeable: z.boolean().optional(),

@@ -17,7 +17,7 @@ interface Plan {
 export class SettingsWorkspace {
     private readonly plans = new Map<string, Plan>();
     constructor(readonly workspace: Workspace) { }
-    capabilities() { return { module: "settings", mapInfoVersion: 39, attributes: ["create definition with values in one plan", "set name/access/visibility/availability", "upsert values", "set scoped defaults"], variants: ["inspect", "clone existing native variant", "set mode/category/team-size fields", "edit defaults/locks and visibility of existing attribute bindings"], players: ["control", "aiName", "color", "registered startLocation", "decal"], options: 13, losslessPatches: true, stagedTransactions: true, editorValidation: "NOT_EXECUTED", gaps: ["No player count/slot renumbering or team/alliance matrix rebuild", "No standard-attribute enum inference or new namespace bindings", "No default-variant regeneration, arbitrary MapInfo versions or from-scratch variant defaults", "Names/descriptions are localization keys; write localized text with existing Text tools", "No Editor/engine validation for settings"] }; }
+    capabilities() { return { module: "settings", mapInfoVersion: 39, attributes: ["create definition with values in one plan", "set name/access/visibility/availability", "upsert values", "set scoped defaults"], variants: ["inspect", "clone existing native variant", "set mode/category/team-size fields", "edit defaults/locks and visibility of existing attribute bindings"], players: ["control", "aiName", "color", "registered startLocation", "decal", "exact contiguous human range and selected lobby defaults"], options: 13, losslessPatches: true, stagedTransactions: true, editorValidation: "NOT_EXECUTED", gaps: ["No arbitrary player renumbering or team/alliance matrix rebuild", "No standard-attribute enum inference or new namespace bindings", "No default-variant regeneration, arbitrary MapInfo versions or from-scratch variant defaults", "Names/descriptions are localization keys; write localized text with existing Text tools", "No Editor/engine validation for settings"] }; }
     private file(directory: string, name: string) { return this.workspace.binary.key(path.join(directory, name)); }
     private noDrafts(directory: string, except: string[] = []) { const root = this.workspace.resolveUserPath(directory), allowed = new Set(except); for (const file of [...this.workspace.draftFiles(), ...this.workspace.binary.draftFiles()]) {
         const rel = path.relative(root, this.workspace.resolveUserPath(file));
@@ -68,6 +68,13 @@ export class SettingsWorkspace {
     for (let index = 0; index < operations.length; index++) {
       const op = operations[index];
       if (op.op === "player.create") map = new PlayersDocument(map).createPlayer(op);
+      else if (op.op === "player.slots") {
+        map = new PlayersDocument(map).setHumanSlots(op);
+        if (attributes.length)
+          attributes = Buffer.from(new AttributesDocument(decodeUtf8(attributes, "Attributes")).syncPlayerSlots(op));
+        else if (op.attributeId !== undefined)
+          throw Error("ATTRIBUTES_MISSING");
+      }
       else if (op.op === "starts.register") {
         const objectFile = this.file(directory, "Objects"),
           objects = await this.workspace.binary.read(objectFile, false);

@@ -73,6 +73,7 @@ test("editor-live profile exposes current-document tools without checkpoint impo
       "live.refresh.prepare",
       "live.refresh.begin",
       "live.refresh.author",
+      "live.refresh.changes",
       "live.refresh.resources",
       "live.refresh.compile_begin",
       "live.refresh.compile_finish",

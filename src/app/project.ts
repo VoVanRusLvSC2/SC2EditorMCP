@@ -17,6 +17,7 @@ import { MapPreviewWorkspace } from "../modules/map/preview.js";
 import { NativeMinimapWorkspace } from "../modules/map/nativeMinimap.js";
 import { ModkitTerrainWorkspace } from "../modules/terrain/modkitWorkspace.js";
 import { DocumentWorkspace } from "../modules/document/workspace.js";
+import { MissionWorkspace } from "../modules/mission/workspace.js";
 import { SettingsWorkspace } from "../modules/settings/workspace.js";
 import { CascWorkspace } from "../modules/casc/workspace.js";
 import { ScriptWorkspace } from "../modules/script/workspace.js";
@@ -60,6 +61,7 @@ interface ProjectServices {
   modkitTerrain: ModkitTerrainWorkspace;
   settings: SettingsWorkspace;
   document: DocumentWorkspace;
+  mission: MissionWorkspace;
   ai: AiWorkspace;
   text: TextWorkspace;
   cutscene: CutsceneWorkspace;
@@ -216,6 +218,16 @@ export async function createProject(
     modkitTerrain: () => new ModkitTerrainWorkspace(services.modkit),
     settings: () => new SettingsWorkspace(workspace),
     document: () => new DocumentWorkspace(workspace, services.casc),
+    mission: () =>
+      new MissionWorkspace(workspace, () => ({
+        document: services.document,
+        casc: services.casc,
+        map: services.map,
+        catalogFiles: async () => {
+          await refreshCasc();
+          return services.data.nativeCatalogFiles;
+        },
+      })),
     ai: () => new AiWorkspace(workspace, aiSchema, services.data, services.browse),
     text: () => new TextWorkspace(workspace, textSchema),
     cutscene: () => new CutsceneWorkspace(workspace, cutsceneSchema),

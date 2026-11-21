@@ -1,5 +1,32 @@
 import {valueNoise} from './geometry.js';
-import type {Point2,TexturePattern} from './types.js';
+import type {Point2,TerrainOperation,TexturePattern} from './types.js';
+
+type PaintRule = Extract<TerrainOperation, { op: "texture.paint_rules" }>["rules"][number];
+
+function thresholdWeight(distance: number, fade = 0) {
+  if (!fade) return distance >= 0 ? 1 : 0;
+  const t = Math.max(0, Math.min(1, distance / fade + 0.5));
+  return t * t * (3 - 2 * t);
+}
+
+/** Use the strongest matching rule. Equal weights retain rule order, including
+ * existing hard rules whose weights are always zero or one. */
+export function selectTerrainMaterial(rules: PaintRule[], height: number, slope: number) {
+  let texture: string | undefined;
+  let weight = 0;
+  for (const rule of rules) {
+    const candidate =
+      thresholdWeight(height - (rule.minHeight ?? -Infinity), rule.heightFade) *
+      thresholdWeight((rule.maxHeight ?? Infinity) - height, rule.heightFade) *
+      thresholdWeight(slope - (rule.minSlope ?? -Infinity), rule.slopeFade) *
+      thresholdWeight((rule.maxSlope ?? Infinity) - slope, rule.slopeFade);
+    if (candidate <= weight) continue;
+    texture = rule.texture;
+    weight = candidate;
+    if (weight === 1) break;
+  }
+  return { texture, weight };
+}
 
 /** World-space coherent texture mask. Threshold is a signed noise value, not
  * a promised surface-area percentage. Never depends on a zone's brush bounds. */

@@ -130,6 +130,24 @@ export class WindowsMemoryDesktop extends WindowsLiveDesktop implements MemoryDe
     const value = await this.request(["window", windowId]);
     return value == null ? undefined : editorWindowSchema.parse(value);
   }
+  override async present(window: EditorWindow, archive: string) {
+    try {
+      return await this.request([
+        "open",
+        window.windowId,
+        String(window.processId),
+        window.processStart,
+        window.title,
+        archive,
+      ]);
+    } catch (error) {
+      // Older bridges reject this request before dispatch. All other errors
+      // retain the one-shot recovery marker.
+      if (error instanceof Error && error.message === "LIVE_MEMORY_REQUEST_INVALID")
+        return super.present(window, archive);
+      throw error;
+    }
+  }
   documentIdentity(window: EditorWindow, archive: string) {
     return this.request([
       "archive-owner",

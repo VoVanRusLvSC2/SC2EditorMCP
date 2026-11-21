@@ -1,0 +1,12 @@
+{
+  "JarbanMinor_Jungle": {
+    "JarbanMinor_Jungle1": { "description": "Dark olive jungle litter with dense fine leaf fragments", "roles": ["ground"] },
+    "JarbanMinor_Jungle2": { "description": "Muted olive-brown earth with subdued fine grain", "roles": ["trail"] },
+    "JarbanMinor_Jungle3": { "description": "Gray worn concrete with fine scratches and subtle stains", "roles": ["floor"] },
+    "JarbanMinor_Jungle4": { "description": "Dark damp ground threaded with green vines", "roles": ["vegetation"] },
+    "JarbanMinor_Jungle5": { "description": "Dark cracked rock with small irregular plates", "roles": ["rock"] },
+    "JarbanMinor_Jungle6": { "description": "Rounded dark cobbles with pronounced pale gaps", "roles": [] },
+    "JarbanMinor_Jungle7": { "description": "Dense charcoal gravel with tiny pale speckles", "roles": ["trail"] },
+    "JarbanMinor_Jungle8": { "description": "Rust-stained metal plates with raised structural ribs", "roles": ["trim"] }
+  }
+}
