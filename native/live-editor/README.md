@@ -5,8 +5,12 @@ SC2GameToolkit/SC2EditorToolkit sources or replace the hidden acceptance bridge.
 
 - `Program.cs`: exact visible Editor inventory and ordinary file-drop handoff.
   `npm run live:build` uses the installed .NET Framework compiler.
+- `PortableDocumentRefresh.cs`: operations 25/26 use original window and menu
+  messages for refresh readiness and File > Close on the verified 5.0.17.98745
+  executable. It checks native dialogs, open documents, pending XML and focused
+  input, and revalidates the clean frame before submitting Close.
 - `MemoryData.cs`: bounded named-mapping IPC. Only explicit `memory-*` commands
-  load the separate Data plugin; inventory/file-drop do not load it.
+  outside the portable refresh provider load the separate Data plugin.
 - `memory_loader.cpp`: exact x64 Editor PID/start/build validation and loading of
   the immutable sibling plugin. No arbitrary DLL path or game process target.
 - `memory.cpp`: GUI-thread dispatch through a chained Data-window procedure and
@@ -21,7 +25,7 @@ SC2GameToolkit/SC2EditorToolkit sources or replace the hidden acceptance bridge.
 `npm run live:memory:build` requires Visual Studio 2022 C++ tools and CMake. The
 source fingerprint selects an immutable output directory. The ignored manifest
 contains exact binary SHA-256 values; the helper verifies them before loading.
-The tested Editor version is 5.0.17.98310 with English Data controls.
+The Data plugin's tested Editor version is 5.0.17.98310 with English Data controls.
 
 Use the public `live.memory.read/set` and `live.document.status/save` MCP tools, not raw native commands, for
 authoring. TypeScript owns archive/document identity, snapshots, cross-client

@@ -886,6 +886,8 @@ dialogs remain visible; save, dependency and error prompts are never auto-accept
    placements, GUI, UI, Text, settings, lighting and resources reuse their existing
    writers and validation. No new working map, nested live session or test worker
    is created. Commit complete component groups before applying.
+   Use `live.refresh.changes` to inspect saved component hashes, staged drafts
+   and source archive drift while the selected map stays open.
 3. Call `live.refresh.apply` once. It validates and packs first, rechecks source,
    process, native frame and pending buffers, retains an internal rollback archive
    and shared recovery journal, then closes the original document, atomically

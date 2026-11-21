@@ -148,6 +148,15 @@ export class RefreshTransfer {
       (await currentDocumentMatches(this.desktop, w, record.archive));
     if (await loaded()) return this.loaded(record, w, current.archiveSha256, published);
     if (!this.empty(w)) return this.outcome(record, w, "pending_native", current.archiveSha256);
+    // File > Close can expose the empty frame before the original message loop
+    // settles. Only reserve the one-shot Open once the same frame stays ready.
+    await this.pause(250);
+    w = await this.window(record);
+    if (await loaded()) return this.loaded(record, w, current.archiveSha256, published);
+    if (!this.empty(w)) return this.outcome(record, w, "pending_native", current.archiveSha256);
+    const ready = await this.publication(record);
+    if (ready.archiveSha256 !== current.archiveSha256)
+      return { ...ready, status: "conflict", retryMutation: false };
     let opening = false;
     try {
       const file = await fs.open(record.opening, "wx");

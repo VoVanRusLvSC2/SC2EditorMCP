@@ -64,6 +64,8 @@ internal static partial class LiveEditor {
       bool modalPlacement=operation==25||operation==30||operation==36||operation==38||(operation>=52&&operation<=54)||(operation>=56&&operation<=59);
       bool inspection=(((operation>=50&&operation<=59)||(operation>=60&&operation<=62)||operation==64||operation==65)&&w!=null&&(w.title.StartsWith("Triggers - [")||w.title.StartsWith("UI - [")||w.title.StartsWith("Import - [")||w.title.StartsWith("Text - [")||w.title.StartsWith("Terrain - [")||w.title.StartsWith("Data - [")))||((operation==66||operation==67||operation==68||operation==69)&&w!=null&&w.title.StartsWith("Triggers - ["));
       if(w==null||w.processId.ToString()!=args[2]||w.processStart!=args[3]||w.title.Replace("*]","]")!=args[4].Replace("*]","]")||(!w.enabled&&(operation<4||operation>6)&&!modalPlacement)||(!inspection&&!w.title.StartsWith(terrain?"Terrain - [":"Data - [")))throw new Exception(terrain?"LIVE_EXACT_TERRAIN_WINDOW_REQUIRED":"LIVE_MEMORY_EXACT_DATA_WINDOW_REQUIRED");
+      if((operation==25||operation==26)&&PortableRefreshEditor(w))
+        return PortableRefreshCommand(hwnd,w,operation,args[8],args[10]);
       return args.Length==5?MemoryData.Inspect(hwnd):MemoryData.Call(hwnd,operation,args[6],args[7],args[8],args[9],args[10]);
     }
     if (args.Length == 1 && args[0] == "list") {
@@ -104,7 +106,7 @@ internal static partial class LiveEditor {
         try {
           if(line.Length>16384)throw new Exception("LIVE_MEMORY_REQUEST_BOUND");
           var request=Json.Deserialize<string[]>(line);
-          if(request==null||!((request.Length==11&&request[0]=="memory-command")||(request.Length==1&&request[0]=="list")||(request.Length==2&&request[0]=="window")||(request.Length==6&&request[0]=="archive-owner")))throw new Exception("LIVE_MEMORY_REQUEST_INVALID");
+          if(request==null||!((request.Length==11&&request[0]=="memory-command")||(request.Length==1&&request[0]=="list")||(request.Length==2&&request[0]=="window")||(request.Length==6&&(request[0]=="archive-owner"||request[0]=="open"))))throw new Exception("LIVE_MEMORY_REQUEST_INVALID");
           Console.WriteLine(Json.Serialize(Run(request)));
         }catch(Exception error){Console.WriteLine(Json.Serialize(new {error=error.Message}));}
       }

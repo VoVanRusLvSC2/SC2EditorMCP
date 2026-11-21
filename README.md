@@ -151,6 +151,8 @@ earlier committed changes if a later step fails; it is not an atomic batch Undo.
 
 ## Authoring workflow
 
+[Direct component editing and same-file Editor refresh](docs/COMPONENT_EDITOR_PARITY.md)
+
 Start with the [authoring protocol](docs/AUTHORING_PROTOCOL.md) and
 [compact commands](docs/MCP_AUTHORING_SCRIPT.md). Keep one MCP process for a workflow,
 group related edits and save complete transaction groups. New gameplay logic

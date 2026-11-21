@@ -44,6 +44,12 @@ export const refreshPrepareSchema = documentTargetSchema
   .extend({ mode: z.literal("same_file_refresh") })
   .strict();
 export const refreshSessionSchema = z.object({ sessionId: z.string().uuid() }).strict();
+export const refreshChangesSchema = refreshSessionSchema
+  .extend({
+    offset: z.number().int().nonnegative().default(0),
+    limit: z.number().int().min(1).max(100).default(30),
+  })
+  .strict();
 export const refreshAdoptSchema = refreshSessionSchema
   .extend({ jobId: z.string().uuid() })
   .strict();
@@ -118,6 +124,7 @@ export class LiveRefresh {
         "live.refresh.begin",
         "live.refresh.resume",
         "live.refresh.call",
+        "live.refresh.changes",
         "live.refresh.author",
         "live.refresh.resources",
         "live.refresh.compile_snapshot",
@@ -359,6 +366,39 @@ export class LiveRefresh {
       const args = refreshResourcesSchema.parse(input),
         s = this.session(args.sessionId);
       return prepareRefreshResources(this.workspace, s.runtime.workspace, args.changes);
+    });
+  }
+  async changes(input: z.infer<typeof refreshChangesSchema>) {
+    return this.run(async () => {
+      const { sessionId, offset, limit } = refreshChangesSchema.parse(input);
+      const s = this.session(sessionId),
+        workspace = s.runtime.workspace;
+      const saved = new Map(
+        (await directoryManifest(workspace.root)).map((entry) => [entry.file, entry.sha256]),
+      );
+      const drafts = new Set([...workspace.draftFiles(), ...workspace.binary.draftFiles()]);
+      const changes = [...new Set([...s.baseline.keys(), ...saved.keys(), ...drafts])]
+        .sort()
+        .filter((file) => s.baseline.get(file) !== saved.get(file) || drafts.has(file))
+        .map((file) => ({
+          file,
+          beforeSha256: s.baseline.get(file) ?? null,
+          savedSha256: saved.get(file) ?? null,
+          staged: drafts.has(file),
+        }));
+      const archive = await currentArchive(this.workspace.root, s.target.archive);
+      return {
+        sessionId,
+        archive: archive.archive,
+        archiveSha256: archive.sha256,
+        preparedFromSha256: s.sourceSha256,
+        archiveChanged: archive.sha256 !== s.sourceSha256,
+        count: changes.length,
+        draftCount: drafts.size,
+        changes: changes.slice(offset, offset + limit),
+        nextOffset: offset + limit < changes.length ? offset + limit : null,
+        editorChanged: false,
+      };
     });
   }
   async compileSnapshot(input: z.infer<typeof refreshSessionSchema>) {

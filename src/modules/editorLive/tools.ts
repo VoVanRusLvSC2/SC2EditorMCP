@@ -62,6 +62,7 @@ import { importPrepareSchema, importApplySchema, importVerifySchema } from "./im
 import {
   refreshPrepareSchema,
   refreshSessionSchema,
+  refreshChangesSchema,
   refreshAdoptSchema,
   refreshAuthorSchema,
   refreshCallSchema,
@@ -431,6 +432,16 @@ export function registerEditorLiveTools(
       inputSchema: refreshAuthorSchema,
     },
     async (a) => result(await live.refresh.author(a)),
+  );
+  server.registerTool(
+    "live.refresh.changes",
+    {
+      description:
+        "Read the prepared component diff and staged groups while the currently open map stays available. Reports a changed original archive revision without publishing.",
+      inputSchema: refreshChangesSchema,
+      annotations: { readOnlyHint: true },
+    },
+    async (a) => result(await live.refresh.changes(a)),
   );
   server.registerTool(
     "live.refresh.call",

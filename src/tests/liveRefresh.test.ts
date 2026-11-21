@@ -206,6 +206,29 @@ test("an unchanged apply releases its session and project lease without touching
   await f.live.release(next.sessionId);
 });
 
+test("component diff tracks staged and saved changes without releasing the open document", async (t) => {
+  const f = await fixture(t);
+  const { sessionId } = await f.prepare();
+  const initial = await f.live.changes({ sessionId, limit: 1, offset: 0 });
+  assert.equal(initial.count, 0);
+  f.state.staged = true;
+  const draft = await f.live.changes({ sessionId, limit: 1, offset: 0 });
+  assert.equal(draft.changes[0]?.staged, true);
+  assert.equal(draft.changes[0]?.beforeSha256, draft.changes[0]?.savedSha256);
+  f.state.staged = false;
+  await f.live.author({ sessionId, script: "edited payload" });
+  const ready = await f.live.changes({ sessionId, limit: 1, offset: 0 });
+  assert.equal(ready.archiveChanged, false);
+  assert.notEqual(ready.changes[0]?.beforeSha256, ready.changes[0]?.savedSha256);
+  assert.equal(f.state.closes, 0);
+  assert.equal(f.state.opens, 0);
+  const applied = await f.live.apply({ sessionId });
+  assert.equal(applied.status, "refreshed");
+  assert.equal(f.state.closes, 1);
+  assert.equal(f.state.opens, 1);
+  assert.equal(await fs.readFile(f.archive, "utf8"), "verified package:edited payload");
+});
+
 test("changed GUI triggers cannot be published with an unchanged runtime", async (t) => {
   const f = await fixture(t);
   f.state.includeGui = true;

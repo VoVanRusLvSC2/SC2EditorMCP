@@ -3,9 +3,11 @@ import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import { DocumentWorkspace } from "./workspace.js";
 import { dependencySchema, documentPlanSchema } from "./schemas.js";
+import { registerExistingDocumentTools } from "./existingDocument.js";
 const result = (value: unknown) => { const text = JSON.stringify(value, null, 2); if (text.length > 64000)
     throw new Error('DOCUMENT_RESPONSE_LIMIT'); return { content: [{ type: 'text' as const, text }] }; };
 export function registerDocumentTools(server: McpServer, document: DocumentWorkspace) {
+  registerExistingDocumentTools(server, document.workspace);
   server.registerTool('document.plan_file',{description:'Plan the strict module request from a workspace JSON file (max 1 MiB). No execution, no staging until apply; avoids repeating large schemas.',inputSchema:z.object({file:z.string().min(1).max(512)}).strict()},async a=>({content:[{type:'text' as const,text:JSON.stringify(await document.plan(await readJsonPlanFile(document.workspace,a.file)))}]}));
 
     const readOnly = { readOnlyHint: true };

@@ -77,6 +77,41 @@ export class AttributesDocument extends SettingsXml {
         }
         return text;
     }
+    syncPlayerSlots(operation: Extract<SettingsOperation, { op: "player.slots" }>) {
+        const candidates = this.definitions.filter((node) => this.value(node, "Type") === "Player");
+        if (!candidates.length && operation.attributeId === undefined) return this.source;
+        const target = operation.attributeId === undefined
+          ? (candidates.length === 1 ? candidates[0] : undefined)
+          : candidates.find((node) => this.value(node, "Id") === String(operation.attributeId));
+        if (!target) throw Error("PLAYER_SLOT_ATTRIBUTE_NOT_UNIQUE: specify attributeId");
+        const defaults = this.children(target, "Default");
+        const existing = new Map<number, typeof defaults[number]>();
+        const removed: typeof defaults = [];
+        for (const item of defaults) {
+            const slot = this.one(item, "Slot", true)!.attrs.Id;
+            if (!/^(?:0|[1-9]\d*)$/.test(slot) || existing.has(Number(slot)))
+                throw Error("PLAYER_SLOT_ATTRIBUTE_INVALID_DEFAULT");
+            existing.set(Number(slot), item);
+            if (Number(slot) >= operation.count) removed.push(item);
+        }
+        let source = this.source;
+        for (const item of removed.reverse())
+            source = source.slice(0, item.start) + source.slice(item.end);
+        const missing = Array.from({ length: operation.count }, (_, slot) => slot).filter((slot) => !existing.has(slot));
+        if (!missing.length) return source;
+        const values = this.children(target, "Value").map((value) => this.value(value, "Id"));
+        const oldValues = new Set(defaults.map((item) => this.one(item, "Value", true)!.attrs.Id));
+        const candidate = operation.defaultValueId === undefined
+          ? (oldValues.size === 1 ? [...oldValues][0] : values.length === 1 ? values[0] : undefined)
+          : String(operation.defaultValueId);
+        if (!candidate || !/^\d+$/.test(candidate) || !values.includes(candidate))
+            throw Error("PLAYER_SLOT_DEFAULT_VALUE_NOT_UNIQUE: specify defaultValueId");
+        const current = new AttributesDocument(source);
+        const owner = current.definitions.find((node) => current.value(node, "Id") === this.value(target, "Id"))!;
+        const nl = source.includes("\r\n") ? "\r\n" : "\n";
+        return current.insert(owner, missing.map((slot) =>
+            '<Default><Slot Id="' + slot + '"/><Value Id="' + candidate + '"/></Default>').join(nl + "        "));
+    }
     patch(operation: SettingsOperation): string {
         let text = this.source;
         if (operation.op === "attribute.create") {

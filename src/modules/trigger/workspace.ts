@@ -57,6 +57,7 @@ import {
 import { inspectRevisedGui } from "./revisedImport.js";
 import { bindNativeGuiContext } from "./nativeImport.js";
 import type { NativeGuiEvidence } from "../../integrations/native/guiEvidence.js";
+import { editTriggerGraph, triggerGraphEditSchema } from "./graphEdits.js";
 
 type Kind = "Event" | "Action";
 const key = (library: string, type: string, id: string) => JSON.stringify([library, type, id]);
@@ -124,6 +125,7 @@ function graph(xml: string) {
   }
   return view;
 }
+export type TriggerGraph = ReturnType<typeof graph>;
 function trigger(xml: string, name: string) {
   const g = graph(xml);
   const split = name.indexOf("::"),
@@ -324,6 +326,82 @@ export class TriggerWorkspace {
   }
   private nameKey(type: string, library: string, id: string) {
     return type + "/Name/" + (library ? "lib_" + library + "_" : "") + id;
+  }
+  async editGraph(input: z.input<typeof triggerGraphEditSchema>) {
+    const args = triggerGraphEditSchema.parse(input);
+    const targetLocale = args.locale + ".SC2Data/LocalizedData/TriggerStrings.txt";
+    const locales =
+      args.operation.op === "delete"
+        ? []
+        : [
+            ...new Set([
+              ...(args.operation.op === "clone" ? await this.stringFiles() : []),
+              targetLocale,
+            ]),
+          ];
+    let graphEdit: ReturnType<typeof editTriggerGraph> | undefined;
+    const transaction = await this.workspace.applyRawTransaction(
+      this.workspace.coupledDraftFiles(["Triggers", ...locales]),
+      (files) => {
+        const source = files.get("Triggers")!;
+        if (digest(source) !== args.expectedSha256) throw Error("TRIGGER_GRAPH_REVISION_STALE");
+        const g = graph(source);
+        const selected = g.byKey.get(key(args.library, "Trigger", args.id));
+        if (!selected) throw Error("TRIGGER_ID_NOT_FOUND");
+        const op = args.operation;
+        const next = new Map(files);
+        if (op.op !== "rename") {
+          graphEdit = editTriggerGraph(source, g, selected, op);
+          graph(graphEdit.xml);
+          next.set("Triggers", graphEdit.xml);
+        }
+        for (const file of locales) {
+          const table = new StringTableDocument(files.get(file) ?? "");
+          const relocations = new Map(
+            (graphEdit?.cloned ?? []).map(({ element, id }) => {
+              const prefix = element.library ? "lib_" + element.library + "_" : "";
+              return [element.type + "\0" + prefix + element.id, prefix + id];
+            }),
+          );
+          const updates = new Map<string, string>();
+          for (const entry of table.list(undefined, Number.MAX_SAFE_INTEGER)) {
+            const parts = entry.key.split("/");
+            if (parts.length !== 3) continue;
+            const replacement = relocations.get(parts[0] + "\0" + parts[2]);
+            if (replacement) {
+              const newKey = parts[0] + "/" + parts[1] + "/" + replacement;
+              if (table.get(newKey) || updates.has(newKey))
+                throw Error("TRIGGER_EDIT_LOCALIZATION_CONFLICT: " + newKey);
+              updates.set(newKey, entry.value);
+            }
+          }
+          if (op.op !== "delete" && file === targetLocale)
+            updates.set(
+              this.nameKey("Trigger", args.library, graphEdit?.newId ?? args.id),
+              op.name,
+            );
+          if (updates.size) {
+            table.setMany([...updates].map(([key, value]) => ({ key, value })));
+            next.set(file, table.source);
+          }
+        }
+        return next;
+      },
+      {
+        dryRun: args.dryRun,
+        stage: args.stage,
+        backup: true,
+        summary: "Edit an existing GUI trigger and its local subgraph",
+      },
+    );
+    return {
+      transaction,
+      newId: graphEdit?.newId,
+      clonedNodes: graphEdit?.cloned.length ?? 0,
+      removedNodes: graphEdit?.removed.length ?? 0,
+      retainedSharedNodes: graphEdit?.retainedCount ?? 0,
+      requiresRuntimeRegeneration: args.operation.op !== "rename",
+    };
   }
   async organize(input: OrganizationArgs) {
     const args = organizationSchema.parse(input),
@@ -574,6 +652,7 @@ export class TriggerWorkspace {
       }));
     return {
       exists: true,
+      sha256: digest(text),
       functions,
       libraryId: libraryId(text),
       variables: [...new Set(["", ...graph(text).libraries.map((n) => n.attrs.Id ?? "")])].flatMap(
