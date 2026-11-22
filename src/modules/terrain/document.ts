@@ -319,6 +319,18 @@ export class TextureMasks {
     this.bytes[i] =
       x % 2 ? (this.bytes[i] & 240) | n : (this.bytes[i] & 15) | (n << 4);
   }
+  /** Write eight prequantized layer weights, preserving the paired texel in each byte. */
+  setQuantizedWeights(x: number, y: number, weights: Int16Array): void {
+    const odd = x % 2;
+    const preserve = odd ? 0xf0 : 0x0f;
+    const shift = odd ? 0 : 4;
+    const layerStride = (this.width * this.height) / 2;
+    let index = this.byteIndex(x, y, 0);
+    for (let layer = 0; layer < 8; layer++, index += layerStride) {
+      const weight = Math.max(0, Math.min(15, weights[layer]));
+      this.bytes[index] = (this.bytes[index] & preserve) | (weight << shift);
+    }
+  }
   weights(x: number, y: number): number[] {
     return Array.from({ length: 8 }, (_, l) => this.get(x, y, l));
   }

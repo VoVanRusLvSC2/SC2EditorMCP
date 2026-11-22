@@ -2,6 +2,7 @@ import type { ModuleSelection } from "./moduleSelection.js";
 
 const missionTools = [
   "world.plan",
+  "world.plan_intent",
   "world.build",
   "world.verify",
   "mission.contract",

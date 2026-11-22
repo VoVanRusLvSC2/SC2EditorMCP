@@ -1,0 +1,6537 @@
+{
+  "profiles": {
+    "agria": {
+      "paint": "mixed",
+      "cliff": "scarp",
+      "tags": [
+        "jungle",
+        "green",
+        "any"
+      ]
+    },
+    "protoss": {
+      "paint": "hard_zones",
+      "cliff": "terrace",
+      "tags": [
+        "urban",
+        "rock",
+        "space"
+      ]
+    },
+    "ruin": {
+      "paint": "mixed",
+      "cliff": "scarp",
+      "tags": [
+        "jungle",
+        "rock",
+        "desert"
+      ]
+    },
+    "zerg": {
+      "paint": "blend",
+      "cliff": "ellipse",
+      "tags": [
+        "jungle",
+        "swamp",
+        "ash"
+      ]
+    },
+    "platform": {
+      "paint": "hard_zones",
+      "cliff": "terrace",
+      "tags": [
+        "space",
+        "urban"
+      ]
+    },
+    "forest": {
+      "paint": "blend",
+      "cliff": "ellipse",
+      "tags": [
+        "jungle",
+        "rock"
+      ]
+    },
+    "interior": {
+      "paint": "hard_zones",
+      "cliff": "terrace",
+      "tags": [
+        "urban",
+        "industrial",
+        "space"
+      ]
+    },
+    "prison": {
+      "paint": "hard_zones",
+      "cliff": "terrace",
+      "tags": [
+        "urban",
+        "space"
+      ]
+    },
+    "lava": {
+      "paint": "blend",
+      "cliff": "volcanic",
+      "tags": [
+        "lava",
+        "ash",
+        "rock"
+      ]
+    },
+    "ash": {
+      "paint": "blend",
+      "cliff": "ridge",
+      "tags": [
+        "ash",
+        "lava",
+        "desert"
+      ]
+    },
+    "volcanic_fort": {
+      "paint": "mixed",
+      "cliff": "scarp",
+      "tags": [
+        "lava",
+        "ash",
+        "urban"
+      ]
+    },
+    "city": {
+      "paint": "hard_zones",
+      "cliff": "terrace",
+      "tags": [
+        "urban"
+      ]
+    },
+    "desert": {
+      "paint": "blend",
+      "cliff": "ellipse",
+      "tags": [
+        "desert",
+        "rock",
+        "ash"
+      ]
+    },
+    "jungle_river": {
+      "paint": "blend",
+      "cliff": "ellipse",
+      "tags": [
+        "jungle",
+        "swamp",
+        "water"
+      ]
+    },
+    "generic": {
+      "paint": "by_intent",
+      "cliff": "none",
+      "tags": []
+    },
+    "snow": {
+      "paint": "blend",
+      "cliff": "ellipse",
+      "tags": [
+        "ice",
+        "rock"
+      ]
+    },
+    "refinery": {
+      "paint": "mixed",
+      "cliff": "scarp",
+      "tags": [
+        "ice",
+        "urban"
+      ]
+    },
+    "outskirts": {
+      "paint": "mixed",
+      "cliff": "scarp",
+      "tags": [
+        "urban",
+        "desert",
+        "rock"
+      ]
+    },
+    "lunar": {
+      "paint": "blend",
+      "cliff": "ellipse",
+      "tags": [
+        "space",
+        "desert",
+        "rock"
+      ]
+    },
+    "void": {
+      "paint": "mixed",
+      "cliff": "scarp",
+      "tags": [
+        "space",
+        "rock"
+      ]
+    },
+    "cave": {
+      "paint": "blend",
+      "cliff": "ellipse",
+      "tags": [
+        "rock",
+        "cave",
+        "any"
+      ]
+    },
+    "primeval": {
+      "paint": "blend",
+      "cliff": "ellipse",
+      "tags": [
+        "jungle",
+        "rock"
+      ]
+    }
+  },
+  "tilesets": {
+    "Agria": {
+      "profile": "agria",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Посадки",
+          "actors": [
+            "AgriaCrops"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Лесополоса",
+          "actors": [
+            "AgriaTree",
+            "AgriaFoliage",
+            "AgriaShrub"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Граница поля",
+          "actors": [
+            "AgriaUnderbrush",
+            "Rock",
+            "Bush"
+          ]
+        }
+      ],
+      "actors": [
+        "RockLarge",
+        "Vines",
+        "RockArch",
+        "RockGiant",
+        "RockSmall",
+        "RockTower",
+        "RockWaterfall",
+        "BraxisAlphaBarrels"
+      ],
+      "materials": {
+        "ground": [
+          "AgriaGrassGreen",
+          "AgriaGrassYellow"
+        ],
+        "path": [
+          "AgriaDirt"
+        ],
+        "floor": [
+          "AgriaConcrete"
+        ],
+        "accent": [
+          "AgriaCrops"
+        ]
+      }
+    },
+    "AgriaEx1": {
+      "profile": "agria",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Посадки",
+          "actors": [
+            "AgriaCrops"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Лесополоса",
+          "actors": [
+            "AgriaFoliage",
+            "AgriaShrub",
+            "AgriaTree"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Граница поля",
+          "actors": [
+            "Bush",
+            "ChainLinkFenceDiagonal",
+            "ChainLinkFencePost"
+          ]
+        }
+      ],
+      "actors": [
+        "RockLarge",
+        "Vines",
+        "AgriaUnderbrush",
+        "RockArch",
+        "RockGiant",
+        "RockSmall",
+        "RockTower",
+        "RockWaterfall"
+      ],
+      "materials": {
+        "ground": [
+          "AgriaDirt",
+          "AgriaDirtRough",
+          "AgriaGrassYellow"
+        ],
+        "floor": [
+          "AgriaConcrete"
+        ],
+        "accent": [
+          "AgriaRock"
+        ]
+      }
+    },
+    "Aiur": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "AiurOvermindSpire",
+            "AiurTempleBuildings",
+            "RockArch"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "BelShirCliffGapFiller",
+            "SmokePillarsTall",
+            "TempleWall45"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "Aiur_GroundConsole",
+            "Aiur_GroundConsole_Abandoned"
+          ]
+        }
+      ],
+      "actors": [
+        "AiurFoliage",
+        "RockLarge",
+        "Vines",
+        "AiurRuinedShips",
+        "AiurTree",
+        "Rock",
+        "RockSmall",
+        "RockWaterfall"
+      ],
+      "materials": {
+        "ground": [
+          "AiurDirt",
+          "AiurGrass",
+          "AiurRock"
+        ],
+        "floor": [
+          "AiurTiles",
+          "AiurSmallBricks",
+          "AiurLargeBricks"
+        ],
+        "accent": [
+          "AiurCreepHoles",
+          "AiurRock"
+        ]
+      }
+    },
+    "Aiur4City": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "Aiur_CityBuilding_Spire",
+            "Aiur_CityBuilding_Spire_Abandoned",
+            "Aiur_CityBuilding_Temple"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "Aiur_City_Floating_Platform_Abandoned",
+            "Aiur_City_Floating_Platform_Disk",
+            "Aiur_City_Floating_Platform_Disk_Abandoned"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "Aiur_GroundConsole",
+            "Aiur_GroundConsole_Abandoned",
+            "Aiur_City_Light"
+          ]
+        }
+      ],
+      "actors": [
+        "AiurTree_Ex2",
+        "AiurTree_Grouped",
+        "Aiur_Archway",
+        "Aiur_Archway_Abandoned",
+        "Aiur_ChiseledRock_Brown",
+        "Aiur_ChiseledRock_Brown_Large",
+        "Aiur_CityBuilding_Tower_Abandoned",
+        "Aiur_City_Archway_Large_Abandoned"
+      ],
+      "materials": {}
+    },
+    "Aiur4Temple": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "RockArch",
+            "AiurTempleBuildings",
+            "TempleColumn"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Rock",
+            "RockGiant",
+            "RockLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "Vines"
+          ]
+        }
+      ],
+      "actors": [
+        "AiurTree",
+        "RockSmall",
+        "RockWaterfall",
+        "AiurOvermindDoodad",
+        "AiurOvermindIntestines",
+        "AiurOvermindProng",
+        "AiurOvermindSpire",
+        "AiurProtossBuildings"
+      ],
+      "materials": {}
+    },
+    "AiurCity": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "Aiur_CityBuilding_Spire_Abandoned",
+            "Aiur_CityBuilding_Temple_Destroyed",
+            "Aiur_CityBuilding_Tower_Abandoned"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "Aiur_City_Floating_Platform_Disk_Abandoned",
+            "Aiur_City_Pillar_Destroyed",
+            "Aiur_CliffBuilding_A_Destroyed"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "Aiur_GroundConsole_Abandoned",
+            "Aiur_GroundConsole",
+            "Aiur_PortLight"
+          ]
+        }
+      ],
+      "actors": [
+        "AiurTree_Ex2",
+        "AiurTree_Grouped",
+        "Aiur_City_Archway_Large_Abandoned",
+        "Aiur_City_Building_Floating_Abandoned",
+        "Aiur_CliffRocks",
+        "Aiur_Cliff_City_Waterfall_Abandoned",
+        "Aiur_Cliff_City_Waterfall_Corrupted",
+        "Aiur_Cliff_Facades_Abandoned"
+      ],
+      "materials": {}
+    },
+    "AiurCityNight": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "Aiur_CityBuilding_Spire_Abandoned",
+            "Aiur_CityBuilding_Tower_Abandoned",
+            "Aiur_City_Archway_Large_Abandoned"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "Aiur_CliffRocks",
+            "Aiur_Cliff_City_Waterfall_Abandoned",
+            "Aiur_Cliff_City_Waterfall_Corrupted"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "SpacePlatformWallLight",
+            "Aiur_GroundConsole"
+          ]
+        }
+      ],
+      "actors": [
+        "Aiur_City_Building_Floating_Abandoned",
+        "Aiur_Cliff_Facades_Abandoned",
+        "Aiur_Cliff_Waterfall",
+        "Aiur_Plantlife",
+        "Aiur_Pyramid_Tower_Large_Abandoned",
+        "Aiur_Road_Window_Abandoned",
+        "Aiur_Statue_Arched_Abandoned",
+        "Aiur_Tree_Large"
+      ],
+      "materials": {}
+    },
+    "AiurEx1": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "RockArch",
+            "RockTower",
+            "AiurOvermindSpire"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "BelShirCliffGapFiller",
+            "SmokePillarsTall",
+            "TempleWall45"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "SpacePlatformWallLight",
+            "Aiur_GroundConsole"
+          ]
+        }
+      ],
+      "actors": [
+        "AiurTree",
+        "Rock",
+        "RockSmall",
+        "RockWaterfall",
+        "AiurOvermindDoodad",
+        "AiurOvermindIntestines",
+        "AiurOvermindProng",
+        "AiurProtossBuildings"
+      ],
+      "materials": {
+        "ground": [
+          "AiurDirt",
+          "AiurGrass",
+          "AiurRock"
+        ],
+        "floor": [
+          "AiurTiles",
+          "AiurSmallBricks",
+          "AiurLargeBricks"
+        ],
+        "accent": [
+          "AiurCreepHoles",
+          "AiurRock"
+        ]
+      }
+    },
+    "AiurOverrun": {
+      "profile": "zerg",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Живой силуэт",
+          "actors": [
+            "AiurOvermindSpire"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Органический край",
+          "actors": [
+            "Vines",
+            "DeadTendrils"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Скопление мелочи",
+          "actors": [
+            "CharBlisterEgg",
+            "CharGlowingPods"
+          ]
+        }
+      ],
+      "actors": [
+        "AiurTree",
+        "Rock",
+        "RockSmall",
+        "RockWaterfall",
+        "AiurOvermindDoodad",
+        "AiurOvermindIntestines",
+        "AiurOvermindProng",
+        "AiurRuinedShipsNoGround"
+      ],
+      "materials": {
+        "ground": [
+          "AiurDirt"
+        ],
+        "floor": [
+          "AiurSmallBricks",
+          "AiurLargeBricks"
+        ]
+      }
+    },
+    "AiurTemple": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "Aiur_Temple_Bigwalls",
+            "Aiur_Temple_Bricks",
+            "Aiur_Temple_CliffDoodads"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Aiur_ChiseledRock_Brown",
+            "Aiur_ChiseledRock_Brown_Large",
+            "Aiur_CliffRocks"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "Aiur_Vines",
+            "Aiur_Vines_Cliff",
+            "Vines"
+          ]
+        }
+      ],
+      "actors": [
+        "AiurTree_Ex2",
+        "AiurTree_Grouped",
+        "Aiur_Temple_GroundDecal",
+        "Aiur_Temple_Pillars",
+        "Aiur_Temple_Pillars_Broken",
+        "Aiur_Temple_Small_Pillar",
+        "Aiur_Temple_Statue",
+        "Aiur_Temple_Statue_ZealotBust"
+      ],
+      "materials": {}
+    },
+    "AiurTempleJungle": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "Aiur_Stone_Temple_Doodads",
+            "Aiur_Stone_Temple_Rubble",
+            "Aiur_Temple_Bigwalls"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Aiur_ChiseledRock_Brown",
+            "Aiur_ChiseledRock_Brown_Large",
+            "Aiur_CliffRocks_SmallRocks"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "Aiur_Vines_Cliff",
+            "BelShirCliffRoots"
+          ]
+        }
+      ],
+      "actors": [
+        "AiurTree_Ex2",
+        "AiurTree_Grouped",
+        "Aiur_Temple_BrickGroup",
+        "Aiur_Temple_Bricks",
+        "Aiur_Temple_CliffDoodads",
+        "Aiur_Temple_Inlay",
+        "Aiur_Temple_OldWalls",
+        "Aiur_Temple_Ruins_Set"
+      ],
+      "materials": {}
+    },
+    "Avernus": {
+      "profile": "platform",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Край палубы",
+          "actors": [
+            "SpacePlatformBarrier",
+            "SpacePlatformWallLight",
+            "AvernusBarrier"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Технический узел",
+          "actors": [
+            "ElectricConduitPathMedium",
+            "ElectricConduitPathSmall"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Навигационные огни",
+          "actors": [
+            "SpacePlatformCautionLights",
+            "SpacePlatformCliffLights",
+            "CastanarFloodlight"
+          ]
+        }
+      ],
+      "actors": [
+        "SpacePlatformArchwayLarge",
+        "SpacePlatformCablesLarge",
+        "SpacePlatformGenerator",
+        "SpacePlatformTower",
+        "AsteroidsSky",
+        "SpacePlatformCliffDoodadLarge",
+        "SpacePlatformCliffDoodadMedium",
+        "SpacePlatformExhaust"
+      ],
+      "materials": {
+        "ground": [
+          "AvernusDirt",
+          "AvernusRock"
+        ],
+        "floor": [
+          "AvernusMetal",
+          "AvernusSmallTiles",
+          "AvernusLargeTiles"
+        ],
+        "accent": [
+          "AvernusRock"
+        ]
+      }
+    },
+    "AvernusEx1": {
+      "profile": "platform",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Край палубы",
+          "actors": [
+            "SpacePlatformBarrier",
+            "SpacePlatformWallLight",
+            "SpacePlatformCliffDoodadLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Технический узел",
+          "actors": [
+            "ElectricConduitPathMedium",
+            "ElectricConduitPathSmall"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Навигационные огни",
+          "actors": [
+            "SpacePlatformCautionLights",
+            "SpacePlatformCliffLights"
+          ]
+        }
+      ],
+      "actors": [
+        "AsteroidsSky",
+        "AvernusBarrier",
+        "SpacePlatformCliffDoodadMedium",
+        "SpacePlatformExhaust",
+        "SpacePlatformFan",
+        "SpacePlatformFanLarge",
+        "SpacePlatformGroundDecals",
+        "SpacePlatformHose"
+      ],
+      "materials": {
+        "ground": [
+          "AvernusDirt",
+          "AvernusRock"
+        ],
+        "floor": [
+          "AvernusMetal",
+          "AvernusSmallTiles",
+          "AvernusLargeTiles"
+        ],
+        "accent": [
+          "AvernusRock"
+        ]
+      }
+    },
+    "BattleStation": {
+      "profile": "platform",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Край палубы",
+          "actors": [
+            "BattleStation_CliffPlatform",
+            "BattleStation_CliffPlatform_Group",
+            "BattleStation_CliffPlatform_Hornet_Repair"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Технический узел",
+          "actors": [
+            "ElectricConduitPathMedium",
+            "ElectricConduitPathSmall"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Навигационные огни",
+          "actors": [
+            "BattleStation_FloodLight",
+            "AlarmLight",
+            "Korhal_Platform_LandingLights"
+          ]
+        }
+      ],
+      "actors": [
+        "BattleStation_BridgeSeats",
+        "BattleStation_Buildings",
+        "BattleStation_CliffTower",
+        "Blast_Craters",
+        "Crate",
+        "FireMedium",
+        "GenericFire_Large",
+        "Korhal_Platform_Pipes"
+      ],
+      "materials": {}
+    },
+    "BelShir": {
+      "profile": "forest",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Силуэт кроны",
+          "actors": [
+            "BelShirTree",
+            "BelShirCanopyTreeIsland",
+            "BelShirCanopyTrees"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Нижний ярус",
+          "actors": [
+            "BelShirFoliage",
+            "BelShirShrub",
+            "Vines"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Кромка тропы",
+          "actors": [
+            "BelShirCliffRoots",
+            "RockLarge",
+            "Rock"
+          ]
+        }
+      ],
+      "actors": [
+        "RockSmall",
+        "TempleBricks",
+        "TempleBricksLarge",
+        "TempleColumn",
+        "TempleColumnWalls",
+        "TempleGatePiece",
+        "TempleWall45",
+        "TempleWall90"
+      ],
+      "materials": {
+        "ground": [
+          "BelShirGrassDark",
+          "BelShirGrassLight",
+          "BelShirBrush"
+        ],
+        "path": [
+          "BelShirDirtDark",
+          "BelShirDirtLight"
+        ],
+        "floor": [
+          "BelShirSmallTiles",
+          "BelShirBricksLarge"
+        ],
+        "scatter": [
+          "BelShirGrassLight",
+          "BelShirBrush",
+          "BelShirDirtLight",
+          "BelShirGrassDark",
+          "BelShirDirtDark"
+        ]
+      },
+      "preferredActors": [
+        "BelShirCanopyTrees",
+        "BelShirCanopyTreeIsland",
+        "Aiur_Trees_Giant",
+        "Aiur_Trees_Tall",
+        "Aiur_Tree_Large",
+        "Aiur_Trees_Regular_Grouped",
+        "BelShirTree",
+        "BelShirFoliage",
+        "BelShirShrub",
+        "BelShirAlienShrubs",
+        "BelShirFlowers",
+        "BelShirAlienPlant",
+        "BelShirUnderbrush",
+        "PlantsJungle",
+        "Aiur_GroundCover",
+        "Aiur_MossClumps",
+        "Aiur_Trees_Log_Small",
+        "BelShirCliffRoots"
+      ]
+    },
+    "BelShirEx1": {
+      "profile": "forest",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Силуэт кроны",
+          "actors": [
+            "HavenTree",
+            "BelShirTree"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Нижний ярус",
+          "actors": [
+            "CharFlower",
+            "BelShirFoliage"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Кромка тропы",
+          "actors": [
+            "Rock",
+            "RockGiant",
+            "ChiseledRock"
+          ]
+        }
+      ],
+      "actors": [
+        "ChiseledRockLarge",
+        "FogMistSnow",
+        "SnowDriftsLarge",
+        "SnowLight",
+        "StarshipContainers",
+        "StarshipIceWorldIceSamples",
+        "StarshipIceWorldMinerals",
+        "StarshipWallLights"
+      ],
+      "materials": {
+        "ground": [
+          "BelShirDirtLight",
+          "BelShirDirtDark",
+          "BelShirBrush"
+        ],
+        "floor": [
+          "BelShirSmallTiles",
+          "BelShirBricksSmall",
+          "BelShirBricksLarge"
+        ]
+      }
+    },
+    "BelShirEx2": {
+      "profile": "forest",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Силуэт кроны",
+          "actors": [
+            "BelShirCanopyTreeIsland",
+            "BelShirCanopyTrees",
+            "BelShirTree"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Нижний ярус",
+          "actors": [
+            "BelShirFlowers",
+            "BelShirFoliage",
+            "Vines"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Кромка тропы",
+          "actors": [
+            "Rock",
+            "RockArch",
+            "RockGiant"
+          ]
+        }
+      ],
+      "actors": [
+        "TempleBricks",
+        "TempleBricksLarge",
+        "TempleColumn",
+        "TempleColumnWalls",
+        "TempleGatePiece",
+        "TempleWall45",
+        "TempleWall90",
+        "TempleWallCorner"
+      ],
+      "materials": {
+        "ground": [
+          "BelShirDirtLightEx2",
+          "BelShirDirtDarkEx2",
+          "BelShirBrushEx2"
+        ],
+        "floor": [
+          "BelShirSmallTilesEx2",
+          "BelShirBricksSmallEx2",
+          "BelShirBricksLargeEx2"
+        ]
+      }
+    },
+    "BlackopsLab_A": {
+      "profile": "interior",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Граница помещения",
+          "actors": [
+            "DOM_Walls_Details_Interior",
+            "SpacePlatformWallDamage",
+            "DOM_LabGlassWalls"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Приборный узел",
+          "actors": [
+            "DOM_BaseMonitors",
+            "DOM_LabConsoles",
+            "DOM_LabStasisTubeWalls"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Освещение и обслуживание",
+          "actors": [
+            "SpaceDockPowerLines",
+            "CableLight",
+            "DOM_Crate"
+          ]
+        }
+      ],
+      "actors": [
+        "DOM_LabCrates",
+        "DOM_LabFloodLight",
+        "DOM_LabTestingFacility",
+        "DOM_LabVehicleFacility",
+        "DOM_Rocket",
+        "DOM_RocketPallet",
+        "DesertPlanetLandingLight",
+        "ExhaustPipes"
+      ],
+      "materials": {}
+    },
+    "BlackopsLab_B": {
+      "profile": "interior",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Граница помещения",
+          "actors": [
+            "ArmoredDoor",
+            "CastanarMonitorWall"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Приборный узел",
+          "actors": [
+            "BraxisAlphaMonitorBig",
+            "CastanarMonitorFloor"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Освещение и обслуживание",
+          "actors": [
+            "SpaceDockPowerLines",
+            "CableLight",
+            "DOM_Crate"
+          ]
+        }
+      ],
+      "actors": [
+        "DOM_LabVehicleFacility",
+        "DOM_Rocket",
+        "DOM_RocketPallet",
+        "DesertPlanetLandingLight",
+        "ExhaustPipes",
+        "FlameTurretFlameModelDoodad",
+        "Fog_Aiur_Thick",
+        "Fog_Ulnar"
+      ],
+      "materials": {}
+    },
+    "BraxisAlpha": {
+      "profile": "platform",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Край палубы",
+          "actors": [
+            "SpacePlatformBarrier",
+            "SpacePlatformWallLight",
+            "SpacePlatformCliffDoodadLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Технический узел",
+          "actors": [
+            "ElectricConduitPathMedium",
+            "ElectricConduitPathSmall"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Навигационные огни",
+          "actors": [
+            "LandingLights",
+            "BraxisAlphaFloodLights",
+            "SpacePlatformCautionLights"
+          ]
+        }
+      ],
+      "actors": [
+        "RockLarge",
+        "SpacePlatformTower",
+        "SpacePlatformFan",
+        "SpacePlatformGroundDecals",
+        "Decal",
+        "BraxisAlphaBarrels",
+        "Rock",
+        "RockGiant"
+      ],
+      "materials": {
+        "ground": [
+          "BraxisAlphaRock"
+        ],
+        "floor": [
+          "BraxisAlphaMetal",
+          "BraxisAlphaMetalDetail"
+        ],
+        "accent": [
+          "BraxisAlphaRock"
+        ]
+      }
+    },
+    "BraxisAlphaEx1": {
+      "profile": "platform",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Край палубы",
+          "actors": [
+            "AsteroidCliff",
+            "AsteroidCliffDeep",
+            "AsteroidCliffGirder"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Технический узел",
+          "actors": [
+            "ElectricConduitPathMedium",
+            "ElectricConduitPathSmall"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Навигационные огни",
+          "actors": [
+            "LandingLights",
+            "LightOmniBlueLarge",
+            "LightOmniWhiteLarge"
+          ]
+        }
+      ],
+      "actors": [
+        "AsteroidsSky",
+        "AgriaTree",
+        "BelShirUnderbrush",
+        "ChiseledRockEx1",
+        "ChiseledRockEx1Large",
+        "HavenDoodadsCrates",
+        "Rock",
+        "SpacePlatformCablesLargeZerged"
+      ],
+      "materials": {
+        "ground": [
+          "BraxisAlphaRock"
+        ],
+        "floor": [
+          "BraxisAlphaMetal",
+          "BraxisAlphaMetalDetail"
+        ],
+        "accent": [
+          "BraxisAlphaRock"
+        ]
+      }
+    },
+    "BraxisAlphaEx2": {
+      "profile": "platform",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Край палубы",
+          "actors": [
+            "SpacePlatformBarrier",
+            "SpacePlatformWallLight",
+            "SpacePlatformCliffDoodadLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Технический узел",
+          "actors": [
+            "ElectricConduitPathMedium",
+            "ElectricConduitPathSmall"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Навигационные огни",
+          "actors": [
+            "BraxisAlphaFloodLights",
+            "LandingLights",
+            "SpacePlatformCautionLights"
+          ]
+        }
+      ],
+      "actors": [
+        "SpacePlatformGroundDecals",
+        "Decal",
+        "BraxisAlphaBarrels",
+        "Rock",
+        "RockGiant",
+        "RockSmall",
+        "SpacePlatformCablesLarge",
+        "SpacePlatformGenerator"
+      ],
+      "materials": {
+        "ground": [
+          "BraxisAlphaRockEx2"
+        ],
+        "floor": [
+          "BraxisAlphaMetalEx2",
+          "BraxisAlphaMetalDetailEx2"
+        ],
+        "accent": [
+          "BraxisAlphaRockEx2"
+        ]
+      }
+    },
+    "Castanar": {
+      "profile": "prison",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Барьер и пропуск",
+          "actors": [
+            "CastanarMonitorWall",
+            "CastanarStasisTubeWall",
+            "CastanarStasisTubeWallDestroyed"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Контроль",
+          "actors": [
+            "CastanarMonitorFloor",
+            "CastanarMonitorFloorDestroyed",
+            "CastanarMonitorLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Свет и блок снабжения",
+          "actors": [
+            "SpacePlatformWallLight",
+            "CastanarFloodlight",
+            "CastanarLightboard"
+          ]
+        }
+      ],
+      "actors": [
+        "CastanarGenerator",
+        "SpacePlatformArchwayLarge",
+        "SpacePlatformCautionLights",
+        "SpacePlatformSignTowerLarge",
+        "SpacePlatformSteamVent",
+        "SpacePlatformTower",
+        "AsteroidsSky",
+        "CastanarCabinet"
+      ],
+      "materials": {
+        "ground": [
+          "CastanarRock"
+        ],
+        "floor": [
+          "CastanarPanels",
+          "CastanarTiles",
+          "CastanarSmallTiles"
+        ],
+        "accent": [
+          "CastanarRock"
+        ]
+      }
+    },
+    "CastanarEx1": {
+      "profile": "prison",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Барьер и пропуск",
+          "actors": [
+            "CastanarMonitorWall",
+            "CastanarStasisTubeWall",
+            "SpacePlatformBarrier"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Контроль",
+          "actors": [
+            "CastanarMonitorFloor"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Свет и блок снабжения",
+          "actors": [
+            "SpacePlatformWallLight",
+            "CastanarFloodlight",
+            "CastanarLightboard"
+          ]
+        }
+      ],
+      "actors": [
+        "SpacePlatformSteamVent",
+        "SpacePlatformTower",
+        "AsteroidsSky",
+        "CastanarCabinet",
+        "CastanarDissectionArm",
+        "CastanarDissectionTable",
+        "CastanarHoloProjector",
+        "CastanarStasisTube"
+      ],
+      "materials": {
+        "ground": [
+          "CastanarRock"
+        ],
+        "floor": [
+          "CastanarPanels",
+          "CastanarTiles",
+          "CastanarSmallTiles"
+        ],
+        "accent": [
+          "CastanarRock"
+        ]
+      }
+    },
+    "CastanarEx2": {
+      "profile": "prison",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Барьер и пропуск",
+          "actors": [
+            "CastanarMonitorWall",
+            "CastanarStasisTubeWall",
+            "SpacePlatformBarrier"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Контроль",
+          "actors": [
+            "CastanarMonitorFloor"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Свет и блок снабжения",
+          "actors": [
+            "SpacePlatformWallLight",
+            "CastanarFloodlight",
+            "CastanarLightboard"
+          ]
+        }
+      ],
+      "actors": [
+        "SpacePlatformSteamVent",
+        "SpacePlatformTower",
+        "AsteroidsSky",
+        "CastanarCabinet",
+        "CastanarDissectionArm",
+        "CastanarDissectionTable",
+        "CastanarHoloProjector",
+        "CastanarStasisTube"
+      ],
+      "materials": {
+        "ground": [
+          "CastanarRockEx2"
+        ],
+        "floor": [
+          "CastanarPanelsEx2",
+          "CastanarTilesEx2",
+          "CastanarSmallTilesEx2"
+        ],
+        "accent": [
+          "CastanarRockEx2"
+        ]
+      }
+    },
+    "Char": {
+      "profile": "lava",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Volcanic landmark",
+          "actors": [
+            "CharCrystalHuge",
+            "CharCrystalLarge",
+            "CharRockFormation",
+            "CharDuneRockGiant"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Volcanic rock and talus",
+          "actors": [
+            "CharRockLarge",
+            "CharRock",
+            "RockVolcanicGiant",
+            "CharDuneRockLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Crater or vent edge",
+          "actors": [
+            "CharCrater",
+            "CharExhaustVents",
+            "CharDuneRock"
+          ]
+        }
+      ],
+      "actors": [
+        "CharCrystal",
+        "CharWorm",
+        "CharGlowingPods",
+        "CharRibs",
+        "CharClaws",
+        "CharArm",
+        "CharTendrils",
+        "CharWeed"
+      ],
+      "materials": {
+        "ground": [
+          "CharRock",
+          "CharDirt"
+        ],
+        "path": [
+          "CharDirtLight"
+        ],
+        "accent": [
+          "CharRedCracks",
+          "CharLavaCracks"
+        ]
+      }
+    },
+    "Char2": {
+      "profile": "lava",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупный ориентир",
+          "actors": [
+            "RockVolcanicGiant"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "CharDuneRock",
+            "CharDuneRockLarge",
+            "CharDuneRockGiant"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Край жерла",
+          "actors": [
+            "CharCrater",
+            "CharExhaustVents",
+            "Lavafall"
+          ]
+        }
+      ],
+      "actors": [
+        "CharCliffStructureLarge",
+        "CharCliffStructureSmall",
+        "FurnaceSmall",
+        "TerranButcherPropLarge",
+        "TerranButcherPropSmall",
+        "ZergBonePileLarge",
+        "NukeTowerWarfield",
+        "PowerSupplyWarfield"
+      ],
+      "materials": {
+        "ground": [
+          "Char2_1",
+          "Char2_3",
+          "Char2_5"
+        ],
+        "path": [
+          "Char2_2"
+        ],
+        "floor": [
+          "Char2_7",
+          "Char2_8"
+        ],
+        "accent": [
+          "Char2_4",
+          "Char2_6",
+          "Char2_2"
+        ]
+      }
+    },
+    "CharDunes": {
+      "profile": "ash",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Силуэт дюны",
+          "actors": [
+            "CharDuneRockGiant",
+            "CharDuneRockLarge",
+            "SpiresLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "CharDuneRock",
+            "CharRock",
+            "ChiseledRock"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Ложбина",
+          "actors": [
+            "CharAcidAcidBurst",
+            "BubbleAcid",
+            "CharExhaustVents"
+          ]
+        }
+      ],
+      "actors": [
+        "Spires",
+        "NukeTowerWarfield",
+        "PowerCablesWarfield",
+        "PowerSupplyWarfield",
+        "CharBridge",
+        "CharCliffStructureLarge",
+        "CharCliffStructureSmall",
+        "CharFloorPanel"
+      ],
+      "materials": {
+        "ground": [
+          "CharDunes_1",
+          "CharDunes_6"
+        ],
+        "path": [
+          "CharDunes_5"
+        ],
+        "accent": [
+          "CharDunes_3",
+          "CharDunes_7",
+          "CharDunes_5"
+        ]
+      }
+    },
+    "CharDunes2": {
+      "profile": "ash",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Силуэт дюны",
+          "actors": [
+            "CharDuneRockGiant",
+            "CharDuneRockLarge",
+            "SpiresLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "CharDuneRock",
+            "CharRock",
+            "ChiseledRock"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Ложбина",
+          "actors": [
+            "CharAcidAcidBurst",
+            "CharExhaustVents",
+            "BubbleAcid"
+          ]
+        }
+      ],
+      "actors": [
+        "Spires",
+        "NukeTowerWarfield",
+        "PowerCablesWarfield",
+        "PowerSupplyWarfield",
+        "CharBridge",
+        "CharCliffStructureLarge",
+        "CharCliffStructureSmall",
+        "CharFloorPanel"
+      ],
+      "materials": {
+        "ground": [
+          "CharDunes_1",
+          "CharDunes_6"
+        ],
+        "path": [
+          "CharDunes_5"
+        ],
+        "accent": [
+          "CharDunes_3",
+          "CharDunes_7",
+          "CharDunes_5"
+        ]
+      }
+    },
+    "CharEx1": {
+      "profile": "lava",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупный ориентир",
+          "actors": [
+            "RockVolcanicGiant",
+            "CharCrystalHuge",
+            "CharCrystalLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "CharDuneRock",
+            "CharDuneRockGiant",
+            "CharDuneRockLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Край жерла",
+          "actors": [
+            "CharExhaustVents",
+            "CharCrater"
+          ]
+        }
+      ],
+      "actors": [
+        "NukeTowerWarfield",
+        "PowerCablesWarfield",
+        "PowerSupplyWarfield",
+        "BubbleAcid",
+        "CharAcidAcidBurst",
+        "CharCliffStructureLarge",
+        "CharCliffStructureSmall",
+        "CharFloorPanel"
+      ],
+      "materials": {
+        "ground": [
+          "CharDirtLight",
+          "CharDirt",
+          "CharMud"
+        ],
+        "path": [
+          "CharDirtCracked",
+          "CharRedCracks"
+        ],
+        "accent": [
+          "CharLavaCracks",
+          "CharDirtCracked",
+          "CharRedCracks"
+        ]
+      }
+    },
+    "CharEx2": {
+      "profile": "lava",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупный ориентир",
+          "actors": [
+            "RockVolcanicGiant",
+            "CharCrystalHuge",
+            "CharCrystalLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "CharCrater",
+            "CharDestructibleRockCoverBase",
+            "CharRock"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Край жерла",
+          "actors": [
+            "Lavafall",
+            "RedstoneFlameGeyser"
+          ]
+        }
+      ],
+      "actors": [
+        "CharRibs",
+        "CharWorm",
+        "CharFoliage",
+        "CharGlowingPods",
+        "CharTree",
+        "CharIntestines",
+        "CharWeed",
+        "CharArchway"
+      ],
+      "materials": {
+        "ground": [
+          "CharDirtLightEx2",
+          "CharDirtEx2",
+          "CharMudEx2"
+        ],
+        "path": [
+          "CharDirtCrackedEx2",
+          "CharRedCracksEx2"
+        ],
+        "accent": [
+          "CharLavaCracksEx2",
+          "CharDirtCrackedEx2",
+          "CharRedCracksEx2"
+        ]
+      }
+    },
+    "CharEx2_Fortress": {
+      "profile": "volcanic_fort",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Инженерная граница",
+          "actors": [
+            "Aiur_City_Stonegate_Damaged",
+            "CastanarMonitorWall"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Внешняя скала",
+          "actors": [
+            "CharCrater",
+            "CharRockLarge",
+            "RockVolcanicGiant"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Оборудование",
+          "actors": [
+            "CratorLarge",
+            "Aiur_Power_Point"
+          ]
+        }
+      ],
+      "actors": [
+        "CharCrystalLarge",
+        "CharRibs",
+        "CharWorm",
+        "CharFoliage",
+        "CharGlowingPods",
+        "CharTree",
+        "CharIntestines",
+        "CharWeed"
+      ],
+      "materials": {
+        "ground": [
+          "CharDirtLightEx2",
+          "CharDirtEx2",
+          "CharMudEx2"
+        ],
+        "path": [
+          "CharDirtCrackedEx2",
+          "CharRedCracksEx2"
+        ],
+        "accent": [
+          "CharLavaCracksEx2",
+          "CharDirtCrackedEx2",
+          "CharRedCracksEx2"
+        ]
+      }
+    },
+    "CompoundMansion": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "PortCity_BuildingRound",
+            "PortCity_Downtown_Building"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "Korhal_Platform_Road_Roundabout",
+            "PortCity_StreetAlarms",
+            "PortCity_StreetLight"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "CompoundMansion_Banners",
+            "CompoundMansion_Fountain",
+            "CompoundMansion_Mengsk_Statue"
+          ]
+        }
+      ],
+      "actors": [
+        "AiurTree",
+        "AlarmLight",
+        "BattleStation_BridgeSeats",
+        "Blast_Craters_Big",
+        "CompoundMansion_Light",
+        "CompoundSewer_Pipes",
+        "CompoundSewers_ExhaustPipes",
+        "CompoundSewers_Fence"
+      ],
+      "materials": {}
+    },
+    "CompoundSewer": {
+      "profile": "interior",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Граница помещения",
+          "actors": [
+            "CompoundSewers_CanalWalls",
+            "CompoundSewers_GlassWalls"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Приборный узел",
+          "actors": [
+            "BraxisAlphaMonitorBig",
+            "CastanarMonitorFloor"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Освещение и обслуживание",
+          "actors": [
+            "CompoundSewers_FloodLight",
+            "AlarmLight",
+            "Blast_Craters_Big"
+          ]
+        }
+      ],
+      "actors": [
+        "CompoundMansion_Mengsk_Statue",
+        "CompoundSewer_Pipes",
+        "CompoundSewers_ExhaustPipes",
+        "CompoundSewers_Fence",
+        "CompoundSewers_FenceTall",
+        "CompoundSewers_FuelingPipes",
+        "CompoundSewers_RubblePile",
+        "CompoundSewers_Tank"
+      ],
+      "materials": {}
+    },
+    "Cybros": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "Purifier_CityBuilding_Floating_Temple",
+            "Purifier_CityBuilding_Temple",
+            "Purifier_CityBuilding_Tower"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "Purifier_Cliff_Facades",
+            "Purifier_Core_Trims",
+            "Purifier_Force_Field_Pillar"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "Purifier_Energy_Pipes",
+            "Purifier_GroundConsole",
+            "LightOmniOrangeLarge"
+          ]
+        }
+      ],
+      "actors": [
+        "Purifier_Communications_Tower",
+        "Purifier_Containers",
+        "Purifier_Central_CoreArm",
+        "Purifier_Central_CoreMatrix_Parts",
+        "Purifier_City_Decals",
+        "Purifier_Core",
+        "Purifier_CoreMachineParts",
+        "Purifier_Curb"
+      ],
+      "materials": {}
+    },
+    "DefendersCity": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "DefendersCity_Building_Municipal",
+            "DefendersCity_Buildings_Industrial",
+            "DefendersCity_Buildings_IndustrialDestroyed"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "DefendersCity_SkyBridges",
+            "DefendersCity_SkyBridges_Group",
+            "DefendersCity_StreetLight"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "DefendersCity_Museum_Banner",
+            "KorhalTopiary",
+            "PortCity_Fountain"
+          ]
+        }
+      ],
+      "actors": [
+        "AiurTree_Ex2",
+        "Aiur_Tree_Large",
+        "Blast_Craters_Big",
+        "BraxisAlphaBarrels",
+        "ChainLinkFencePost",
+        "ChainLinkFenceStraight",
+        "CivilianCars",
+        "DOM_Crate"
+      ],
+      "materials": {}
+    },
+    "DesertWorld": {
+      "profile": "desert",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Ориентир долины",
+          "actors": [
+            "DesertRockGiant",
+            "ChiseledRockEx1Large",
+            "ZergThornSpire"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "ShearedRocksDesert",
+            "ChiseledRockEx1",
+            "RockTower"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Редкая биомная деталь",
+          "actors": [
+            "DustStorms",
+            "Tumbleweeds",
+            "Slayn_TallGrass"
+          ]
+        }
+      ],
+      "actors": [
+        "Decal",
+        "BraxisAlphaBarrels",
+        "ChainLinkFenceDiagonal",
+        "ChainLinkFencePost",
+        "ChainLinkFenceStraight",
+        "CharDuneRock",
+        "DesertCaveEntrance",
+        "ZerusRockCliffMedium"
+      ],
+      "materials": {
+        "ground": [
+          "DesertWorld1",
+          "DesertWorld5",
+          "DesertWorld6"
+        ],
+        "accent": [
+          "DesertWorld2",
+          "DesertWorld3"
+        ]
+      }
+    },
+    "DominionLab": {
+      "profile": "interior",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Граница помещения",
+          "actors": [
+            "UmojanLabGlassWallPanel",
+            "UmojanLabWallCap",
+            "UmojanLabWallConsoles"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Приборный узел",
+          "actors": [
+            "UmojanLabTestTube",
+            "UmojanLabMonitorFloor",
+            "CastanarMonitorLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Освещение и обслуживание",
+          "actors": [
+            "UmojanLabPowerConduit",
+            "UmojanLabZergCrates",
+            "UmojanLabFloodLights"
+          ]
+        }
+      ],
+      "actors": [
+        "UmojanLabLabGate",
+        "UmojanLabZergChamberLarge",
+        "UmojanLabCrates",
+        "HavenDoodadsCrates",
+        "LandingLights",
+        "UmojanLabAlarms",
+        "UmojanLabBackgroundCatwalk",
+        "UmojanLabCliffStructure"
+      ],
+      "materials": {
+        "ground": [
+          "DominionLab7",
+          "DominionLab8"
+        ],
+        "floor": [
+          "DominionLab1",
+          "DominionLab2",
+          "DominionLab3"
+        ],
+        "accent": [
+          "DominionLab8"
+        ]
+      }
+    },
+    "Elsecaro": {
+      "profile": "jungle_river",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Кроны",
+          "actors": [
+            "Elsecaro_Palmtree_Wrecked",
+            "Elsecaro_Tree",
+            "PortCity_StreetSigns"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Низкие заросли",
+          "actors": [
+            "Elsecaro_Foliage",
+            "PortCity_Garden_Plants"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Береговой акцент",
+          "actors": [
+            "Elsecaro_Large_Rock",
+            "Elsecaro_Large_Rock_NoShadow",
+            "Elsecaro_Medium_Rock"
+          ]
+        }
+      ],
+      "actors": [
+        "Blast_Craters",
+        "Blast_Craters_Big",
+        "Elsecaro_Barricade",
+        "Elsecaro_Civilian_Car",
+        "Elsecaro_Civilian_Car_Orange",
+        "Elsecaro_Civilian_Car_Red",
+        "Elsecaro_Downtown_Building",
+        "Elsecaro_Medium_Rock_Group"
+      ],
+      "materials": {}
+    },
+    "ElsecaroCity": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "Elsecaro_Downtown_Building",
+            "Tarsonis_Building_Top"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "DefendersCity_SkyBridges",
+            "DefendersCity_SkyBridges_Group"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "Elsecaro_Mengsk_Statue",
+            "KorhalLoneMarineStatue"
+          ]
+        }
+      ],
+      "actors": [
+        "Elsecaro_Civilian_Car_Red",
+        "Elsecaro_Foliage",
+        "Elsecaro_Large_Rock",
+        "Elsecaro_Large_Rock_NoShadow",
+        "Elsecaro_Medium_Rock",
+        "Elsecaro_Medium_Rock_Group",
+        "Elsecaro_Medium_Rock_NoShadow_Group",
+        "Elsecaro_Sidewalks"
+      ],
+      "materials": {}
+    },
+    "Endion": {
+      "profile": "jungle_river",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Кроны",
+          "actors": [
+            "Aiur_Trees_Log",
+            "Aiur_Trees_Log_Small"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Низкие заросли",
+          "actors": [
+            "PlantsJungle",
+            "Vines"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Береговой акцент",
+          "actors": [
+            "Aiur_Cliff_Waterfall",
+            "Aiur_Rock_Cliff_Jungle",
+            "CharDuneRock"
+          ]
+        }
+      ],
+      "actors": [
+        "Aiur_Archway",
+        "Aiur_City_Light",
+        "Aiur_Cliff_Facades_Abandoned",
+        "ChiseledRockEx1",
+        "ChiseledRockEx1Large",
+        "Fog_Aiur_Thick",
+        "HavenUnderbrush",
+        "TheVoid_RubblePile"
+      ],
+      "materials": {}
+    },
+    "EndionAiurProtoss": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "Aiur_Stone_Temple_Doodads",
+            "Aiur_Stone_Temple_Rubble",
+            "Aiur_Stone_Temple"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Aiur_ChiseledRock_Brown",
+            "Aiur_ChiseledRock_Brown_Large",
+            "Aiur_CliffRocks_SmallRocks"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "Aiur_Vines_Cliff"
+          ]
+        }
+      ],
+      "actors": [
+        "Aiur_Temple_BrickGroup",
+        "Aiur_Temple_Bricks",
+        "Aiur_Temple_CliffDoodads",
+        "Aiur_Temple_Inlay",
+        "Aiur_Temple_OldWalls",
+        "Aiur_Temple_Ruins_Set",
+        "Aiur_Temple_Small_Pillar",
+        "Aiur_Temple_Statue"
+      ],
+      "materials": {}
+    },
+    "Generic": {
+      "profile": "generic",
+      "roles": [],
+      "actors": [
+        "Rock",
+        "Crate",
+        "Floodlight",
+        "LandingLights",
+        "LightOmniWhiteLarge"
+      ],
+      "materials": {}
+    },
+    "Haven": {
+      "profile": "agria",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Посадки",
+          "actors": [
+            "AgriaCrops"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Лесополоса",
+          "actors": [
+            "HavenFoliage",
+            "HavenTree",
+            "HavenTreeDeath"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Граница поля",
+          "actors": [
+            "Rock",
+            "RockArch",
+            "RockLarge"
+          ]
+        }
+      ],
+      "actors": [
+        "HavenUnderbrush",
+        "RockSmall",
+        "RockTower",
+        "RockWaterfall",
+        "Bush",
+        "RockGiant",
+        "Vines",
+        "CableLight"
+      ],
+      "materials": {
+        "ground": [
+          "HavenDirt",
+          "HavenGrassDark",
+          "HavenGrass"
+        ],
+        "accent": [
+          "HavenRockSmooth",
+          "HavenRockRough"
+        ]
+      }
+    },
+    "HavenEx1": {
+      "profile": "agria",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Посадки",
+          "actors": [
+            "AgriaCrops"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Лесополоса",
+          "actors": [
+            "HavenFoliage",
+            "HavenTree",
+            "HavenTreeDeath"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Граница поля",
+          "actors": [
+            "Bush",
+            "ChainLinkFenceDiagonal",
+            "ChainLinkFencePost"
+          ]
+        }
+      ],
+      "actors": [
+        "RockLarge",
+        "RockSmall",
+        "RockTower",
+        "RockWaterfall",
+        "RockGiant",
+        "Vines",
+        "CableLight",
+        "Crate"
+      ],
+      "materials": {
+        "ground": [
+          "HavenDirt",
+          "HavenGrassDark",
+          "HavenGrass"
+        ],
+        "accent": [
+          "HavenRockSmooth",
+          "HavenRockRough"
+        ]
+      }
+    },
+    "HotS StoryMode": {
+      "profile": "generic",
+      "roles": [],
+      "actors": [
+        "Rock",
+        "Crate",
+        "Floodlight",
+        "LandingLights",
+        "LightOmniWhiteLarge"
+      ],
+      "materials": {}
+    },
+    "HybridLabInner": {
+      "profile": "interior",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Граница помещения",
+          "actors": [
+            "HybridStasisWallTube",
+            "HybridGlassWallPanel",
+            "HybridMonitorWall"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Приборный узел",
+          "actors": [
+            "HybridStasisTube",
+            "HybridStasisTubeLarge",
+            "HybridMonitorFloor"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Освещение и обслуживание",
+          "actors": [
+            "HybridPowerConduit",
+            "HybridWallPowerLines",
+            "ColonistSupplyCrate"
+          ]
+        }
+      ],
+      "actors": [
+        "HybridObelisk",
+        "HybridCliffGasVent",
+        "HybridHoloProjector",
+        "HybridHologram",
+        "HybridLabFakeShadows",
+        "HybridMonitorLarge",
+        "HybridProtossChamberDestructible",
+        "HybridTechpit"
+      ],
+      "materials": {
+        "ground": [
+          "HybridLabInner1",
+          "HybridLabInner2"
+        ],
+        "floor": [
+          "HybridLabInner3",
+          "HybridLabInner4",
+          "HybridLabInner7"
+        ],
+        "accent": [
+          "HybridLabInner2"
+        ]
+      }
+    },
+    "HybridLabOuter": {
+      "profile": "interior",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Граница помещения",
+          "actors": [
+            "HybridStasisWallTube",
+            "HybridWallPanelTall",
+            "HybridGlassWallPanel"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Приборный узел",
+          "actors": [
+            "HybridStasisTube",
+            "HybridStasisTubeLarge",
+            "HybridMonitorFloor"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Освещение и обслуживание",
+          "actors": [
+            "HybridPowerConduit",
+            "HybridWallPowerLines",
+            "ActorLightSpot"
+          ]
+        }
+      ],
+      "actors": [
+        "Hybrid01GasCloud",
+        "HybridCannon",
+        "HybridCliffGasVent",
+        "TerrainObjectHybridGasVentDoodad",
+        "HybridGenerator",
+        "HybridObelisk",
+        "HybridShearedRocks",
+        "HybridShearedRocksLarge"
+      ],
+      "materials": {
+        "floor": [
+          "HybridLabOuter1",
+          "HybridLabOuter2",
+          "HybridLabOuter3"
+        ]
+      }
+    },
+    "HybridLabXelNaga": {
+      "profile": "interior",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Граница помещения",
+          "actors": [
+            "HybridStasisWallTube",
+            "HybridGlassWallPanel",
+            "HybridSecurityWall"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Приборный узел",
+          "actors": [
+            "HybridStasisTube",
+            "HybridStasisTubeLarge",
+            "HybridMonitorLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Освещение и обслуживание",
+          "actors": [
+            "HybridPowerConduit",
+            "HybridWallPowerLines",
+            "ThunderLightning"
+          ]
+        }
+      ],
+      "actors": [
+        "Hybrid01GasCloud",
+        "HybridGenerator",
+        "HybridObelisk",
+        "HybridShearedRocks",
+        "HybridTempleObeliskRelay",
+        "HybridHologram",
+        "HybridLabFakeShadows",
+        "HybridWallConsoles"
+      ],
+      "materials": {
+        "ground": [
+          "HybridLabXelNaga8"
+        ],
+        "path": [
+          "HybridLabXelNaga5"
+        ],
+        "floor": [
+          "HybridLabXelNaga2",
+          "HybridLabXelNaga4",
+          "HybridLabXelNaga6"
+        ],
+        "accent": [
+          "HybridLabXelNaga8"
+        ]
+      }
+    },
+    "IceWorld": {
+      "profile": "snow",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Ледяной ориентир",
+          "actors": [
+            "IceWorldRock",
+            "IceWorldRockLarge",
+            "IceWorldAmbientCrystals"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обнаженная порода",
+          "actors": [
+            "IceRockTower",
+            "CliffGlacierCollapsing",
+            "CliffGlacierMedium"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Снежная кромка",
+          "actors": [
+            "IceWorldCrackingIce",
+            "FogMistSnow",
+            "IceMiscChunks"
+          ]
+        }
+      ],
+      "actors": [
+        "IceShearedRocks",
+        "IceShearedRocksLarge",
+        "IceShearedRocksLargeRefractive",
+        "IceShearedRocksUpright",
+        "IceSpikes",
+        "SnowDrifts",
+        "SnowDriftsLarge",
+        "SnowLight"
+      ],
+      "materials": {
+        "ground": [
+          "IceWorld3",
+          "IceWorld4",
+          "IceWorld6"
+        ],
+        "path": [
+          "IceWorld2"
+        ],
+        "accent": [
+          "IceWorld2",
+          "IceWorld6"
+        ]
+      }
+    },
+    "IceWorld2": {
+      "profile": "snow",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Ледяной ориентир",
+          "actors": [
+            "IceRockGiant",
+            "IceRockTower",
+            "IceWorldRock"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обнаженная порода",
+          "actors": [
+            "IceWorldRockLarge",
+            "ArthasIceCliff",
+            "CliffGlacierCollapsing"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Снежная кромка",
+          "actors": [
+            "FogMistSnow",
+            "IceBlock",
+            "IceBridge"
+          ]
+        }
+      ],
+      "actors": [
+        "IceShearedRocksLargeRefractive",
+        "IceShearedRocksUpright",
+        "IceSpikes",
+        "IceWorldAmbientCrystals",
+        "IceWorldCrackingIce",
+        "SnowDrifts",
+        "SnowDriftsLarge",
+        "SnowLight"
+      ],
+      "materials": {
+        "ground": [
+          "IceWorld6"
+        ],
+        "path": [
+          "IceWorld2"
+        ],
+        "floor": [
+          "BelShirSmallTiles",
+          "BelShirBricksLarge",
+          "BelShirBricksSmall"
+        ],
+        "accent": [
+          "IceWorld2",
+          "IceWorld6"
+        ]
+      }
+    },
+    "IceWorld22": {
+      "profile": "snow",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Ледяной ориентир",
+          "actors": [
+            "IceRockGiant",
+            "IceRockTower",
+            "IceWorldRock"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обнаженная порода",
+          "actors": [
+            "IceWorldRockLarge",
+            "ArthasIceCliff",
+            "CliffGlacierCollapsing"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Снежная кромка",
+          "actors": [
+            "FogMistSnow",
+            "IceBlock",
+            "IceBridge"
+          ]
+        }
+      ],
+      "actors": [
+        "IceShearedRocksLargeRefractive",
+        "IceShearedRocksUpright",
+        "IceSpikes",
+        "IceWorldAmbientCrystals",
+        "IceWorldCrackingIce",
+        "SnowDrifts",
+        "SnowDriftsLarge",
+        "SnowLight"
+      ],
+      "materials": {
+        "ground": [
+          "IceWorld6"
+        ],
+        "path": [
+          "IceWorld2"
+        ],
+        "floor": [
+          "BelShirSmallTiles",
+          "BelShirBricksLarge"
+        ],
+        "accent": [
+          "IceWorld2",
+          "IceWorld6"
+        ]
+      }
+    },
+    "IceWorldEx2": {
+      "profile": "snow",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Ледяной ориентир",
+          "actors": [
+            "IceRockGiant",
+            "IceRockTower",
+            "IceWorldRock"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обнаженная порода",
+          "actors": [
+            "IceWorldRockLarge",
+            "ArthasIceCliff",
+            "CliffGlacierCollapsing"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Снежная кромка",
+          "actors": [
+            "FogMistSnow",
+            "IceBlock",
+            "IceBridge"
+          ]
+        }
+      ],
+      "actors": [
+        "IceShearedRocksLargeRefractive",
+        "IceShearedRocksUpright",
+        "IceSpikes",
+        "IceWorldAmbientCrystals",
+        "IceWorldCrackingIce",
+        "SnowDrifts",
+        "SnowDriftsLarge",
+        "SnowLight"
+      ],
+      "materials": {}
+    },
+    "IceWorldEx2_Fortress": {
+      "profile": "refinery",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Производственный объект",
+          "actors": [
+            "IceRockTower",
+            "ProtossRadioTowerTarmac"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Технический маршрут",
+          "actors": [
+            "IceBridge",
+            "IceBridgeBroken",
+            "ProtossBaseLights"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Зимняя кромка",
+          "actors": [
+            "ArthasIceCliff",
+            "FogMistSnow",
+            "IceBlock"
+          ]
+        }
+      ],
+      "actors": [
+        "IceShearedRocksLarge",
+        "IceShearedRocksLargeRefractive",
+        "IceShearedRocksUpright",
+        "IceSpikes",
+        "IceWorldAmbientCrystals",
+        "IceWorldCrackingIce",
+        "IceWorldRock",
+        "IceWorldRockLarge"
+      ],
+      "materials": {}
+    },
+    "JarbanMinor_Jungle": {
+      "profile": "jungle_river",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Кроны",
+          "actors": [
+            "MonlythTree",
+            "Aiur_Trees_Log_Small",
+            "JarbanMinor_TreeLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Низкие заросли",
+          "actors": [
+            "Aiur_Vines_Animated",
+            "JarbanMinor_Vines",
+            "JarbanMinor_Vines_Cliff"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Береговой акцент",
+          "actors": [
+            "ChiseledRock",
+            "ChiseledRockEx1",
+            "JarbanMinor_Rocks_Crevasse"
+          ]
+        }
+      ],
+      "actors": [
+        "Blast_Craters",
+        "DOM_Crate",
+        "DOM_LabFloodLight",
+        "DesertPlanetLandingLight",
+        "Elsecaro_Barricade",
+        "FireMedium",
+        "Fog_Aiur",
+        "Fog_Aiur_Thick"
+      ],
+      "materials": {
+        "ground": [
+          "JarbanMinor_Jungle1",
+          "JarbanMinor_Jungle4",
+          "JarbanMinor_Jungle5"
+        ],
+        "path": [
+          "JarbanMinor_Jungle2",
+          "JarbanMinor_Jungle7"
+        ],
+        "floor": [
+          "JarbanMinor_Jungle3",
+          "JarbanMinor_Jungle8"
+        ],
+        "accent": [
+          "JarbanMinor_Jungle5"
+        ]
+      }
+    },
+    "Korhal": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "KorhalBuilding",
+            "KorhalBuildingWrecked",
+            "KorhalBuildingWreckedSmall"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "KorhalBridge",
+            "KorhalBridgeDestroyed",
+            "KorhalBridgeLong"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "KorhalLoneMarineStatue",
+            "KorhalWraithSquadronStatue",
+            "KorhalTopiary"
+          ]
+        }
+      ],
+      "actors": [
+        "KorhalStoreFront",
+        "KorhalRedCarpet",
+        "MengskStatueAloneCreep",
+        "MengskStatueAloneDoodad",
+        "MengskStatueCreep",
+        "WolfStatueDoodad",
+        "BridgeOrdinalFootprint",
+        "Bush"
+      ],
+      "materials": {
+        "ground": [
+          "Korhal8",
+          "Korhal4"
+        ],
+        "path": [
+          "Korhal7"
+        ],
+        "floor": [
+          "Korhal1",
+          "Korhal2",
+          "Korhal3"
+        ],
+        "accent": [
+          "Korhal7"
+        ]
+      }
+    },
+    "KorhalCity": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "KorhalDestroyedBuilding",
+            "KorhalSkyScrapers",
+            "KorhalSkyScrapersLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "KorhalBridge",
+            "KorhalBridgeDestroyed",
+            "KorhalBridgeLong"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "KorhalTopiary",
+            "MengskStatueAloneCreep"
+          ]
+        }
+      ],
+      "actors": [
+        "KorhalRedCarpet",
+        "KorhalMengskSymbol",
+        "KorhalSkyScrapersMedium",
+        "KorhalSkyScrapersSmall",
+        "BelShirTree",
+        "BraxisAlphaFloodLights",
+        "ChainLinkFenceDiagonal",
+        "CityBuilding"
+      ],
+      "materials": {
+        "ground": [
+          "KorhalCity1",
+          "KorhalCity5",
+          "KorhalCity7"
+        ],
+        "floor": [
+          "KorhalCity2",
+          "KorhalCity3",
+          "KorhalCity4"
+        ],
+        "accent": [
+          "KorhalCity8"
+        ]
+      }
+    },
+    "KorhalCityEx2": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "KorhalBuildingDebris",
+            "KorhalBuildingsMedium",
+            "KorhalDestroyedBuilding"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "KorhalStreet_Props",
+            "RoadCornerStraight",
+            "RoadDestroyedCornerDiagonal"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "KorhalTopiary"
+          ]
+        }
+      ],
+      "actors": [
+        "Blast_Craters",
+        "Blast_Craters_Big",
+        "ColonistVehicleAbandoned",
+        "GenericFire_Large",
+        "GenericFire_Large_Long",
+        "GenericFire_Medium",
+        "GenericFire_Medium_Area",
+        "GenericFire_Medium_Long"
+      ],
+      "materials": {}
+    },
+    "KorhalEx1": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "KorhalDestroyedBuilding",
+            "KorhalSkyScrapers",
+            "KorhalSkyScrapersLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "KorhalBridge",
+            "KorhalBridgeDestroyed",
+            "KorhalBridgeLong"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "KorhalTopiary",
+            "KorhalLoneMarineStatue",
+            "KorhalWraithSquadronStatue"
+          ]
+        }
+      ],
+      "actors": [
+        "KorhalRedCarpet",
+        "KorhalMengskSymbol",
+        "KorhalOverpass",
+        "KorhalSkyScrapersMedium",
+        "KorhalSkyScrapersSmall",
+        "KorhalWallDoodad",
+        "KorhalStoreFront",
+        "MengskStatueAloneCreep"
+      ],
+      "materials": {
+        "ground": [
+          "Korhal8",
+          "Korhal4"
+        ],
+        "path": [
+          "Korhal7"
+        ],
+        "floor": [
+          "Korhal1",
+          "Korhal2",
+          "Korhal3"
+        ],
+        "accent": [
+          "Korhal7"
+        ]
+      }
+    },
+    "KorhalOutskirts": {
+      "profile": "outskirts",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Жилой или сервисный якорь",
+          "actors": [
+            "KorhalDestroyedBuilding",
+            "GenericBuildingRubble",
+            "KorhalBuilding"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Кромка дороги",
+          "actors": [
+            "ChiseledRock",
+            "ChiseledRockLarge",
+            "BullhornLights"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Дикая граница",
+          "actors": [
+            "Aiur_Stone_Temple_Rubble",
+            "CompoundSewers_RubblePile"
+          ]
+        }
+      ],
+      "actors": [
+        "KorhalOverpass",
+        "KorhalWallDoodad",
+        "KorhalBridge",
+        "KorhalBridgeLong",
+        "KorhalRedCarpet",
+        "BillboardScrollingTextBroken",
+        "BlastCratersDoodad",
+        "Bush"
+      ],
+      "materials": {
+        "ground": [
+          "KorhalOutskirts1",
+          "KorhalOutskirts4",
+          "KorhalOutskirts5"
+        ],
+        "floor": [
+          "KorhalOutskirts6",
+          "KorhalOutskirts8"
+        ],
+        "accent": [
+          "KorhalOutskirts2",
+          "KorhalOutskirts3"
+        ]
+      }
+    },
+    "KorhalPlatform": {
+      "profile": "platform",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Край палубы",
+          "actors": [
+            "FanVentCliff",
+            "HybridCliffGasVent",
+            "HybridWallPanel1High"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Технический узел",
+          "actors": [
+            "ElectricConduitPathMedium",
+            "ElectricConduitPathSmall"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Навигационные огни",
+          "actors": [
+            "DominionLandingPad",
+            "LandingLights",
+            "SpaceFloodLight"
+          ]
+        }
+      ],
+      "actors": [
+        "CastanarGenerator",
+        "GenericSpacePipes",
+        "GenericSpacePipesDiagonal",
+        "SpacePlatformCablesLarge",
+        "SpacePlatformSignTowerLarge",
+        "SpacePlatformTower",
+        "Decal",
+        "DecalSpace"
+      ],
+      "materials": {
+        "floor": [
+          "KorhalPlatform1",
+          "KorhalPlatform2",
+          "KorhalPlatform3"
+        ]
+      }
+    },
+    "KorhalPlatformEx2": {
+      "profile": "platform",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Край палубы",
+          "actors": [
+            "ExplodingCliffBuilding",
+            "KorhalPlatform_DamagedCliffBuilding",
+            "Korhal_Platform_CliffStructures"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Технический узел",
+          "actors": [
+            "ElectricConduitPathMedium",
+            "ElectricConduitPathSmall"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Навигационные огни",
+          "actors": [
+            "AlarmLight",
+            "Korhal_Platform_LandingLights",
+            "LandingLights"
+          ]
+        }
+      ],
+      "actors": [
+        "BraxisAlphaBarrels",
+        "CityBuilding",
+        "CivilianCars",
+        "Crate",
+        "FireMedium",
+        "KorhalBuilding",
+        "Korhal_ControlTower",
+        "Korhal_FuelTank"
+      ],
+      "materials": {
+        "floor": [
+          "KorhalPlatformEx2_1",
+          "KorhalPlatformEx2_2",
+          "KorhalPlatformEx2_3"
+        ]
+      }
+    },
+    "KorhalWastes": {
+      "profile": "outskirts",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Жилой или сервисный якорь",
+          "actors": [
+            "CityBuilding",
+            "KorhalBuilding"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Кромка дороги",
+          "actors": [
+            "LandingLights",
+            "SpacePlatformCautionLights"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Дикая граница",
+          "actors": [
+            "Aiur_Stone_Temple_Rubble",
+            "CompoundSewers_RubblePile"
+          ]
+        }
+      ],
+      "actors": [
+        "KorhalBridgeLong",
+        "KorhalRedCarpet",
+        "MengskStatueAloneCreep",
+        "MengskStatueAloneDoodad",
+        "MengskStatueCreep",
+        "WolfStatueDoodad",
+        "BridgeOrdinalFootprint",
+        "Bush"
+      ],
+      "materials": {}
+    },
+    "LordaeronSummerHD": {
+      "profile": "agria",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Посадки",
+          "actors": [
+            "AgriaCrops"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Лесополоса",
+          "actors": [
+            "AgriaFoliage",
+            "AgriaShrub",
+            "AgriaTree"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Граница поля",
+          "actors": [
+            "Bush",
+            "ChainLinkFenceDiagonal",
+            "ChainLinkFencePost"
+          ]
+        }
+      ],
+      "actors": [
+        "RockLarge",
+        "Vines",
+        "AgriaUnderbrush",
+        "RockArch",
+        "RockGiant",
+        "RockSmall",
+        "RockTower",
+        "RockWaterfall"
+      ],
+      "materials": {
+        "ground": [
+          "AgriaDirt",
+          "AgriaDirtRough",
+          "AgriaGrassYellow"
+        ],
+        "floor": [
+          "AgriaConcrete"
+        ],
+        "accent": [
+          "AgriaRock"
+        ]
+      }
+    },
+    "MarSara": {
+      "profile": "desert",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Ориентир долины",
+          "actors": [
+            "MarSaraCliffDoodadLarge",
+            "MarSaraCliffDoodadLargeLow",
+            "RockLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "Rock",
+            "RockSmall",
+            "RockFormationLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Редкая биомная деталь",
+          "actors": [
+            "DustStorms",
+            "CharWeed"
+          ]
+        }
+      ],
+      "actors": [
+        "MarSaraTree",
+        "MarSaraCactus",
+        "MarSaraSkeletonLarge",
+        "MarSaraTreeDead",
+        "WaterTank",
+        "MarSaraBones",
+        "MarSaraSkeletonSmall",
+        "ChainLinkFenceDiagonal"
+      ],
+      "materials": {
+        "ground": [
+          "MarSaraDirt",
+          "MarSaraSand",
+          "MarSaraDarkSand"
+        ],
+        "path": [
+          "MarSaraDirtCracked"
+        ],
+        "floor": [
+          "MarSaraConcrete",
+          "MarSaraPanels"
+        ],
+        "accent": [
+          "MarSaraDirtCracked",
+          "MarSaraRocky",
+          "MarSaraBlackenedRock"
+        ]
+      }
+    },
+    "MarSaraEx1": {
+      "profile": "desert",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Ориентир долины",
+          "actors": [
+            "ChiseledRockEx1Large",
+            "CliffZerusRockShort",
+            "NewFolsomRockLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "ChiseledRockEx1",
+            "Rock",
+            "RockGiant"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Редкая биомная деталь",
+          "actors": [
+            "DustStorms",
+            "CharWeed"
+          ]
+        }
+      ],
+      "actors": [
+        "CharGlowingPods",
+        "HavenTree",
+        "MarSaraFoliage",
+        "MarSaraTree",
+        "RockLarge",
+        "ZerusRockCliffTall",
+        "CaveEntrance",
+        "CharBlisterEgg"
+      ],
+      "materials": {
+        "ground": [
+          "MarSaraDirt",
+          "MarSaraSand",
+          "MarSaraDarkSand"
+        ],
+        "path": [
+          "MarSaraDirtCracked"
+        ],
+        "floor": [
+          "MarSaraConcrete",
+          "MarSaraPanels"
+        ],
+        "accent": [
+          "MarSaraDirtCracked",
+          "MarSaraRocky",
+          "MarSaraBlackenedRock"
+        ]
+      }
+    },
+    "MarSaraEx2": {
+      "profile": "desert",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Ориентир долины",
+          "actors": [
+            "MarSaraCliffDoodadLarge",
+            "RockLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "Rock",
+            "RockSmall"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Редкая биомная деталь",
+          "actors": [
+            "DustStorms",
+            "CharWeed"
+          ]
+        }
+      ],
+      "actors": [
+        "WaterTank",
+        "MarSaraBones",
+        "MarSaraSkeletonSmall",
+        "ChainLinkFenceDiagonal",
+        "MarSaraMineCart",
+        "PipesCap",
+        "PipesCorner",
+        "PipesCorner45"
+      ],
+      "materials": {
+        "ground": [
+          "MarSaraDirtEx2",
+          "MarSaraSandEx2",
+          "MarSaraDarkSandEx2"
+        ],
+        "path": [
+          "MarSaraDirtCrackedEx2"
+        ],
+        "floor": [
+          "MarSaraConcreteEx2",
+          "MarSaraPanelsEx2"
+        ],
+        "accent": [
+          "MarSaraDirtCrackedEx2",
+          "MarSaraRockyEx2",
+          "MarSaraBlackenedRockEx2"
+        ]
+      }
+    },
+    "Meinhoff": {
+      "profile": "lunar",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупная скала",
+          "actors": [
+            "MeinhoffCrater",
+            "MeinhoffCraterLarge",
+            "RockLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Каменная россыпь",
+          "actors": [
+            "RockSmall",
+            "Rock",
+            "RockGiant"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Акцент открытой поверхности",
+          "actors": [
+            "RockTower",
+            "RockArch",
+            "RockWaterfall"
+          ]
+        }
+      ],
+      "actors": [
+        "BraxisAlphaBarrels",
+        "Crate",
+        "FogBlue",
+        "WaterTank",
+        "Decal",
+        "Floodlight",
+        "WindEmitterMedium",
+        "MeinhoffCraterSmall"
+      ],
+      "materials": {
+        "ground": [
+          "MeinhoffSandDunes",
+          "MeinhoffWhiteSand",
+          "MeinhoffRoughSand"
+        ],
+        "floor": [
+          "MeinhoffConcrete",
+          "MeinhoffPanels"
+        ],
+        "accent": [
+          "MeinhoffRock"
+        ]
+      }
+    },
+    "MeinhoffEx1": {
+      "profile": "lunar",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупная скала",
+          "actors": [
+            "RockLarge",
+            "MeinhoffCrater",
+            "MeinhoffCraterLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Каменная россыпь",
+          "actors": [
+            "Rock",
+            "RockArch",
+            "RockGiant"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Акцент открытой поверхности",
+          "actors": [
+            "MarSaraCrack",
+            "RockSmall",
+            "RockTower"
+          ]
+        }
+      ],
+      "actors": [
+        "BraxisAlphaBarrels",
+        "Crate",
+        "FogBlue",
+        "WaterTank",
+        "Decal",
+        "Floodlight",
+        "WindEmitterMedium",
+        "MeinhoffCraterSmall"
+      ],
+      "materials": {
+        "ground": [
+          "MeinhoffSandDunes",
+          "MeinhoffWhiteSand",
+          "MeinhoffRoughSand"
+        ],
+        "floor": [
+          "MeinhoffConcrete",
+          "MeinhoffPanels"
+        ],
+        "accent": [
+          "MeinhoffRock"
+        ]
+      }
+    },
+    "MeinhoffEx3": {
+      "profile": "lunar",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупная скала",
+          "actors": [
+            "RockLarge",
+            "MeinhoffCrater",
+            "MeinhoffCraterLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Каменная россыпь",
+          "actors": [
+            "Rock",
+            "RockArch",
+            "RockGiant"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Акцент открытой поверхности",
+          "actors": [
+            "MarSaraCrack",
+            "RockSmall",
+            "RockTower"
+          ]
+        }
+      ],
+      "actors": [
+        "BraxisAlphaBarrels",
+        "Crate",
+        "FogBlue",
+        "WaterTank",
+        "Decal",
+        "Floodlight",
+        "WindEmitterMedium",
+        "MeinhoffCraterSmall"
+      ],
+      "materials": {}
+    },
+    "MoebiusLab": {
+      "profile": "interior",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Граница помещения",
+          "actors": [
+            "MoebiusLabGlassWalls",
+            "MoebiusLabWallCap",
+            "MoebiusLab_MonitorWall"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Приборный узел",
+          "actors": [
+            "MoebiusLabConsoles",
+            "MoebiusLab_MonitorLabDestructible",
+            "MoebiusLab_MonitorLabDestructible_Destructed"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Освещение и обслуживание",
+          "actors": [
+            "MoebiusLabZergCrates",
+            "SpacePlatformWallLight",
+            "MoebiusLabFloodLight"
+          ]
+        }
+      ],
+      "actors": [
+        "AlarmLight",
+        "Blast_Craters",
+        "FireMedium",
+        "IceWorldAmbientCrystals",
+        "Korhal_Platform_Pipes",
+        "LandingLights",
+        "MoebiusLabBrokenHornet",
+        "MoebiusLabBrokenMule"
+      ],
+      "materials": {}
+    },
+    "Monlyth": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "TempleColumn",
+            "TempleGate",
+            "TempleStatue"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Rock",
+            "RockLarge",
+            "RockSmall"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "PlantsWasteland"
+          ]
+        }
+      ],
+      "actors": [
+        "MonlythStonePieces",
+        "MonlythTree",
+        "TempleStoneInlay",
+        "Brambles",
+        "MonlythLightBridge",
+        "TempleArch",
+        "TempleBricks",
+        "TempleBricksLarge"
+      ],
+      "materials": {
+        "ground": [
+          "MonlythDirt",
+          "MonlythSand",
+          "MonlythRock"
+        ],
+        "path": [
+          "MonlythCracked"
+        ],
+        "floor": [
+          "MonlythTiles",
+          "MonlythBricks"
+        ],
+        "accent": [
+          "MonlythCracked",
+          "MonlythRock"
+        ]
+      }
+    },
+    "MonlythEx1": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "MonlythArchway",
+            "MonlythArchwaySmall",
+            "RockArch"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Rock",
+            "RockGiant",
+            "RockLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "Aiur_MossClumps",
+            "Shakuras_Vines_Cliffs"
+          ]
+        }
+      ],
+      "actors": [
+        "TempleStoneInlay",
+        "Brambles",
+        "MonlythLightBridge",
+        "RockSmall",
+        "TempleArch",
+        "TempleBricks",
+        "TempleBricksLarge",
+        "TempleColumnSet"
+      ],
+      "materials": {
+        "ground": [
+          "MonlythDirt",
+          "MonlythSand",
+          "MonlythRock"
+        ],
+        "path": [
+          "MonlythCracked"
+        ],
+        "floor": [
+          "MonlythTiles",
+          "MonlythBricks"
+        ],
+        "accent": [
+          "MonlythCracked",
+          "MonlythRock"
+        ]
+      }
+    },
+    "NewFolsom": {
+      "profile": "volcanic_fort",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Инженерная граница",
+          "actors": [
+            "SecurityFenceDiagonal",
+            "SecurityFenceStraight",
+            "MetalWall"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Внешняя скала",
+          "actors": [
+            "NewFolsomRockLarge",
+            "NewFolsomRockSmall",
+            "NewFolsomRockMedium"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Оборудование",
+          "actors": [
+            "AlarmLight",
+            "BullhornLights",
+            "Crate"
+          ]
+        }
+      ],
+      "actors": [
+        "NewFolsomFlameGeyser",
+        "NewFolsomPrisonTower",
+        "Rock",
+        "RockGiant",
+        "RockSmall",
+        "NewFolsomEquipment",
+        "NewFolsomMisc",
+        "NewFolsomPrisonCell"
+      ],
+      "materials": {
+        "ground": [
+          "NewFolsomDirt",
+          "NewFolsomSand",
+          "NewFolsomRock"
+        ],
+        "path": [
+          "NewFolsomDirtCracked"
+        ],
+        "floor": [
+          "NewFolsomConcrete",
+          "NewFolsomTiles"
+        ],
+        "accent": [
+          "NewFolsomDirtCracked",
+          "NewFolsomRock"
+        ]
+      }
+    },
+    "NewFolsomEx1": {
+      "profile": "volcanic_fort",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Инженерная граница",
+          "actors": [
+            "SecurityFenceDiagonal",
+            "SecurityFenceStraight",
+            "ChainLinkFenceDiagonal"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Внешняя скала",
+          "actors": [
+            "NewFolsomRockLarge",
+            "NewFolsomRockSmall",
+            "NewFolsomRockMedium"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Оборудование",
+          "actors": [
+            "AlarmLight",
+            "BullhornLights",
+            "Crate"
+          ]
+        }
+      ],
+      "actors": [
+        "Rock",
+        "RockGiant",
+        "RockSmall",
+        "NewFolsomEquipment",
+        "NewFolsomMisc",
+        "NewFolsomPrisonCell",
+        "RockArch",
+        "RockLarge"
+      ],
+      "materials": {
+        "ground": [
+          "NewFolsomDirt",
+          "NewFolsomSand",
+          "NewFolsomRock"
+        ],
+        "path": [
+          "NewFolsomDirtCracked"
+        ],
+        "floor": [
+          "NewFolsomConcrete",
+          "NewFolsomTiles"
+        ],
+        "accent": [
+          "NewFolsomDirtCracked",
+          "NewFolsomRock"
+        ]
+      }
+    },
+    "PortCity": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "PortCity_BuildingRound",
+            "PortCity_BuildingRound_Destroyed",
+            "PortCity_Building_Foundation"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "PortCity_Bridge",
+            "PortCity_Bridge_Destroyed",
+            "PortCity_StreetAlarms"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "PortCity_Fountain",
+            "PortCity_Fountain_Destroyed",
+            "PortCity_Garden_PlantsTopiary"
+          ]
+        }
+      ],
+      "actors": [
+        "BelShirFoliage",
+        "Blast_Craters",
+        "ChainLinkFencePost",
+        "ChainLinkFenceStraight",
+        "ColonistVehicleAbandoned",
+        "DOM_Crate",
+        "Elsecaro_Civilian_Car",
+        "Elsecaro_Civilian_Car_Orange"
+      ],
+      "materials": {}
+    },
+    "PortCityB": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "PortZionTower",
+            "SpacePlatformTower",
+            "RockTower"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "DefendersCity_SkyBridges",
+            "DefendersCity_SkyBridges_Group"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "Aiur_City_Banners",
+            "Aiur_City_Banners_Abandoned"
+          ]
+        }
+      ],
+      "actors": [
+        "RockSmall",
+        "SpacePlatformCautionLights",
+        "SpacePlatformSignTowerLarge",
+        "FanVent",
+        "JunkPileSpaceShips",
+        "PortZionCompactor",
+        "PortZionCrane",
+        "PortZionDumpster"
+      ],
+      "materials": {}
+    },
+    "PortZion": {
+      "profile": "outskirts",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Жилой или сервисный якорь",
+          "actors": [
+            "Outhouse"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Кромка дороги",
+          "actors": [
+            "Rock",
+            "RockGiant",
+            "RockLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Дикая граница",
+          "actors": [
+            "Aiur_Stone_Temple_Rubble",
+            "CompoundSewers_RubblePile"
+          ]
+        }
+      ],
+      "actors": [
+        "PortZionBarrel",
+        "PortZionTower",
+        "RockSmall",
+        "SpacePlatformCautionLights",
+        "SpacePlatformSignTowerLarge",
+        "FanVent",
+        "JunkPileSpaceShips",
+        "PortZionCompactor"
+      ],
+      "materials": {
+        "ground": [
+          "PortZionDirt",
+          "PortZionConveyorBelt",
+          "PortZionRock"
+        ],
+        "path": [
+          "PortZionDirtCracked"
+        ],
+        "floor": [
+          "PortZionTiles"
+        ],
+        "accent": [
+          "PortZionDirtCracked",
+          "PortZionRock"
+        ]
+      }
+    },
+    "PortZionEx1": {
+      "profile": "outskirts",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Жилой или сервисный якорь",
+          "actors": [
+            "Shakuras_CityBuilding_Cliff",
+            "Shakuras_City_Building_Cathedral_Destroyed"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Кромка дороги",
+          "actors": [
+            "Rock",
+            "RockArch",
+            "RockGiant"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Дикая граница",
+          "actors": [
+            "Aiur_Stone_Temple_Rubble",
+            "CompoundSewers_RubblePile"
+          ]
+        }
+      ],
+      "actors": [
+        "RockSmall",
+        "SpacePlatformCautionLights",
+        "SpacePlatformSignTowerLarge",
+        "FanVent",
+        "JunkPileSpaceShips",
+        "PortZionCompactor",
+        "PortZionCrane",
+        "PortZionDumpster"
+      ],
+      "materials": {
+        "ground": [
+          "PortZionDirt",
+          "PortZionConveyorBelt",
+          "PortZionRock"
+        ],
+        "path": [
+          "PortZionDirtCracked"
+        ],
+        "floor": [
+          "PortZionTiles"
+        ],
+        "accent": [
+          "PortZionDirtCracked",
+          "PortZionRock"
+        ]
+      }
+    },
+    "PortZionEx12": {
+      "profile": "outskirts",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Жилой или сервисный якорь",
+          "actors": [
+            "Shakuras_CityBuilding_Cliff",
+            "Shakuras_City_Building_Cathedral_Destroyed"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Кромка дороги",
+          "actors": [
+            "Rock",
+            "RockArch",
+            "RockGiant"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Дикая граница",
+          "actors": [
+            "Aiur_Stone_Temple_Rubble",
+            "CompoundSewers_RubblePile"
+          ]
+        }
+      ],
+      "actors": [
+        "RockSmall",
+        "SpacePlatformCautionLights",
+        "SpacePlatformSignTowerLarge",
+        "FanVent",
+        "JunkPileSpaceShips",
+        "PortZionCompactor",
+        "PortZionCrane",
+        "PortZionDumpster"
+      ],
+      "materials": {
+        "ground": [
+          "PortZionDirt",
+          "PortZionRock"
+        ],
+        "path": [
+          "PortZionDirtCracked",
+          "MonlythCracked"
+        ],
+        "accent": [
+          "PortZionDirtCracked",
+          "MonlythCracked",
+          "PortZionRock"
+        ]
+      }
+    },
+    "PrisonShip": {
+      "profile": "prison",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Барьер и пропуск",
+          "actors": [
+            "SpaceWallPanel",
+            "SpacePrisonPlatformBarrier",
+            "SpaceVentWall"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Контроль",
+          "actors": [
+            "SpacePrisonCell",
+            "SpacePrisonPlatformExhaust",
+            "PrisonShip"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Свет и блок снабжения",
+          "actors": [
+            "SpaceFloodLight",
+            "UmojanLabConsoleSmall",
+            "UmojanLabWallConsoles"
+          ]
+        }
+      ],
+      "actors": [
+        "SpaceDockPowerLines",
+        "SpaceTankTrap",
+        "SpaceBadgeReader",
+        "SpaceCabinet",
+        "SpaceElevatorDoodad",
+        "SpaceElevatorRamp",
+        "SpaceGunRack",
+        "SpacePrisonDockEquipment"
+      ],
+      "materials": {
+        "ground": [
+          "PrisonShip8"
+        ],
+        "floor": [
+          "PrisonShip1",
+          "PrisonShip2",
+          "PrisonShip3"
+        ]
+      }
+    },
+    "ProtossBase": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "Aiur_City_Archway_Large",
+            "Aiur_Statue_RockPillar",
+            "Purifier_CityBuilding_Tower"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "ProtossBase_Wall",
+            "Aiur_Cliff_Facades",
+            "Purifier_OuterWalls"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "Aiur_City_Light",
+            "Korhal_Platform_LandingLights",
+            "LightOmniCyanLarge"
+          ]
+        }
+      ],
+      "actors": [
+        "Aiur_Road_Window",
+        "FogBlue",
+        "OrbitalMegaDeathBeam_ImpactTrail_Steam",
+        "ProtossFireMedium",
+        "Protoss_Base_Floating_Temple",
+        "Protoss_Base_Railings",
+        "Protoss_Base_RepairBay_Broken",
+        "Protoss_Base_RoadEntry"
+      ],
+      "materials": {}
+    },
+    "PurificationDesert": {
+      "profile": "desert",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Ориентир долины",
+          "actors": [
+            "CliffSpires",
+            "SpiresLarge",
+            "RockArch"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "Rock",
+            "RockGiant",
+            "RockLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Редкая биомная деталь",
+          "actors": [
+            "DustStorms",
+            "CharWeed"
+          ]
+        }
+      ],
+      "actors": [
+        "RockSmall",
+        "RockTower",
+        "RockWaterfall",
+        "UlaanTemple",
+        "BrokenGroundEdging",
+        "FogBlue",
+        "FogStormDeep",
+        "ZhakulDasObelisk"
+      ],
+      "materials": {}
+    },
+    "PurifierJungle": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "ShakurasArchonStatue",
+            "TempleBricks",
+            "TempleBricksLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Rock",
+            "RockLarge",
+            "RockSmall"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "BelShirCliffRoots",
+            "BelShirShrub",
+            "PlantsJungle"
+          ]
+        }
+      ],
+      "actors": [
+        "BelShirTree",
+        "BelShirFoliage",
+        "TempleColumn",
+        "TempleColumnWalls",
+        "TempleGatePiece",
+        "TempleWall45",
+        "TempleWall90",
+        "TempleWallCorner"
+      ],
+      "materials": {
+        "ground": [
+          "HavenDirt",
+          "HavenGrassDark",
+          "HavenGrass"
+        ],
+        "accent": [
+          "HavenRockSmooth",
+          "HavenRockRough"
+        ]
+      }
+    },
+    "Redstone": {
+      "profile": "lava",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупный ориентир",
+          "actors": [
+            "RockVolcanicGiant"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "RedstoneRockSpiresNoBase",
+            "RedstoneRockSpires",
+            "TTosh01RockSpires"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Край жерла",
+          "actors": [
+            "RedstoneFlameGeyser",
+            "TTosh01FlameGeyser",
+            "RedstoneLavafall"
+          ]
+        }
+      ],
+      "actors": [
+        "RedstonePlant",
+        "RedstoneTree",
+        "Rock",
+        "RockArch",
+        "RockGiant",
+        "RockLarge",
+        "RockTower",
+        "TTosh01Lavafall"
+      ],
+      "materials": {
+        "ground": [
+          "RedstoneDirt",
+          "RedstoneRockyDirt",
+          "RedstoneRough"
+        ],
+        "accent": [
+          "RedstoneLavaCracks",
+          "RedstoneDirt",
+          "RedstoneRockyDirt"
+        ]
+      }
+    },
+    "RedstoneEx1": {
+      "profile": "lava",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупный ориентир",
+          "actors": [
+            "RockVolcanicGiant"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "CharRock",
+            "RedstoneRockSpires",
+            "RedstoneRockSpiresNoBase"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Край жерла",
+          "actors": [
+            "RedstoneFlameGeyser",
+            "TTosh01FlameGeyser",
+            "RedstoneLavafall"
+          ]
+        }
+      ],
+      "actors": [
+        "RockGiant",
+        "RockLarge",
+        "RockTower",
+        "TTosh01RockSpires",
+        "TTosh01Lavafall",
+        "RockSmall",
+        "RockWaterfall",
+        "BraxisAlphaBarrels"
+      ],
+      "materials": {
+        "ground": [
+          "RedstoneDirt",
+          "RedstoneRockyDirt",
+          "RedstoneRough"
+        ],
+        "accent": [
+          "RedstoneLavaCracks",
+          "RedstoneDirt",
+          "RedstoneRockyDirt"
+        ]
+      }
+    },
+    "Redstorm": {
+      "profile": "lava",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупный ориентир",
+          "actors": [
+            "RockVolcanicGiant",
+            "CharCrystalHuge",
+            "CharCrystalLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "CharCrater",
+            "CharDestructibleRockCoverBase",
+            "CharRock"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Край жерла",
+          "actors": [
+            "Lavafall",
+            "RedstoneFlameGeyser"
+          ]
+        }
+      ],
+      "actors": [
+        "CharRibs",
+        "CharWorm",
+        "CharFoliage",
+        "CharGlowingPods",
+        "CharTree",
+        "CharIntestines",
+        "CharWeed",
+        "CharArchway"
+      ],
+      "materials": {
+        "ground": [
+          "Redstorm_5",
+          "Redstorm_6",
+          "Redstorm_1"
+        ],
+        "path": [
+          "Redstorm_2"
+        ],
+        "accent": [
+          "Redstorm_8",
+          "Redstorm_1",
+          "Redstorm_4"
+        ]
+      }
+    },
+    "ShadowCorpsPlatform": {
+      "profile": "platform",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Край палубы",
+          "actors": [
+            "FanVentCliff",
+            "Korhal_Platform_CliffTower",
+            "Korhal_Platform_PlateWall"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Технический узел",
+          "actors": [
+            "ShadowCore_AsteroidBase_DockingBay",
+            "ShadowCore_AsteroidBase_LandingPlatform",
+            "ShadowCore_AsteroidBase_Windows"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Навигационные огни",
+          "actors": [
+            "Korhal_Platform_LandingLights",
+            "LightOmniRedLarge",
+            "LightOmniYellowLarge"
+          ]
+        }
+      ],
+      "actors": [
+        "GenericSpacePipes",
+        "Korhal_Platform_Pipes",
+        "Korhal_Residential_Building",
+        "PipeGroundBig",
+        "PipesCorner",
+        "PipesSmallLong",
+        "PowerSupplyWarfield",
+        "Shadow_Cliffbuildings"
+      ],
+      "materials": {}
+    },
+    "Shakuras": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "ShakurasTempleBuildings",
+            "ShakurasTempleWall",
+            "TempleColumn"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "ShakurasRockColumn",
+            "ShakurasRuinDebris",
+            "RockLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "PlantsWasteland"
+          ]
+        }
+      ],
+      "actors": [
+        "ShakurasTree",
+        "ShakurasCliffGapFiller",
+        "ShakurasHexColumns",
+        "Rock",
+        "Brambles",
+        "ShakurasFoliage",
+        "RockArch",
+        "RockGiant"
+      ],
+      "materials": {
+        "ground": [
+          "ShakurasSand",
+          "ShakurasSandDark",
+          "ShakurasStone"
+        ],
+        "path": [
+          "ShakurasDirtCracked"
+        ],
+        "floor": [
+          "ShakurasBricks",
+          "ShakurasHextiles"
+        ],
+        "accent": [
+          "ShakurasDirtCracked",
+          "ShakurasStone",
+          "ShakurasRockCracked"
+        ]
+      }
+    },
+    "ShakurasCity": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "Shakuras_CityBuilding_FloatingTemple",
+            "Shakuras_CityBuilding_Large_Temple",
+            "Shakuras_CityBuilding_Large_Temple_Debris"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "Shakuras_City_Pillar",
+            "Shakuras_CliffCorner",
+            "Shakuras_Cliff_Faces_Short"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "Shakuras_GroundConsole",
+            "Shakuras_GroundConsole_Destroyed",
+            "LightOmniCyanLarge"
+          ]
+        }
+      ],
+      "actors": [
+        "DT_Fire_Large",
+        "DT_Fire_Medium",
+        "Fog_Shakuras",
+        "GenericProtossFire_Shakuras_Large",
+        "ProtossRadioTowerTarmac",
+        "Shakuras_Archway",
+        "Shakuras_CityBuilding_FloatingPlatform",
+        "Shakuras_CityBuilding_FloatingPlatform_Disk"
+      ],
+      "materials": {}
+    },
+    "ShakurasEx1": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "RockArch",
+            "ShakurasTempleBuildings",
+            "ShakurasTempleWall"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Rock",
+            "RockGiant",
+            "RockLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "Aiur_MossClumps",
+            "Shakuras_Vines_Cliffs"
+          ]
+        }
+      ],
+      "actors": [
+        "ShakurasCliffGapFiller",
+        "ShakurasHexColumns",
+        "Brambles",
+        "ShakurasFoliage",
+        "RockSmall",
+        "RockTower",
+        "RockWaterfall",
+        "ShakurasBrush"
+      ],
+      "materials": {
+        "ground": [
+          "ShakurasSand",
+          "ShakurasSandDark",
+          "ShakurasStone"
+        ],
+        "path": [
+          "ShakurasDirtCracked"
+        ],
+        "floor": [
+          "ShakurasBricks",
+          "ShakurasHextiles"
+        ],
+        "accent": [
+          "ShakurasDirtCracked",
+          "ShakurasStone",
+          "ShakurasRockCracked"
+        ]
+      }
+    },
+    "ShakurasTemple": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "ShakurasTempleWallDebris",
+            "ShakurasArchonStatue",
+            "Shakuras_Stone_Temple_Rubble"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "RockLarge",
+            "ShakurasRockColumn",
+            "Shakuras_Rock_Chunk_Small"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "Shakuras_Vines_Cliffs",
+            "Shakuras_Vines_Cliffs_Windy",
+            "PlantsAlien"
+          ]
+        }
+      ],
+      "actors": [
+        "Aiur_Rock_Cliff",
+        "Aiur_Temple_Pillars_Broken",
+        "DustStorms",
+        "FogMistSnow",
+        "FogStormDeep",
+        "Fog_Shakuras_Thick_Windy",
+        "Fog_Shakuras_Thick_Windy_Fast",
+        "Fog_Shakuras_Windy"
+      ],
+      "materials": {}
+    },
+    "Slayn": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "Slayn_CliffTemples",
+            "Slayn_CliffTemples_Lit",
+            "Slayn_Cliff_Temple_Entrance"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Slayn_RockCliffTall",
+            "Slayn_Temple_Pillars_Broken",
+            "Slayn_Temple_Rubble"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "Aiur_MossClumps",
+            "Shakuras_Vines_Cliffs"
+          ]
+        }
+      ],
+      "actors": [
+        "Aiur_Temple_Bricks",
+        "Aiur_Temple_Statue_ZealotBust_Crumbled",
+        "ChiseledRockEx1",
+        "ChiseledRockEx1Large",
+        "Slayn_Brazier_Fire",
+        "Slayn_Road_Inlay",
+        "Slayn_Sacrificial_Altar",
+        "Slayn_Sacrificial_Altar_Big"
+      ],
+      "materials": {}
+    },
+    "SlaynGrass": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "RockArch",
+            "ShakurasTempleBuildings",
+            "ShakurasTempleWall"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Rock",
+            "RockGiant",
+            "RockLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "Aiur_MossClumps",
+            "Shakuras_Vines_Cliffs"
+          ]
+        }
+      ],
+      "actors": [
+        "ShakurasCliffGapFiller",
+        "ShakurasHexColumns",
+        "Brambles",
+        "ShakurasFoliage",
+        "RockSmall",
+        "RockTower",
+        "RockWaterfall",
+        "ShakurasBrush"
+      ],
+      "materials": {
+        "ground": [
+          "SlaynGrass7",
+          "SlaynGrass2",
+          "SlaynGrass5"
+        ]
+      }
+    },
+    "SlaynTemple": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "RockArch",
+            "RockTower"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "CastanarMonitorWall",
+            "CastanarStasisTubeWall"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "SpacePlatformWallLight",
+            "Aiur_GroundConsole"
+          ]
+        }
+      ],
+      "actors": [
+        "RockWaterfall",
+        "BrokenGroundEdgingWide",
+        "TaurenFlyingOutHouse",
+        "Rock",
+        "RockGiant",
+        "RockLarge",
+        "RockSmall"
+      ],
+      "materials": {}
+    },
+    "SnowRefinery": {
+      "profile": "refinery",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Производственный объект",
+          "actors": [
+            "SnowRefinery_Terran_ModularCliff",
+            "SnowRefinery_Terran_ModularCliff_Thin",
+            "SnowRefinery_Cliff"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Технический маршрут",
+          "actors": [
+            "SnowRefinery_Terran_Pipes",
+            "Korhal_Platform_LandingLights",
+            "MoebiusLabFloodLight"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Зимняя кромка",
+          "actors": [
+            "SnowRefinery_FrozenWaterfalls",
+            "SnowRefinery_IcePond",
+            "SnowRefinery_IceRiver"
+          ]
+        }
+      ],
+      "actors": [
+        "DOM_Crate",
+        "DOM_VentTower",
+        "HeavySnowTree",
+        "SnowBase_Fog_Mountain_Lower",
+        "SnowBase_Fog_Mountain_Upper",
+        "SnowBase_Snow_Drifting",
+        "SnowBase_Snow_Falling_Chunks",
+        "SnowBase_Snow_Flurry"
+      ],
+      "materials": {
+        "ground": [
+          "SnowRefinery1",
+          "SnowRefinery2",
+          "SnowRefinery3"
+        ]
+      }
+    },
+    "SpearOfAdun": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "Purifier_CityBuilding_Floating_Temple",
+            "Purifier_CityBuilding_Temple",
+            "Purifier_CityBuilding_Tower"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "Purifier_Cliff_Facades",
+            "Purifier_Core_Trims",
+            "Purifier_Force_Field_Pillar"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "Purifier_Energy_Pipes",
+            "Purifier_GroundConsole"
+          ]
+        }
+      ],
+      "actors": [
+        "Purifier_Central_CoreArm",
+        "Purifier_Central_CoreMatrix_Parts",
+        "Purifier_City_Decals",
+        "Purifier_Core",
+        "Purifier_CoreMachineParts",
+        "Purifier_Curb",
+        "Purifier_Cybros_Hologram",
+        "Purifier_Disruptor_Core"
+      ],
+      "materials": {}
+    },
+    "Starship": {
+      "profile": "platform",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Край палубы",
+          "actors": [
+            "StarshipProtossWallpost",
+            "StarshipWallLights",
+            "TerrainObjectStarshipOrnateWallCurved"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Технический узел",
+          "actors": [
+            "XelNagaHullReactorConduit"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Навигационные огни",
+          "actors": [
+            "ActorLightSpot",
+            "LightOmniBlue",
+            "LightOmniBlueLarge"
+          ]
+        }
+      ],
+      "actors": [
+        "StarshipContainers",
+        "StarshipIceWorldFauna",
+        "StarshipIceWorldFlora",
+        "StarshipIceWorldIceSamples",
+        "StarshipIceWorldMinerals",
+        "StarshipArch",
+        "StarshipCockpit",
+        "StarshipEngine"
+      ],
+      "materials": {
+        "floor": [
+          "Starship1",
+          "Starship2",
+          "Starship5"
+        ]
+      }
+    },
+    "StoryMode": {
+      "profile": "generic",
+      "roles": [],
+      "actors": [
+        "Rock",
+        "Crate",
+        "Floodlight",
+        "LandingLights",
+        "LightOmniWhiteLarge"
+      ],
+      "materials": {}
+    },
+    "Tarsonis": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "KorhalBuilding",
+            "KorhalBuildingWrecked",
+            "PortZionTower"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "Tarsonis_Bridge_Diagonal",
+            "Tarsonis_Bridge_DiagonalAlt"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "Tarsonis_Banner",
+            "Tarsonis_Garden_Topiary_Plant"
+          ]
+        }
+      ],
+      "actors": [
+        "Bush",
+        "AgriaTree",
+        "AgriaUnderbrush",
+        "BraxisAlphaBarrels",
+        "ChainLinkFenceDiagonal",
+        "ChainLinkFencePost",
+        "ChainLinkFenceStraight",
+        "Crate"
+      ],
+      "materials": {
+        "ground": [
+          "TarsonisDirt",
+          "TarsonisDirtRough",
+          "TarsonisGrass"
+        ],
+        "path": [
+          "TarsonisCracks"
+        ],
+        "floor": [
+          "TarsonisConcrete"
+        ],
+        "accent": [
+          "TarsonisCracks"
+        ]
+      }
+    },
+    "TarsonisCity": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "KorhalBuildingDebris",
+            "Tarsonis_BuildingWall_Concrete_Diagonal",
+            "Tarsonis_BuildingWall_Concrete_Straight"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "KorhalBridgeLong",
+            "Streetlight",
+            "Tarsonis_Bridge_Diagonal"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "Tarsonis_Banner",
+            "Tarsonis_Garden_Topiary_Plant"
+          ]
+        }
+      ],
+      "actors": [
+        "Aiur_Zerg_Bridge",
+        "Aiur_Zerg_GlowingPods",
+        "Aiur_Zerg_Tower",
+        "Blast_Craters",
+        "BraxisAlphaBarrels",
+        "BrokenPlating",
+        "CastanarLightboard",
+        "DOM_Crate"
+      ],
+      "materials": {}
+    },
+    "TarsonisEx1": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "KorhalBuilding",
+            "PortZionTower",
+            "RubbleBuilding"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "DefendersCity_SkyBridges",
+            "DefendersCity_SkyBridges_Group"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "Aiur_City_Banners",
+            "Aiur_City_Banners_Abandoned"
+          ]
+        }
+      ],
+      "actors": [
+        "ChainLinkFencePost",
+        "ChainLinkFenceStraight",
+        "Crate",
+        "DustStorms",
+        "HavenUnderbrush",
+        "Rock",
+        "RockLarge",
+        "RockSmall"
+      ],
+      "materials": {
+        "ground": [
+          "TarsonisDirt",
+          "TarsonisDirtRough",
+          "TarsonisGrass"
+        ],
+        "path": [
+          "TarsonisCracks"
+        ],
+        "floor": [
+          "TarsonisConcrete"
+        ],
+        "accent": [
+          "TarsonisCracks"
+        ]
+      }
+    },
+    "TarsonisInterior": {
+      "profile": "interior",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Граница помещения",
+          "actors": [
+            "SpacePlatformBarrier",
+            "RubbleWall45",
+            "RubbleWall90"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Приборный узел",
+          "actors": [
+            "BraxisAlphaMonitorBig",
+            "CastanarMonitorFloor"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Освещение и обслуживание",
+          "actors": [
+            "Crate",
+            "Floodlight",
+            "Searchlight"
+          ]
+        }
+      ],
+      "actors": [
+        "ChainLinkFencePost",
+        "ChainLinkFenceStraight",
+        "DustStorms",
+        "HavenUnderbrush",
+        "KorhalBuilding",
+        "PortZionTower",
+        "Rock",
+        "RockLarge"
+      ],
+      "materials": {}
+    },
+    "TheVoid": {
+      "profile": "void",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупный фрагмент",
+          "actors": [
+            "TheVoid_RockPointy",
+            "TheVoid_RockPointy2",
+            "TheVoid_RubblePile"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Энергетическая кромка",
+          "actors": [
+            "TheVoid_FloatingRocks",
+            "TheVoid_GroundScar",
+            "TheVoid_Ramp"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Переправа",
+          "actors": [
+            "SpacePlatformRockFormation",
+            "SpacePlatformRockFormationLarge"
+          ]
+        }
+      ],
+      "actors": [
+        "Void_Cliff_Rocks",
+        "Void_SmallRocks",
+        "Void_Temple",
+        "Void_Temple_Small",
+        "Void_Crystals",
+        "Void_Nebula_Storm",
+        "Void_Sand_Drifts",
+        "Void_XelNaga_Structure"
+      ],
+      "materials": {}
+    },
+    "Typhon": {
+      "profile": "forest",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Силуэт кроны",
+          "actors": [
+            "TyphonTree",
+            "MarSaraTreeDead"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Нижний ярус",
+          "actors": [
+            "Vines",
+            "BelShirFlowers",
+            "BelShirShrub"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Кромка тропы",
+          "actors": [
+            "Rock",
+            "RockArch",
+            "RockGiant"
+          ]
+        }
+      ],
+      "actors": [
+        "Bush",
+        "RockLarge",
+        "RockSmall",
+        "RockTower",
+        "RockWaterfall",
+        "AiurTempleBuildings",
+        "ShakurasArchonStatue",
+        "TempleArch"
+      ],
+      "materials": {
+        "ground": [
+          "Typhon1",
+          "Typhon2",
+          "Typhon4"
+        ],
+        "path": [
+          "Typhon3"
+        ],
+        "floor": [
+          "Typhon7"
+        ],
+        "accent": [
+          "Typhon3",
+          "Typhon4",
+          "Typhon6"
+        ]
+      }
+    },
+    "TyphonEx1": {
+      "profile": "forest",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Силуэт кроны",
+          "actors": [
+            "MarSaraTreeDead",
+            "TyphonTree"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Нижний ярус",
+          "actors": [
+            "Vines"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Кромка тропы",
+          "actors": [
+            "Rock",
+            "RockArch",
+            "RockGiant"
+          ]
+        }
+      ],
+      "actors": [
+        "RockSmall",
+        "RockTower",
+        "RockWaterfall",
+        "AiurTempleBuildings",
+        "ShakurasArchonStatue",
+        "TempleArch",
+        "TempleColumn",
+        "TempleColumnSet"
+      ],
+      "materials": {
+        "ground": [
+          "Typhon1",
+          "Typhon2",
+          "Typhon4"
+        ],
+        "path": [
+          "Typhon3"
+        ],
+        "floor": [
+          "Typhon7"
+        ],
+        "accent": [
+          "Typhon3",
+          "Typhon4",
+          "Typhon6"
+        ]
+      }
+    },
+    "Tyrador": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "KorhalBuilding",
+            "RubbleBuilding"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "KorhalBridgeLongDestroyed",
+            "Streetlight",
+            "BridgeCardinalFootprint"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "KorhalLoneMarineStatue",
+            "KorhalWraithSquadronStatue",
+            "MengskStatueCreep"
+          ]
+        }
+      ],
+      "actors": [
+        "BelShirFoliage",
+        "BelShirTree",
+        "BridgeOrdinalFootprint",
+        "Bush",
+        "CargoTruck",
+        "CargoTruckCreep",
+        "ChainLinkFenceDiagonal",
+        "ChainLinkFencePost"
+      ],
+      "materials": {
+        "ground": [
+          "TyradorGrass"
+        ],
+        "floor": [
+          "TyradorConcrete",
+          "TyradorConcreteCracked",
+          "TyradorMarbleTiles"
+        ]
+      }
+    },
+    "TyradorEx1": {
+      "profile": "city",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Фасад или башня",
+          "actors": [
+            "KorhalBuilding"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Маршрут",
+          "actors": [
+            "BridgeCardinalFootprint",
+            "BridgeOrdinalFootprint",
+            "MarSaraBridge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Площадь",
+          "actors": [
+            "KorhalLoneMarineStatue",
+            "KorhalWraithSquadronStatue",
+            "MengskStatueCreep"
+          ]
+        }
+      ],
+      "actors": [
+        "CargoTruck",
+        "CargoTruckCreep",
+        "ChainLinkFenceDiagonal",
+        "ChainLinkFencePost",
+        "ChainLinkFenceStraight",
+        "CivilianCars",
+        "ExhaustPipes",
+        "FireMedium"
+      ],
+      "materials": {
+        "ground": [
+          "TyradorGrass"
+        ],
+        "floor": [
+          "TyradorConcrete",
+          "TyradorConcreteCracked",
+          "TyradorMarbleTiles"
+        ]
+      }
+    },
+    "Ulaan": {
+      "profile": "cave",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Пещерный ориентир",
+          "actors": [
+            "Spires",
+            "SpiresLarge",
+            "CliffSpires"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Кромка прохода",
+          "actors": [
+            "RockTower",
+            "Rock",
+            "RockArch"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Локальный акцент",
+          "actors": [
+            "RockWaterfall",
+            "LightOmniBlueLarge",
+            "LightOmniCyan"
+          ]
+        }
+      ],
+      "actors": [
+        "CloudsUlaan",
+        "UlaanDestructibleBridge",
+        "RockGiant",
+        "RockLarge",
+        "RockSmall",
+        "UlaanTemple",
+        "BrokenGroundEdging",
+        "FogBlue"
+      ],
+      "materials": {
+        "ground": [
+          "UlaanDirt",
+          "UlaanSand",
+          "UlaanRocky"
+        ],
+        "path": [
+          "UlaanDirtCracked"
+        ],
+        "accent": [
+          "UlaanDirtCracked",
+          "UlaanRocky",
+          "UlaanStone"
+        ]
+      }
+    },
+    "UlaanEx1": {
+      "profile": "cave",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Пещерный ориентир",
+          "actors": [
+            "Spires",
+            "CliffSpires",
+            "SpiresLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Кромка прохода",
+          "actors": [
+            "RockTower",
+            "Rock",
+            "RockArch"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Локальный акцент",
+          "actors": [
+            "RockWaterfall"
+          ]
+        }
+      ],
+      "actors": [
+        "RockGiant",
+        "RockLarge",
+        "RockSmall",
+        "UlaanTemple",
+        "BrokenGroundEdging",
+        "FogBlue",
+        "FogStormDeep",
+        "ZhakulDasObelisk"
+      ],
+      "materials": {
+        "ground": [
+          "UlaanDirt",
+          "UlaanSand",
+          "UlaanRocky"
+        ],
+        "path": [
+          "UlaanDirtCracked"
+        ],
+        "accent": [
+          "UlaanDirtCracked",
+          "UlaanRocky",
+          "UlaanStone"
+        ]
+      }
+    },
+    "Ulnar": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "RockArch",
+            "RockTower",
+            "XelNagaCliffWallSpires"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "XelNagaHullCliffWalls",
+            "XelNagaHullWalls"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "Floodlight",
+            "LandingLights",
+            "LightOmniWhiteLarge"
+          ]
+        }
+      ],
+      "actors": [
+        "XelNagaTurret",
+        "Rock",
+        "RockGiant",
+        "RockLarge",
+        "RockSmall",
+        "RockWaterfall",
+        "BrokenGroundEdgingWide",
+        "TaurenFlyingOutHouse"
+      ],
+      "materials": {
+        "ground": [
+          "UlnarDirt",
+          "UlnarRock"
+        ],
+        "path": [
+          "UlnarCracks"
+        ],
+        "accent": [
+          "UlnarCracks",
+          "UlnarRock"
+        ]
+      }
+    },
+    "UlnarEx1": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "RockArch",
+            "RockTower",
+            "XelNagaCliffWallSpires"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "XelNagaHullCliffWalls",
+            "XelNagaHullWalls"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "SpacePlatformWallLight",
+            "Aiur_GroundConsole"
+          ]
+        }
+      ],
+      "actors": [
+        "RockSmall",
+        "RockWaterfall",
+        "BrokenGroundEdgingWide",
+        "TaurenFlyingOutHouse",
+        "XelNagaHullReactorConduit",
+        "XelNagaTowerSmall",
+        "DecalProtoss",
+        "XelNagaDockingbay"
+      ],
+      "materials": {
+        "ground": [
+          "UlnarDirt",
+          "UlnarRock"
+        ],
+        "path": [
+          "UlnarCracks"
+        ],
+        "accent": [
+          "UlnarCracks",
+          "UlnarRock"
+        ]
+      }
+    },
+    "UlnarInner": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "XelNaga_Vision_Temple",
+            "XelNaga_Archpost",
+            "XelNaga_Archpost_Broken"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "Aiur_Rock_Cliff",
+            "Shakuras_XelNaga_PyramidWalls",
+            "XelNaga_CliffPanel_1High"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "ActorLightSpot",
+            "Aiur_PortLight",
+            "LightOmniCyan"
+          ]
+        }
+      ],
+      "actors": [
+        "Blast_Craters",
+        "Blast_Craters_Big",
+        "Fog_Shakuras_Thick_Windy_Fast",
+        "Fog_Ulnar",
+        "StrobeLight_Group",
+        "StrobeLight_Single",
+        "XelNaga_Cavern_Rubble",
+        "XelNaga_Cavern_Shrine"
+      ],
+      "materials": {}
+    },
+    "UlnarOuter": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "XelNaga_Archpost",
+            "XelNaga_Archpost_Broken",
+            "XelNaga_Tall_Pillar"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Shakuras_City_Debris_Splat"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "Aiur_MossClumps",
+            "Shakuras_Vines_Cliffs"
+          ]
+        }
+      ],
+      "actors": [
+        "Aiur_PortLight",
+        "Fog_Ulnar",
+        "StrobeLight_Group",
+        "XelNaga_Crates_Animating",
+        "XelNaga_Crates_Skinny",
+        "XelNaga_Floating_Bridge",
+        "XelNaga_HugeGate",
+        "XelNaga_LargeCrate"
+      ],
+      "materials": {}
+    },
+    "UlnarPortal": {
+      "profile": "protoss",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Большой архитектурный акцент",
+          "actors": [
+            "XelNaga_Archpost_Broken",
+            "XelNaga_LargeCrates_Temple_Cliff",
+            "XelNaga_Pyramid_Temple"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Архитектурная граница",
+          "actors": [
+            "XelNagaHullCliffWalls",
+            "XelNaga_SurfaceCliff_Inner",
+            "Shakuras_XelNaga_PyramidWalls"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Энергетический акцент",
+          "actors": [
+            "XelNaga_EnergyStreaks"
+          ]
+        }
+      ],
+      "actors": [
+        "Fog_Ulnar",
+        "XelNaga_Crates_Skinny",
+        "XelNaga_HugeGate_Doodads",
+        "XelNaga_HugeGate_Doodads_Red",
+        "XelNaga_Shrine_Long_Cliff",
+        "XelNaga_Temple_Small",
+        "XelNaga_VoidGate",
+        "Ulnar_Xelnaga_GiantMechanism"
+      ],
+      "materials": {}
+    },
+    "UmojaEx3": {
+      "profile": "interior",
+      "cliffSet": "LabCliff1",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Граница помещения",
+          "actors": [
+            "UmojanLabGlassWallPanel",
+            "SpacePlatformBarrier",
+            "DOM_LabWallScreens"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Приборный узел",
+          "actors": [
+            "UmojanLabConsoleSmall",
+            "UmojanLabTestTube",
+            "DOM_BaseMonitors"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Освещение и обслуживание",
+          "actors": [
+            "UmojanLabAlarms",
+            "UmojanLabCrates",
+            "MoebiusLabZergCrates"
+          ]
+        }
+      ],
+      "actors": [
+        "UmojanLabHoloProjector",
+        "UmojanLabDissectionTable",
+        "UmojanLabMonitorFloor",
+        "UmojanLabWallConsoles",
+        "UmojanLabZergCage",
+        "UmojanLabWeaponCase",
+        "UmojanLabCellTable",
+        "UmojanLabDissectionArm"
+      ],
+      "materials": {
+        "path": [
+          "UmojaEx3_2"
+        ],
+        "floor": [
+          "UmojaEx3_1"
+        ],
+        "accent": [
+          "UmojaEx3_4"
+        ]
+      },
+      "preferredActors": [
+        "UmojanLabConsoleSmall",
+        "UmojanLabTestTube",
+        "UmojanLabHoloProjector",
+        "UmojanLabCrates",
+        "UmojanLabDissectionTable",
+        "UmojanLabAlarms",
+        "UmojanLabMonitorFloor",
+        "UmojanLabWallConsoles",
+        "UmojanLabZergCage",
+        "UmojanLabWeaponCase",
+        "UmojanLabCellTable",
+        "UmojanLabDissectionArm",
+        "DOM_LabConsoles",
+        "DOM_LabCrates",
+        "DOM_LabTable",
+        "DOM_StasisTube",
+        "DOM_StasisTubeLarge",
+        "DOM_RoboArm_Large",
+        "DOM_BaseMonitors",
+        "DOM_LabWallScreens",
+        "MoebiusLabConsoles",
+        "MoebiusLab_StasisTube",
+        "MoebiusLab_StasisTubeLarge",
+        "UmojanLabPowerConduit",
+        "DOM_HybridCapsule",
+        "MoebiusLabZergCrates",
+        "DOM_LabTestingFacility",
+        "UmojanLabMonitorWall",
+        "UmojanLabPillar1High",
+        "UmojanLabPillar2High",
+        "CompoundSewers_Tank",
+        "CompoundSewers_Fan",
+        "GenericSpacePipes"
+      ],
+      "candidatePrefixes": [
+        "UmojanLab",
+        "DOM_",
+        "MoebiusLab",
+        "CompoundSewers",
+        "GenericSpacePipes",
+        "SpaceDock"
+      ]
+    },
+    "Valhalla": {
+      "profile": "lunar",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупная скала",
+          "actors": [
+            "RockLarge",
+            "FanVentCliff",
+            "SpacePlatformCliffDoor"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Каменная россыпь",
+          "actors": [
+            "Rock",
+            "RockSmall",
+            "RockArch"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Акцент открытой поверхности",
+          "actors": [
+            "RockGiant",
+            "RockTower",
+            "RockWaterfall"
+          ]
+        }
+      ],
+      "actors": [
+        "ValhallaGenerator",
+        "ValhallaCabinet",
+        "ValhallaThorConstruction",
+        "ValhallaWindowLargeDiagonal",
+        "ValhallaWorkstation",
+        "AlarmLight",
+        "BraxisAlphaBarrels",
+        "CastanarLightboard"
+      ],
+      "materials": {
+        "ground": [
+          "Valhalla1",
+          "Valhalla3",
+          "Valhalla6"
+        ],
+        "path": [
+          "Valhalla2"
+        ],
+        "floor": [
+          "Valhalla4",
+          "Valhalla5",
+          "Valhalla7"
+        ],
+        "accent": [
+          "Valhalla2",
+          "Valhalla6"
+        ]
+      }
+    },
+    "ValhallaEx1": {
+      "profile": "lunar",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупная скала",
+          "actors": [
+            "RockLarge",
+            "MeinhoffCrater",
+            "MeinhoffCraterLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Каменная россыпь",
+          "actors": [
+            "Rock",
+            "RockArch",
+            "RockGiant"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Акцент открытой поверхности",
+          "actors": [
+            "RockSmall",
+            "RockTower",
+            "RockWaterfall"
+          ]
+        }
+      ],
+      "actors": [
+        "ValhallaThorConstruction",
+        "ValhallaWindowLargeDiagonal",
+        "ValhallaWorkstation",
+        "AlarmLight",
+        "BraxisAlphaBarrels",
+        "CastanarLightboard",
+        "ChainLinkFenceDiagonal",
+        "ChainLinkFenceStraight"
+      ],
+      "materials": {
+        "ground": [
+          "Valhalla1",
+          "Valhalla3",
+          "Valhalla6"
+        ],
+        "path": [
+          "Valhalla2"
+        ],
+        "floor": [
+          "Valhalla4",
+          "Valhalla5",
+          "Valhalla7"
+        ],
+        "accent": [
+          "Valhalla2",
+          "Valhalla6"
+        ]
+      }
+    },
+    "VolcanoIsle": {
+      "profile": "lava",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Крупный ориентир",
+          "actors": [
+            "RockVolcanicGiant",
+            "CharCrystalHuge",
+            "CharCrystalLarge"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "CharCrater",
+            "CharDestructibleRockCoverBase",
+            "CharRock"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Край жерла",
+          "actors": [
+            "Lavafall",
+            "RedstoneFlameGeyser"
+          ]
+        }
+      ],
+      "actors": [
+        "CharRibs",
+        "CharWorm",
+        "CharFoliage",
+        "CharGlowingPods",
+        "CharTree",
+        "CharIntestines",
+        "CharWeed",
+        "CharArchway"
+      ],
+      "materials": {}
+    },
+    "War3HD_LordaeronSummerEx3": {
+      "profile": "agria",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Посадки",
+          "actors": [
+            "AgriaCrops"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Лесополоса",
+          "actors": [
+            "AgriaFoliage",
+            "AgriaShrub",
+            "AgriaTree"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Граница поля",
+          "actors": [
+            "Bush",
+            "ChainLinkFenceDiagonal",
+            "ChainLinkFencePost"
+          ]
+        }
+      ],
+      "actors": [
+        "RockLarge",
+        "Vines",
+        "AgriaUnderbrush",
+        "RockArch",
+        "RockGiant",
+        "RockSmall",
+        "RockTower",
+        "RockWaterfall"
+      ],
+      "materials": {}
+    },
+    "XelNagaCavern": {
+      "profile": "cave",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Пещерный ориентир",
+          "actors": [
+            "Rock_Cliff",
+            "Slayn_Cliff_Temple_Entrance",
+            "TempleColumnSet"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Кромка прохода",
+          "actors": [
+            "TempleDebris",
+            "ZerusRockCliffTall",
+            "ShakurasTempleWallDebris"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Локальный акцент",
+          "actors": [
+            "LightOmniGreen",
+            "LightOmniGreenLarge"
+          ]
+        }
+      ],
+      "actors": [
+        "Aiur_Temple_Statue",
+        "FogBlue",
+        "FogMistSnow",
+        "Fog_Aiur_Thick",
+        "ShakurasArchonStatue",
+        "Slayn_Brazier_Fire",
+        "Slayn_Temple_Banners",
+        "Slayn_Temple_BigWalls"
+      ],
+      "materials": {}
+    },
+    "Xil": {
+      "profile": "desert",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Ориентир долины",
+          "actors": [
+            "XilSpire",
+            "XilSpireLarge",
+            "CliffSpires"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "Rock",
+            "RockArch",
+            "RockGiant"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Редкая биомная деталь",
+          "actors": [
+            "DustStorms",
+            "BelShirShrub"
+          ]
+        }
+      ],
+      "actors": [
+        "RockLarge",
+        "RockSmall",
+        "XilTree",
+        "Spires",
+        "XilFossils",
+        "RockTower",
+        "RockWaterfall",
+        "CloudShadows"
+      ],
+      "materials": {
+        "ground": [
+          "XilDirt",
+          "XilSand",
+          "XilGrass"
+        ],
+        "path": [
+          "XilDirtCracked",
+          "XilSandCracked"
+        ],
+        "accent": [
+          "XilDirtCracked",
+          "XilSandCracked",
+          "XilRockCracked"
+        ]
+      }
+    },
+    "XilEx1": {
+      "profile": "desert",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Ориентир долины",
+          "actors": [
+            "CliffSpires",
+            "SpiresLarge",
+            "RockArch"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Осыпь",
+          "actors": [
+            "Rock",
+            "RockGiant",
+            "RockLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Редкая биомная деталь",
+          "actors": [
+            "DustStorms"
+          ]
+        }
+      ],
+      "actors": [
+        "XilTree",
+        "Spires",
+        "XilFossils",
+        "XilSpire",
+        "XilSpireLarge",
+        "RockTower",
+        "RockWaterfall",
+        "CloudShadows"
+      ],
+      "materials": {
+        "ground": [
+          "XilDirt",
+          "XilSand",
+          "XilGrass"
+        ],
+        "path": [
+          "XilDirtCracked",
+          "XilSandCracked"
+        ],
+        "accent": [
+          "XilDirtCracked",
+          "XilSandCracked",
+          "XilRockCracked"
+        ]
+      }
+    },
+    "Zerus": {
+      "profile": "primeval",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Высокий силуэт",
+          "actors": [
+            "ZerusLargeTree",
+            "CliffZerusRockTall",
+            "ZerusRockCliffMedium"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Лианы и нижний ярус",
+          "actors": [
+            "ZerusGroundVines",
+            "ZerusCliffVines",
+            "ZerusPlant"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Малая группа",
+          "actors": [
+            "ZerusPlantClusterLarge",
+            "ZerusPlantClusterMedium",
+            "ZerusRockCliffShort"
+          ]
+        }
+      ],
+      "actors": [
+        "CliffZerusRockShort",
+        "ZerusLargeTreeShadow",
+        "ZerusPlantClusterSmall",
+        "ZerusPlantlife",
+        "ZerusRockCliffTall",
+        "ZerusRockLarge",
+        "ZerusTree",
+        "ZerusBrambles"
+      ],
+      "materials": {
+        "ground": [
+          "Zerus1",
+          "Zerus2",
+          "Zerus7"
+        ],
+        "accent": [
+          "Zerus4"
+        ]
+      }
+    },
+    "ZhakulDas": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "ZhakulDasObelisk",
+            "TempleColumn",
+            "TempleGate"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Rock",
+            "RockTower",
+            "RockArch"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "Aiur_MossClumps",
+            "Shakuras_Vines_Cliffs"
+          ]
+        }
+      ],
+      "actors": [
+        "TempleStatue",
+        "ZhakulDasFoliage",
+        "ZhakulDasLightBridge45Left",
+        "ZhakulDasShrine",
+        "ZhakulDasTree",
+        "TerrainObjectZhakulLibraryLargeDoodad",
+        "RockGiant",
+        "RockLarge"
+      ],
+      "materials": {
+        "ground": [
+          "ZhakulDasDirtRough",
+          "ZhakulDasGrass",
+          "ZhakulDasDarkRock"
+        ],
+        "path": [
+          "ZhakulDasDirtCracked",
+          "ZhakulDasMercuryCracks"
+        ],
+        "floor": [
+          "ZhakulDasTiles",
+          "ZhakulDasBricks"
+        ],
+        "accent": [
+          "ZhakulDasDirtCracked",
+          "ZhakulDasMercuryCracks",
+          "ZhakulDasDarkRock"
+        ]
+      }
+    },
+    "ZhakulDasEx1": {
+      "profile": "ruin",
+      "roles": [
+        {
+          "role": "landmark",
+          "label": "Сохранившийся ориентир",
+          "actors": [
+            "RockArch",
+            "AiurTempleBuildings",
+            "TempleArch"
+          ]
+        },
+        {
+          "role": "support",
+          "label": "Обломки",
+          "actors": [
+            "Rock",
+            "RockGiant",
+            "RockLarge"
+          ]
+        },
+        {
+          "role": "detail",
+          "label": "Обрастание",
+          "actors": [
+            "Aiur_MossClumps",
+            "Shakuras_Vines_Cliffs"
+          ]
+        }
+      ],
+      "actors": [
+        "ZhakulDasFoliage",
+        "ZhakulDasLightBridge45Left",
+        "ZhakulDasObelisk",
+        "ZhakulDasShrine",
+        "ZhakulDasTree",
+        "TerrainObjectZhakulLibraryLargeDoodad",
+        "RockSmall",
+        "RockWaterfall"
+      ],
+      "materials": {
+        "ground": [
+          "ZhakulDasDirtRough",
+          "ZhakulDasGrass",
+          "ZhakulDasDarkRock"
+        ],
+        "path": [
+          "ZhakulDasDirtCracked",
+          "ZhakulDasMercuryCracks"
+        ],
+        "floor": [
+          "ZhakulDasTiles",
+          "ZhakulDasBricks"
+        ],
+        "accent": [
+          "ZhakulDasDirtCracked",
+          "ZhakulDasMercuryCracks",
+          "ZhakulDasDarkRock"
+        ]
+      }
+    }
+  }
+}

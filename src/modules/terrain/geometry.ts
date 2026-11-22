@@ -7,6 +7,12 @@ export function segmentDistance(p: Point2, a: Point2, b: Point2): number {
   const t = n ? clamp(((p.x - a.x) * dx + (p.y - a.y) * dy) / n) : 0;
   return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy);
 }
+export function polylineDistance(point: Point2, points: Point2[]): number {
+  let distance = Infinity;
+  for (let i = 1; i < points.length; i++)
+    distance = Math.min(distance, segmentDistance(point, points[i - 1], points[i]));
+  return distance;
+}
 /** Whole stroke containment, including round end caps; prevents cross-zone edits. */
 export function corridorWithinArea(area:TerrainArea,points:Point2[],width:number):boolean{
  const radius=width/2;

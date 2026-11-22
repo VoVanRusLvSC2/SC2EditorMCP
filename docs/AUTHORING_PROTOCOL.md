@@ -329,6 +329,14 @@ The complete supplied convention is in [TRIGGER_ORGANIZATION_PROTOCOL.md](TRIGGE
 
 ## Terrain composition
 
+For a new map described in one brief, use `world.plan_intent` with its zones,
+relative positions, connections, style and gameplay roles. Use the returned
+plan ID with `world.build`. Keep the same intent when comparing seeds.
+Use the detailed `world.plan` when the design specifies exact geometry.
+See [procedural world generation](WORLD_GENERATION.md#generate-from-one-brief).
+
+For generated missions, apply the [landscape composition rules](WORLD_GENERATION.md#landscape-composition-rules).
+
 Describe tileset/biome, zone function, architecture, condition and gameplay
 constraints separately. Operational, abandoned, damaged, destroyed and absent
 are different states. Variety alone does not justify wreckage or fire.

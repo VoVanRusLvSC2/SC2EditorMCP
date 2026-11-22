@@ -1,6 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import type { ProjectTestWorkspace } from "../testing/workspace.js";
+import { intentSeed, worldIntent } from "./intent.js";
 import { worldSpec } from "./plan.js";
 import type { WorldWorkspace } from "./workspace.js";
 const hash = z.string().regex(/^[a-f0-9]{64}$/);
@@ -20,10 +21,19 @@ export function registerWorldTools(
     "world.plan",
     {
       description:
-        "Resolve palettes and plan a seeded mission, ladder or arcade world with spatial zones and reserved connections. Anchors are normalized west to east and south to north.",
+        "Plan a seeded world with zones and reserved connections. Missions support trail profiles, sculpted shores, facilities with closed perimeters and route gates, double-sided walls, terraces and stairways. Campaign missions resolve biome styles and decor budgets. Anchors run west to east and south to north.",
       inputSchema: z.object({ spec: worldSpec }).strict(),
     },
     (a) => response(world.plan(a.spec)),
+  );
+  server.registerTool(
+    "world.plan_intent",
+    {
+      description:
+        "Generate a seeded SC2 layout from a map brief: relative sectors, biomes, styles, links and room roles. Converts intent into a standard world plan for world.build. Use mirrored zone pairs and links for ladder. Mission supports automatic labs and cities.",
+      inputSchema: z.object({ intent: worldIntent, seed: intentSeed }).strict(),
+    },
+    (a) => response(world.planIntent(a.intent, a.seed)),
   );
   server.registerTool(
     "world.build",
@@ -75,12 +85,10 @@ export function registerWorldTools(
                       owner: 1,
                       timeout: 60,
                     })),
-                    views: layout.zones
-                      .slice(0, 8)
-                      .map((z, i) => ({
-                        id: "zone" + i,
-                        camera: { ...z.center, pitch: 55, yaw: 0, distance: 28 },
-                      })),
+                    views: layout.zones.slice(0, 8).map((z, i) => ({
+                      id: "zone" + i,
+                      camera: { ...z.center, pitch: 55, yaw: 0, distance: 28 },
+                    })),
                   },
                 }
               : {}),

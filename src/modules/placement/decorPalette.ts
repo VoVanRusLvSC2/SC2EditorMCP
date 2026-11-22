@@ -20,7 +20,29 @@ export interface DecorModel {actor:BrowseEntry;model:BrowseEntry;measured:Measur
 
 /** An image/measurement view of StyleCatalog, not a separate asset catalogue. */
 export class DecorPalette {
- constructor(readonly browse:BrowseWorkspace,readonly measurements:ModelMeasurements,readonly catalog=new StyleCatalog()){}
+ private readonly modelPathCache?: Map<string, Promise<string[]>>;
+ constructor(
+  readonly browse: BrowseWorkspace,
+  readonly measurements: ModelMeasurements,
+  readonly catalog = new StyleCatalog(),
+  scopedModelPaths = false,
+ ) {
+  // A world build uses its own Browse snapshot and checks dependencies again before publishing.
+  if (scopedModelPaths) this.modelPathCache = new Map();
+ }
+ private resolveModelPaths(file: string, model: BrowseEntry): Promise<string[]> {
+  const cache = this.modelPathCache;
+  if (!cache) return this.modelPaths(file, model);
+  const key = JSON.stringify([file, model.key, model.dependency]);
+  const found = cache.get(key);
+  if (found) return found;
+  const resolved = this.modelPaths(file, model).catch((error) => {
+   cache.delete(key);
+   throw error;
+  });
+  cache.set(key, resolved);
+  return resolved;
+ }
  private async entry(id:string,catalogType:string,dependency?:string){
   const found=await this.browse.get(id.startsWith(catalogType+':')?{key:id}:{id,catalogType});
   let entries=found.definitions.filter(e=>e.catalogType===catalogType&&['MAP_LOCAL','AVAILABLE_THROUGH_DEPENDENCY'].includes(e.availability)&&e.engineActive!==false);
@@ -58,7 +80,7 @@ export class DecorPalette {
   if(!file||!/\.m3$/i.test(file))throw new Error('DECOR_MODEL_FILE_UNRESOLVED: '+modelId+'; mount catalog metadata for Core.SC2Mod and the declared dependencies with casc.mount');
   const min=catalogScale(value(model,'ScaleMin')),max=catalogScale(value(model,'ScaleMax')??value(model,'ScaleMin'));
   if(min.some((v,i)=>v!==max[i]))throw new Error('DECOR_RANDOM_MODEL_SCALE_REQUIRES_EXPLICIT_FIXED_MODEL: '+modelId);
-  const actorScale=catalogScale(value(actor,'Scale')),combined=min.map((v,i)=>v*actorScale[i]*placement[i]*a.scale) as Vec3,variants=await this.modelPaths(file,model);
+  const actorScale=catalogScale(value(actor,'Scale')),combined=min.map((v,i)=>v*actorScale[i]*placement[i]*a.scale) as Vec3,variants=await this.resolveModelPaths(file,model);
   if(variants.length>1&&variation===undefined)throw new Error('DECOR_VARIATION_REQUIRED: '+actor.id+'; variants='+variants.length);
   const chosen=variation??0,selected=variants.find(file=>{const n=file.match(/_(\d+)\.m3$/i);return n&&Number(n[1])===chosen;})??(variants.length===1&&chosen===0?variants[0]:undefined);if(!selected)throw new Error('DECOR_VARIATION_OUT_OF_RANGE: '+variants.length);
   const measured=await this.measurements.load(selected,{scale:combined,rotation}),warnings=['Rest geometry only; actor events, animated scale, visibility, deformation and engine default/layer merges are not simulated.'];

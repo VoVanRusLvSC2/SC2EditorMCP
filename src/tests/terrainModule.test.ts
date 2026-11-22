@@ -199,6 +199,14 @@ test("tiled mask addressing crosses 64-pixel boundaries without touching neighbo
   assert.equal(bytes[64 + 2048], 0xb3);
   assert.equal(masks.get(62, 0, 0), 0);
   assert.equal(masks.get(64, 0, 1), 0);
+
+  const reference = new TextureMasks(Buffer.from(bytes));
+  const weights = new Int16Array([0, 15, 7, 8, 2, 3, -1, 16]);
+  for (const x of [63, 64, 65]) {
+    masks.setQuantizedWeights(x, 0, weights);
+    weights.forEach((weight, layer) => reference.set(x, 0, layer, weight));
+  }
+  assert.deepEqual(masks.bytes, reference.bytes);
 });
 
 test("new palette assets resolve through browse; texture painting updates masks and sync names/indices", async () => {
