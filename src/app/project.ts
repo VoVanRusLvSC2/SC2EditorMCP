@@ -17,6 +17,7 @@ import { MapPreviewWorkspace } from "../modules/map/preview.js";
 import { NativeMinimapWorkspace } from "../modules/map/nativeMinimap.js";
 import { ModkitTerrainWorkspace } from "../modules/terrain/modkitWorkspace.js";
 import { DocumentWorkspace } from "../modules/document/workspace.js";
+import { WorldWorkspace } from "../modules/world/workspace.js";
 import { MissionWorkspace } from "../modules/mission/workspace.js";
 import { SettingsWorkspace } from "../modules/settings/workspace.js";
 import { CascWorkspace } from "../modules/casc/workspace.js";
@@ -62,6 +63,7 @@ interface ProjectServices {
   settings: SettingsWorkspace;
   document: DocumentWorkspace;
   mission: MissionWorkspace;
+  world: WorldWorkspace;
   ai: AiWorkspace;
   text: TextWorkspace;
   cutscene: CutsceneWorkspace;
@@ -218,16 +220,8 @@ export async function createProject(
     modkitTerrain: () => new ModkitTerrainWorkspace(services.modkit),
     settings: () => new SettingsWorkspace(workspace),
     document: () => new DocumentWorkspace(workspace, services.casc),
-    mission: () =>
-      new MissionWorkspace(workspace, () => ({
-        document: services.document,
-        casc: services.casc,
-        map: services.map,
-        catalogFiles: async () => {
-          await refreshCasc();
-          return services.data.nativeCatalogFiles;
-        },
-      })),
+    mission: () => new MissionWorkspace(workspace, worldProviders),
+    world: () => new WorldWorkspace(workspace, worldProviders),
     ai: () => new AiWorkspace(workspace, aiSchema, services.data, services.browse),
     text: () => new TextWorkspace(workspace, textSchema),
     cutscene: () => new CutsceneWorkspace(workspace, cutsceneSchema),
@@ -250,6 +244,17 @@ export async function createProject(
     dialogPreview: () => new DialogPreviewWorkspace(services.uiPreview, services.trigger),
     cutscenePreview: () => new CutscenePreviewWorkspace(workspace, services.casc),
   });
+  function worldProviders() {
+    return {
+      document: services.document,
+      casc: services.casc,
+      map: services.map,
+      catalogFiles: async () => {
+        await refreshCasc();
+        return services.data.nativeCatalogFiles;
+      },
+    };
+  }
   const services: ProjectServices = container.services;
   return Object.assign(services, {
     workspace,

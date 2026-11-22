@@ -6,6 +6,8 @@ SC2EditorMCP is an MCP server and local workbench for creating StarCraft II maps
 
 ## Build a map through MCP
 
+For a procedural **mission, ladder or arcade** map, send a structured zone specification to `world.plan`, build its exact plan with `world.build`, and check the packed revision with `world.verify`. The generator supports up to 64 ground textures across eight regional palettes, blended forests, paneled laboratory floors, measured decoration, walls, automatic gates and water crossings. [World specification and working example](docs/WORLD_GENERATION.md)
+
 Choose a mission purpose, a terrain profile and a seed. Use `mission.layout` to inspect routes, clearings and reserved areas before `mission.build` writes a packed map candidate. Layout patterns include a fork around a basin, an expedition with a side objective, a central defense hub and a river valley.
 
 - **70 campaign style choices.** `mission.styles` lists 24 Wings of Liberty, 17 Heart of the Swarm, 20 Legacy of the Void and 9 Nova Covert Ops campaign–tileset combinations. They cover 69 distinct tilesets. Select a campaign and tileset to use its palette on an original layout. The chosen tileset must resolve through installed dependencies.

@@ -51,6 +51,14 @@ export function renderTerrainPng(
     [126, 127, 102],
     [179, 184, 167],
   ];
+  // Keep the original single-set colors. For multiple sets, color each material ID
+  // consistently across block boundaries so the preview can distinguish all 64 slots.
+  const multiColors = (state.syncTextures?.setCount ?? 1) > 1
+    ? state.syncTextures!.names.map(name => {
+        let hash=2166136261;
+        for(const c of name) hash=Math.imul(hash ^ c.charCodeAt(0),16777619);
+        return [0,8,16].map(shift=>60+((hash>>>shift)&127));
+      }) : undefined;
   for (let py = 0; py < size; py++)
     for (let px = 0; px < size; px++) {
       const gx = ((px + 0.5) / size) * (hm.width - 1),
@@ -71,9 +79,10 @@ export function renderTerrainPng(
           y = Math.min(state.masks.height - 1, Math.floor(gy * 8)),
           weights = state.masks.weights(x, y),
           sum = weights.reduce((a, b) => a + b, 0) || 1;
+        const bank = multiColors ? state.descriptor.blockSet(gx, gy) : 0;
         rgb = [0, 1, 2].map((c) =>
           Math.round(
-            weights.reduce((v, w, l) => v + w * colors[l][c], 0) / sum,
+            weights.reduce((v, w, l) => v + w * (multiColors?.[bank*8+l] ?? colors[l])[c], 0) / sum,
           ),
         );
       } else {

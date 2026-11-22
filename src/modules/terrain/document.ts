@@ -383,13 +383,14 @@ export class SyncTextureInfo {
       throw new Error("SYNC_TEXTURE_SIZE_MISMATCH");
   }
   set(x: number, y: number, index: number) {
-    if (index < 0 || index >= this.names.length)
+    if (!Number.isInteger(index) || index < 0 || index >= this.names.length)
       throw new Error("SYNC_TEXTURE_INDEX");
     const off = this.dataOffset + (y * this.width + x) * 8;
     this.bytes.writeUInt32LE(
-      ((this.bytes.readUInt32LE(off) & 0xffffff00) | index) >>> 0,
+      ((this.bytes.readUInt32LE(off) & 0xffffff00) | (index % 8)) >>> 0,
       off,
     );
+    this.bytes.writeUInt8(Math.floor(index / 8), off + 4);
   }
   rename(replacements: Array<{ slot: number; texture: string }>): Buffer {
     const names = [...this.names];
