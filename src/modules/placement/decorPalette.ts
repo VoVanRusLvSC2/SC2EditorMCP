@@ -71,18 +71,24 @@ export class DecorPalette {
   if(matches.length>suffixes.size)throw new Error('DECOR_ASSET_PACKAGE_AMBIGUOUS: '+matches.join(','));
   return [...new Set(matches)].sort();
  }
+ /** Resolve native asset identity independently of rest geometry. Projected decals have no mesh. */
+ async resolveAsset(selector:string,variation?:number,representation:'Doodad'|'Actor'='Doodad'){
+  const actor=await this.entry(selector,'Actor');if(representation==='Doodad'&&actor.placeableRepresentation?.kind!=='Doodad')throw new Error('DECOR_NOT_PLACEABLE_DOODAD: '+actor.id);
+  const modelId=value(actor,'Model')??actor.id,model=await this.entry(modelId,'Model',actor.dependency),file=value(model,'File')??value(model,'Model')??model.assetPaths.find(p=>/\.m3$/i.test(p));
+  if(!file||!/\.m3$/i.test(file))throw new Error('DECOR_MODEL_FILE_UNRESOLVED: '+modelId+'; mount catalog metadata for Core.SC2Mod and the declared dependencies with casc.mount');
+  const variants=await this.resolveModelPaths(file,model);
+  if(variants.length>1&&variation===undefined)throw new Error('DECOR_VARIATION_REQUIRED: '+actor.id+'; variants='+variants.length);
+  const chosen=variation??0,selected=variants.find(file=>{const n=file.match(/_(\d+)\.m3$/i);return n&&Number(n[1])===chosen;})??(variants.length===1&&chosen===0?variants[0]:undefined);if(!selected)throw new Error('DECOR_VARIATION_OUT_OF_RANGE: '+variants.length);
+  return {actor,model,variants,selected};
+ }
  async resolve(input:z.input<typeof decorMeasureSchema>):Promise<DecorModel>{
   const a=decorMeasureSchema.parse(input);let selector=a.key??a.id,placement:Vec3=[1,1,1],rotation=a.rotation,variation=a.variation;
   if(a.objectId!==undefined){const raw=await this.measurements.workspace.readRaw('Objects'),o=new PlacementDocument(raw.text).list().find(o=>o.id===a.objectId);if(!o||o.kind!=='ObjectDoodad'||!o.catalogId)throw new Error('DECOR_PLACED_DOODAD_NOT_FOUND');if(selector&&selector!==o.catalogId)throw new Error('DECOR_OBJECT_SELECTOR_CONFLICT');selector=o.catalogId;placement=catalogScale(o.scale);rotation+=Number(o.rotation??0);variation??=o.variation===undefined?undefined:Number(o.variation);}
   if(!selector)throw new Error('DECOR_ID_KEY_OR_OBJECT_REQUIRED');
-  const actor=await this.entry(selector,'Actor');if(a.representation==='Doodad'&&actor.placeableRepresentation?.kind!=='Doodad')throw new Error('DECOR_NOT_PLACEABLE_DOODAD: '+actor.id);
-  const modelId=value(actor,'Model')??actor.id,model=await this.entry(modelId,'Model',actor.dependency),file=value(model,'File')??value(model,'Model')??model.assetPaths.find(p=>/\.m3$/i.test(p));
-  if(!file||!/\.m3$/i.test(file))throw new Error('DECOR_MODEL_FILE_UNRESOLVED: '+modelId+'; mount catalog metadata for Core.SC2Mod and the declared dependencies with casc.mount');
+  const {actor,model,variants,selected}=await this.resolveAsset(selector,variation,a.representation);
   const min=catalogScale(value(model,'ScaleMin')),max=catalogScale(value(model,'ScaleMax')??value(model,'ScaleMin'));
-  if(min.some((v,i)=>v!==max[i]))throw new Error('DECOR_RANDOM_MODEL_SCALE_REQUIRES_EXPLICIT_FIXED_MODEL: '+modelId);
-  const actorScale=catalogScale(value(actor,'Scale')),combined=min.map((v,i)=>v*actorScale[i]*placement[i]*a.scale) as Vec3,variants=await this.resolveModelPaths(file,model);
-  if(variants.length>1&&variation===undefined)throw new Error('DECOR_VARIATION_REQUIRED: '+actor.id+'; variants='+variants.length);
-  const chosen=variation??0,selected=variants.find(file=>{const n=file.match(/_(\d+)\.m3$/i);return n&&Number(n[1])===chosen;})??(variants.length===1&&chosen===0?variants[0]:undefined);if(!selected)throw new Error('DECOR_VARIATION_OUT_OF_RANGE: '+variants.length);
+  if(min.some((v,i)=>v!==max[i]))throw new Error('DECOR_RANDOM_MODEL_SCALE_REQUIRES_EXPLICIT_FIXED_MODEL: '+model.id);
+  const actorScale=catalogScale(value(actor,'Scale')),combined=min.map((v,i)=>v*actorScale[i]*placement[i]*a.scale) as Vec3;
   const measured=await this.measurements.load(selected,{scale:combined,rotation}),warnings=['Rest geometry only; actor events, animated scale, visibility, deformation and engine default/layer merges are not simulated.'];
   if(!value(model,'ScaleMin')||!value(actor,'Scale'))warnings.push('Undeclared Model/Actor scale uses identity; this is an explicit assumption.');
   if(variants.length>1)warnings.push('Variation selects the numeric _NN.m3 suffix. Its engine fallback behavior still requires SC2 review.');

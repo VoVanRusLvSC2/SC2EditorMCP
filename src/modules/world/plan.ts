@@ -140,6 +140,7 @@ export const worldSpec = z
     width: worldSize,
     height: worldSize,
     landscape: z.enum(["campaign", "custom"]).optional(),
+    decorReference: id.optional(),
     decorBudget: z
       .object({ min: z.number().int().min(45).max(65), max: z.number().int().min(45).max(65) })
       .strict()

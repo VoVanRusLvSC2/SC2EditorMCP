@@ -268,7 +268,7 @@ export function registerAuthoringTools(
       "terrain.catalog",
       {
         description:
-          "Bounded reference lookup by tileset, section, query and style. Exact Actor, Model and native TerrainObject namespaces remain separate. Source observations and density hints are not target-map validation.",
+          "Bounded lookup by tileset and section, or section=missions and optional mission ID. Includes observed Actor counts and composition guidance. Source observations and density hints are not target-map validation.",
         inputSchema: catalogQuerySchema,
         annotations: { readOnlyHint: true },
       },

@@ -1,6 +1,7 @@
-# Structure of the repository
+# SC2EditorMCP repository structure
 
-The project is a TypeScript MCP/GUI application with C++ MPQ/CASC backends.
+SC2EditorMCP is a TypeScript MCP server for generating and editing StarCraft II
+maps and mods. It has C++ MPQ and CASC backends and an optional browser workbench.
 `src/app/moduleSelection.ts` defines the current module selections;
 `modkit.capabilities` reports the active surface. `trigger.*` connects with Script.
 The composition root is `src/app/project.ts` and server registration is in
@@ -10,14 +11,14 @@ The composition root is `src/app/project.ts` and server registration is in
 | --- | --- |
 | `src/app/` | Module assembly, server, profiles, capability/coverage checks |
 | `src/core/` | XML source spans, Workspace, text/binary drafts, group entry, stale guards and recovery journal |
-| `src/modules/` | UI-linked and subject modules; TERRAIN contains the new `surface/` |
-| `src/mcp/` | UI MCP Server and Connecting Existing Modules |
+| `src/modules/` | Map and mod authoring modules for world generation, terrain, placement, Data, triggers, Galaxy, cutscenes, UI, and text |
+| `src/mcp/` | MCP server construction and UI tool registration. Other tool groups register through `src/app/server.ts` and their modules |
 | `src/gui/` | HTTP API and browser-based workbench |
 | `src/schema/`, `schema/` | Runtime Registry and UI Schemes |
 | `src/tests/` | Project tests and necessary native/synthetic fixtures |
 | `tests/terrain-surface/` | Ported toolkit regressions and selected SC2GameData observations |
 | `generated/` | Runtime registries, input schemas and related evidence |
-| `scripts/` | Circuit generation, discovery, checks, benchmarks and portable assembly |
+| `scripts/` | Registry generation, discovery, checks, benchmarks and portable builds |
 | `native/` | C++ archive adapter required runtime binaries and StormLib licenses |
 | `windows/` | Launcher and Windows instructions |
 | `examples/` | Reproduced examples |

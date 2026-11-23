@@ -38,9 +38,10 @@ Use `world.build` with the resulting `planId`. For variations, reuse the same
 intent and pass another seed. Compare the plotted route, bridge location and
 room adjacency in the returned plan before reviewing surface and native Editor
 views. `textureBudget` caps the distinct texture IDs in the selected banks.
-The build reports the IDs actually painted. The standard mission scenery budget
-still applies. Use mission `decorBudget` for a narrower range within 45-65
-and per-zone `distinctActors` for minimum measured decor variety. The build
+The build reports the IDs actually painted and measures decor coverage against
+stock references by default in intent plans for mission, ladder and arcade.
+Use `decorReference` to select an original map ID, or use the fixed mission
+`decorBudget` or per-zone `distinctActors` for explicit targets. The build
 receipt includes elapsed milliseconds for each stage.
 
 - Organic routes can wind and change width. Forest terrain blends across each
@@ -65,6 +66,81 @@ receipt includes elapsed milliseconds for each stage.
   control rules. Automatic facility interiors and raised work bays use mission
   mode. Active sites are supported by the intent planner. The detailed
   `world.plan` remains available for authored geometry and assets.
+
+### Room passports
+
+The automatic mission facility turns each room role into a passport. The brief can
+override a room's activity, operating condition, density, preferred placement and
+aisle width. Room names keep their existing shorthand form.
+
+```json
+{
+  "rooms": [
+    {"role":"lab","activity":"containment","placement":"upper","density":"busy"},
+    {"role":"command","activity":"briefing","placement":"island","density":"busy"},
+    {"role":"storage","activity":"sorting","aisleWidth":3.5},
+    "production"
+  ]
+}
+```
+
+Activities are `research`, `containment`, `briefing`, `sorting`, `power`,
+`checkpoint`, `circulation` and `habitation`. Placement accepts `auto`, `wall`,
+`island` and `upper`. Request one upper room per automatically shaped facility.
+Aisle widths range from 2 to 6 cells. Door approaches use the available door width.
+`abandoned` skips active accent lighting. `damaged` adds a localized damage
+candidate when the selected palette supports it. Automatic rooms default to
+`operational`.
+
+The plan shows each passport, door and reserved interior aisle. The seed changes
+rooms, wings and fixture positions within those reservations. The build measures
+a primary station and its supporting assets against the map dependencies, terrain
+heights and free room area. Stations have reserved working space. Spacious
+rooms can fit a second functional group away from the main station. Raised
+containment rooms keep the chamber, sample bench and one wall-side console on
+the lower floor. Prefer a rear bay along a sidewall for the containment chamber
+and face it inward. Put sample preparation across the room and group support
+fixtures with the sample bench.
+Fit a row of up to five matching specimen stations in busy rooms. Shift the
+row along the approach-facing wall when doors or equipment occupy the center.
+Fit sample equipment and supplies nearby. Pack two or three full-size analysis
+panels along the upper deck using measured widths and a narrow seam. Reduce
+the shared scale slightly when needed to fit the run. Prefer variations of the
+same Actor with compatible depths. Use compact monitors at the flanks and keep
+the operator aprons open.
+Missing models or insufficient clearance appear in `roomCompositions[].missing`.
+The receipt records the fitted Actor IDs and positions. Check that the expected
+primary station is present before presenting a room as ready.
+
+Supporting equipment aligns with its station. Cargo uses tighter rows around
+loading and storage points. Floor lights follow the edge of reserved interior
+aisles at a fixed spacing. Gallery lamps line up across the two shoulders
+beyond the painted road. Skip the whole pair where either side intersects a
+door, wall or slope. Pair low lights at stair landings and room approaches.
+A gallery post gets matching service supplies and a dedicated floor decal when
+the palette supplies one. Built upper decks keep both sides of the stair opening
+on the same straight retaining line, with the cap fronts facing the upper deck.
+The build receipt records the light runs, paired lights, post outline and fitted
+Actor variations.
+
+Operator stations face their reserved working area. Independent station
+footprints on the same floor have at least three cells of clear space.
+Panels in the same analysis bank share a dense row with an open front. Closely opposing
+stations on the same axis are rejected. Door approaches reserve the first four
+cells inside ordinary rooms. Curated palettes keep their control and light
+choices when the fitter searches for smaller alternatives.
+
+Automatic Umojan facilities trace a thin fitted line at visible hard floor
+transitions. This includes gallery edges and any contrasting inlay on the
+upper work deck. The trace follows the painted boundary on flat ground. Native
+cliff faces and walls cover transitions along height breaks and enclosure rims.
+
+The [room recipe JSON](../resources/authoring-catalog/style_rules/room_composition.json)
+defines fitting order and themed options. It includes Umoja, DominionLab, Castanar
+and Black Ops palettes. Other tilesets draw matching role candidates from their
+catalog packs. For an authored `world.plan` facility, a passport is the
+`roomComposition` object with an `activity`, `tileSet` and `side`, plus the
+optional fields above. Existing `focus` and `support` compositions remain valid.
 
 ## Forest and laboratory
 
@@ -101,7 +177,40 @@ Automatic missions with both dimensions from 128 to 160 cells use campaign compo
 
 The campaign registry maps each tileset to a landscape profile. A zone can select another profile with `style`, such as `lava`, `forest`, `interior` or `zerg`. The plan reports material roles, reserved connections, native cliff features and required decor roles. Natural profiles blend ground and use tapered cliff strokes on the native two-cell grid. Engineered profiles use defined floor seams. Mixed profiles combine pads with blended exterior material. Decorative shelves stay outside the required ground route, room entrances and water crossings.
 
-The default decor budget is 45-65 unique Actor IDs per map. The planner aims for 55 and counts repeated or shared Actors once. Each required role must place a catalog-resolved, measured candidate. The build receipt records the chosen Actor for every role, the unique count and the number of native cliff cells. Set `decorBudget` to narrow the range within 45-65. If placements cannot meet that range or a required role, the build returns the unmet constraint.
+### Reference decor coverage
+
+For automatic coverage, the planner looks up the zone's exact tileset first, then
+related palettes and finally its composition style. Campaign missions, challenges,
+evolution maps and other playable stock samples contribute to this lookup. Within
+the first applicable group, the map with the most eligible types sets the reference.
+Closely related maps can contribute candidates even when another map sets the
+reference. A plan returns the chosen map, its raw count, its eligible count, the
+matching level and any contributing challenge or evolution sources per zone.
+
+Eligible types have a recognized scenic placement role and match the zone's natural
+or engineered theme. Technical markers, unresolved roles, temporary effects and
+condition-specific damage are tracked in the inventory. They contribute zero to
+the automatic minimum. The map-level minimum is the largest eligible reference
+count across its zones. Campaign composition uses a floor of 45 and normally aims
+for at least 55. A custom palette with no stock match returns a null reference.
+Types are unique Actor IDs across the map. Repeated pieces and numbered variations
+count once. A hybrid map can meet the shared floor with different types in different
+zones. The reference figures describe whole stock maps.
+
+The generator orders compatible candidates by role and reference evidence, measures
+them against the target map dependencies, and fits them around reserved routes and
+structures. Natural profiles place scenery near ridges or related plant groups.
+Fixture and light candidates fit into service edges or authored pockets. Wall runs,
+gates, cargo bays and floor markings use their layout-specific authoring paths.
+The build reports placed eligible Actor IDs and role counts for the verified
+archive. A build that cannot meet the minimum returns
+`WORLD_DECOR_REFERENCE_SHORTFALL` with its reference and actual count.
+
+Use `decorReference: "zevolutionroach"` to compare explicitly with the roach
+evolution mission. To use a fixed campaign range within 45–65 instead, specify
+`decorBudget` without `decorReference`. Detailed custom specs keep explicit
+palette and quota controls. Replan after changing the generator or its reference
+data. See [the decor inventory and composition rules](DECOR_VISUAL_WORKFLOW.md#stock-mission-decor).
 
 ## Landscape composition rules
 

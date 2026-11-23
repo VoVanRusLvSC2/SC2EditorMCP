@@ -1,12 +1,14 @@
-# SC2EditorMCP
+# SC2EditorMCP for StarCraft II Maps and Mods
 
-SC2EditorMCP is an MCP server and local workbench for creating StarCraft II maps and mods. Generate a playable-area layout from a mission specification, edit native map components, or work on the map currently open in the StarCraft II Editor.
+SC2EditorMCP is a Model Context Protocol server for building and editing StarCraft II maps and mods with the Galaxy Editor. It generates mission, melee ladder and arcade maps and edits terrain, water, objects, game Data, GUI triggers and Galaxy scripts, cutscenes, UI, and localized text.
 
-[Map generation](#build-a-map-through-mcp) · [Setup](#quick-start) · [Feature guide](#capabilities-and-confirmation) · [Editor integration](#edit-the-current-editor-document)
+An MCP client can work with unpacked components, import and export `.SC2Map` and `.SC2Mod` archives, and use supported tools on the open Editor document. The browser workbench and Editor toolbar chat are optional interfaces.
+
+[Generate a map](#build-a-map-through-mcp) · [Connect an MCP client](#quick-start) · [Explore all capabilities](#capabilities-and-confirmation) · [Edit the open map](#edit-the-current-editor-document)
 
 ## Build a map through MCP
 
-For a procedural **mission, ladder or arcade** map, send a structured zone specification to `world.plan`, build its exact plan with `world.build`, and check the packed revision with `world.verify`. The generator supports up to 64 ground textures across eight regional palettes, blended forests, paneled laboratory floors, measured decoration, walls, automatic gates and water crossings. [World specification and working example](docs/WORLD_GENERATION.md)
+For a procedural **mission, ladder or arcade** map, describe the zones, connections and style to your MCP client. Use `world.plan_intent` for a structured brief or `world.plan` for a detailed specification, then build the plan with `world.build` and check the packed revision with `world.verify`. A different seed varies the route, crossing and facility layout. The generator supports up to 64 ground textures across eight regional palettes, blended forests, paneled laboratory floors, measured decoration, walls, automatic gates and water crossings. [World specification and working example](docs/WORLD_GENERATION.md)
 
 Choose a mission purpose, a terrain profile and a seed. Use `mission.layout` to inspect routes, clearings and reserved areas before `mission.build` writes a packed map candidate. Layout patterns include a fork around a basin, an expedition with a side objective, a central defense hub and a river valley.
 
@@ -40,6 +42,7 @@ Start the optional browser workbench with `npm run gui` and open `http://127.0.0
 
 | Area | What you can do |
 | --- | --- |
+| Map generation | Create mission, melee ladder and arcade map layouts. Generate biome transitions, variable-width trails, river crossings and functional rooms. Pack and verify the generated `.SC2Map`. [World generation](docs/WORLD_GENERATION.md) |
 | Data Editor | Create or clone units and link weapons, damage effects, abilities and Actors. Configure vitals, armor, costs, cooldowns, hero progression, command cards and supported animation events. Inspect catalog references and review presentation in game. [Data guide](docs/DATA_MCP.md) |
 | GUI triggers and Galaxy | Create editable triggers, folders, variables, conditions and actions. Organize, clone or edit supported graphs. Inspect and edit Galaxy source, validate references and use the optional native Editor toolkit to compile GUI triggers and export generated Galaxy. [Triggers](docs/TRIGGER_MCP.md) · [Galaxy](SCRIPT-GUIDE.md) |
 | Terrain, water and lighting | Raise, flatten and smooth ground, paint and blend materials, edit visibility and supported cell flags, and create supported cliffs and ramps. Place rectangular water regions aligned to an eight-cell grid and configure water materials and lighting. [Terrain](docs/TERRAIN_MCP.md) · [Water](docs/TERRAIN_WATER.md) · [Lighting](docs/TERRAIN_LIGHTING.md) |
@@ -60,6 +63,8 @@ For broader component changes, the same-file refresh workflow prepares edits and
 ## Verification and limits
 
 Review the plan and diff, then save the complete group of related changes. Supported workflows check source revisions and dependencies, preserve unrelated XML, and provide backups or recovery records. Review native visuals in the Editor and test routes, combat and triggers in SC2. Cliff junctions, engine pathing, complex water bodies and rendering each have format-specific limits. [Authoring protocol](docs/AUTHORING_PROTOCOL.md) · [Transactions](docs/ARCHITECTURE.md#transactions) · [Verification matrix](docs/VERIFICATION.md)
+
+SC2EditorMCP can use the optional native Editor integration for compilation, diagnostics and captures. [SC2EditorToolkit](https://github.com/VoVanRusLvSC2/SC2EditorToolkit)
 
 ## Development
 

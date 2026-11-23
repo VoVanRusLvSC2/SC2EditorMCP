@@ -12,6 +12,7 @@ import type { Point2, TerrainOperation } from "../terrain/types.js";
 import type { DecorPalette } from "../placement/decorPalette.js";
 import { areaDistance, segmentDistance, valueNoise } from "../terrain/geometry.js";
 import type { FloorJoint } from "./floorJoints.js";
+import { createRoomDresser, loadRoomRecipes } from "./roomDressing.js";
 import {
   facilityFace,
   facilityPassageDistance,
@@ -722,6 +723,15 @@ export async function structureObjects(
   }
   const spaces = s.facility.spaces;
   const passages = s.facility.passages;
+  const passportSpaces = spaces.filter(
+    ({ roomComposition }) => roomComposition && "activity" in roomComposition,
+  );
+  const roomCompositions: Array<
+    Awaited<ReturnType<ReturnType<typeof createRoomDresser>>>["report"] & {
+      zone: string;
+      space: string;
+    }
+  > = [];
   const facilityObjects: {
     zone: string;
     space: string;
@@ -859,6 +869,71 @@ export async function structureObjects(
     }
     facilityObjects.push(receipt);
   }
+  if (passportSpaces.length) {
+    const { recipes } = await loadRoomRecipes();
+    const dress = createRoomDresser(palette, recipes);
+    const routes = [
+      ...s.routes.map((route) => ({
+        id: route.from + "/" + route.to,
+        points: route.points,
+        width: route.width,
+      })),
+      ...passages.map((passage) => ({
+        id: passage.id,
+        points: passage.points,
+        width: passage.width,
+      })),
+    ];
+    for (const space of passportSpaces) {
+      const passport = space.roomComposition;
+      if (!passport || !("activity" in passport)) continue;
+      const fitted = await dress(space, passport, s.facility, routes, reserved, pointOnGround);
+      objects.push(...fitted.objects);
+      const outline = fitted.report.postOutline;
+      const decal = fitted.report.postDecal;
+      const jointStyle = s.facility.grounds.find(({ zone }) => zone === space.zone)?.floorJoints;
+      if (decal) {
+        objects.push({
+          kind: "Doodad",
+          catalogId: decal.actor,
+          variation: decal.variation,
+          position: decal.position,
+          scale: { x: decal.scale, y: decal.scale, z: decal.scale },
+          flags: { HeightAbsolute: "1" },
+        });
+      } else if (outline && jointStyle) {
+        const trim = await panel(jointStyle.actor);
+        for (const [i, a] of outline.entries()) {
+          const b = outline[(i + 1) % outline.length];
+          const mid = pointOnGround(pointAt(a, b, 0.5));
+          const span = Math.hypot(b.x - a.x, b.y - a.y);
+          objects.push(
+            fittedPanel(
+              trim,
+              { ...mid, z: mid.z - 0.015 },
+              false,
+              span + 0.025,
+              panelLength(trim),
+              { height: jointStyle.height, depth: jointStyle.width, reverse: false },
+              Math.atan2(b.y - a.y, b.x - a.x),
+            ),
+          );
+        }
+      }
+      reserved.push(
+        ...fitted.footprints.map(({ minX, minY, maxX, maxY }) => ({
+          x: (minX + maxX) / 2,
+          y: (minY + maxY) / 2,
+          radius: Math.hypot(maxX - minX, maxY - minY) / 2,
+        })),
+      );
+      const receipt = facilityObjects.find(
+        ({ zone, space: id }) => zone === space.zone && id === space.id,
+      )!;
+      receipt.fixtures += fitted.objects.length;
+      roomCompositions.push({ zone: space.zone, space: space.id, ...fitted.report });
+    }
+  }
   for (const terrace of s.facility.terraces) {
     for (const stair of terrace.stairs) {
       if (!stair.treadActor) continue;
@@ -885,13 +960,24 @@ export async function structureObjects(
     for (const side of ["south", "east", "north", "west"] as const) {
       const face = terraceFace(terrace.area, side);
       const outward = facilitySides[side];
+      const square = terrace.faceStyle === "square";
+      const offset = square ? 1.15 : 0.9;
+      const stairGap = square ? 2.18 : 2.7;
       const gaps = terrace.stairs
         .filter((stair) => stair.side === side)
         .map((stair) => stair.at)
         .sort((a, b) => a - b);
-      let from = face.from + 0.6;
-      for (const gap of [...gaps, face.to + 2.1]) {
-        const end = gap - 2.7;
+      const capHeight =
+        square && gaps.length
+          ? pointOnGround({
+              x: (terrace.area.minX + terrace.area.maxX) / 2,
+              y: (terrace.area.minY + terrace.area.maxY) / 2,
+            }).z + 0.08
+          : undefined;
+      let from = face.from + (square ? -offset : 0.6);
+      const edge = face.to + (square ? offset : -0.6);
+      for (const gap of [...gaps, edge + stairGap]) {
+        const end = gap - stairGap;
         const pieces = Math.ceil((end - from) / length);
         for (let i = 0; i < pieces; i++) {
           const span = (end - from) / pieces;
@@ -901,15 +987,34 @@ export async function structureObjects(
           objects.push(
             fittedPanel(
               model,
-              { x: p.x + 0.9 * outward.x, y: p.y + 0.9 * outward.y, z: foot.z - 0.1 },
+              {
+                x: p.x + offset * outward.x,
+                y: p.y + offset * outward.y,
+                z: capHeight === undefined ? foot.z - 0.1 : capHeight - 2.18,
+              },
               face.vertical,
               span,
               length,
               { height: 2.05, depth: 0.85, reverse: side === "east" || side === "south" },
             ),
           );
+          if (capHeight !== undefined)
+            objects.push(
+              fittedPanel(
+                model,
+                {
+                  x: p.x + 0.2 * outward.x,
+                  y: p.y + 0.2 * outward.y,
+                  z: capHeight,
+                },
+                face.vertical,
+                span,
+                length,
+                { height: 0.16, depth: 2.8, reverse: side !== "east" && side !== "south" },
+              ),
+            );
         }
-        from = gap + 2.7;
+        from = gap + stairGap;
       }
     }
   }
@@ -1064,6 +1169,7 @@ export async function structureObjects(
     reserved,
     edgeObjects,
     facilityObjects,
+    roomCompositions,
     perimeterObjects,
     floorJointObjects: [...floorJointObjects].map(([zone, count]) => ({ zone, count })),
   };

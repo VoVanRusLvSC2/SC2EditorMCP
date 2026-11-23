@@ -87,6 +87,7 @@ export const authoringGuide = {
     "live refresh.begin archive=Current.SC2Map windowId=123 mode=same_file_refresh saveIfDirty=true",
     "project organize genre=mission",
     "terrain catalog tileset=Agria section=vegetation limit=8",
+    "terrain catalog section=missions mission=zlab02 limit=12",
     "terrain style tileset=Agria profile=forest",
     "terrain palette_preview tileset=Agria section=vegetation limit=6 includeImage=false",
     "terrain visual_reference category=doodads query=forest limit=8",

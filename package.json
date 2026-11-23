@@ -9,7 +9,12 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "type": "module",
-  "description": "MCP bridge for StarCraft II map authoring, native terrain, local CASC resources and lossless lobby/player settings, with existing UI, data, script and scene modules.",
+  "description": "Model Context Protocol server for StarCraft II map and mod development, procedural map generation, terrain, game data, Galaxy triggers, cutscenes, UI, and localization.",
+  "homepage": "https://github.com/VoVanRusLvSC2/SC2EditorMCP",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VoVanRusLvSC2/SC2EditorMCP.git"
+  },
   "scripts": {
     "ai-button:build": "node scripts/build-ai-button-module.mjs",
     "ai-button:package": "node scripts/package-ai-button-module.mjs",

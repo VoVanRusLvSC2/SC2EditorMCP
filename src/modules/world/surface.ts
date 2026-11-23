@@ -280,6 +280,7 @@ export function compileWorldSurface(
         groundDist = d;
         return g;
       }, ground);
+      const hardGround = localGround?.floorJoints && groundDist >= 0;
       const localSpaces = facilitySpaces.filter(
         (f) => f.space.bank === zone.bank && facilitySpaceDistance(f.space, cell) >= -1,
       );
@@ -354,6 +355,7 @@ export function compileWorldSurface(
           }
           const facilitySlot =
             inlaySlot ??
+            terraceSlot ??
             (facilitySpace && padEdge <= border
               ? facilitySpace.trimSlot
               : facilitySpace?.floorSlot);
@@ -461,6 +463,7 @@ export function compileWorldSurface(
           }
           if (
             roles.base !== undefined &&
+            !hardGround &&
             !onPad &&
             roadEdge > 0 &&
             roadEdge < 2.25 &&
@@ -472,7 +475,7 @@ export function compileWorldSurface(
               15 * Math.min(0.95, Math.max(0, 1 - roadEdge / 2.25 + 0.18 * edgeNoise)),
             );
           }
-          if (zone.composition && !onPad && roadEdge < 2.2) {
+          if (zone.composition && !hardGround && !onPad && roadEdge < 2.2) {
             next = roles.road;
             mix = Math.round(Math.max(mix * 0.45, 9 * smoothstep((2.2 - roadEdge) / 3)));
           }

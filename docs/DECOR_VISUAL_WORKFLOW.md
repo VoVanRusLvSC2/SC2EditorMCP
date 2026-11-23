@@ -17,6 +17,36 @@ renders. See [whole-location composition](SCENE_COMPOSITION.md).
 
 The decor workflow extends `terrain.catalog` and its tileset packs. It does not introduce a second asset catalogue. All map authoring runs through MCP; the previews are derived files and require neither the SC2 Editor nor the game.
 
+## Stock mission decor
+
+The derived [decor evidence index](../resources/authoring-catalog/decor-evidence.json.gz)
+contains per-map Actor IDs and instance counts, role totals and source paths.
+It includes 77 main campaign maps, prologues and epilogues, nine challenges,
+all seven HotS evolution maps, tutorials and other bundled samples. Metadata
+without placement data is marked `missing_objects`. The Actor index adds
+placement role, environment tags and classification evidence to the existing
+catalog. An unclassified Actor carries the `review` disposition until its model
+and placement are understood.
+
+The editable [composition JSON](../resources/authoring-catalog/style_rules/decor_composition.json)
+defines where to use each role, compatible neighbors, clearances and patterns for
+the world style profiles. The profile order guides candidate selection. The
+per-Actor classification is derived with
+`python scripts/build-decor-evidence.py`; use `--check` to verify it is current.
+Restart the MCP server after editing or regenerating these locally cached rules.
+Actor counts come from the pinned stock catalog. The classification also uses
+[TeamAntioch's existing description metadata](../resources/authoring-catalog/team-antioch/NOTICE.md).
+Placement guidance is authored and should be reviewed on the target map with
+measured assets.
+
+```text
+terrain catalog section=missions query=evolution
+terrain catalog section=missions query=challenge
+terrain catalog mission=zlab02 limit=16
+terrain catalog mission=zevolutionroach limit=16
+terrain catalog tileset=BelShir section=vegetation limit=16
+```
+
 ## Short commands
 
 Send these as `modkit.author` scripts. Use one persistent workflow MCP process for a session.

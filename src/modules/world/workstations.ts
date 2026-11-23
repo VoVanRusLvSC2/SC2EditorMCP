@@ -13,7 +13,7 @@ export const workstation = placement.extend({
   kind: z.enum(["control", "experiment", "containment", "service"]),
 });
 
-export const roomComposition = z
+const explicitRoomComposition = z
   .object({
     focus: placement.extend({ kind: z.enum(["research", "observation", "briefing"]) }),
     support: z
@@ -22,6 +22,32 @@ export const roomComposition = z
       .default([]),
   })
   .strict();
+
+export const roomActivity = z.enum([
+  "research",
+  "containment",
+  "briefing",
+  "sorting",
+  "power",
+  "checkpoint",
+  "circulation",
+  "habitation",
+]);
+export const roomPassport = z
+  .object({
+    activity: roomActivity,
+    density: z.enum(["light", "standard", "busy"]).default("standard"),
+    condition: z.enum(["operational", "abandoned", "damaged"]).default("operational"),
+    placement: z.enum(["auto", "wall", "island", "upper"]).default("auto"),
+    aisleWidth: z.number().min(2).max(6).default(3),
+    side: placement.shape.side,
+    tileSet: z.string().regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/),
+    seed: z.number().int().min(0).max(0xffffffff).default(0),
+  })
+  .strict();
+
+export const roomComposition = z.union([explicitRoomComposition, roomPassport]);
+export type RoomPassport = z.output<typeof roomPassport>;
 
 type Room = { id: string; width: number; height: number; shape: string };
 type Position = z.output<typeof placement>;
@@ -101,7 +127,10 @@ export function workstationFixtures(space: Room, intent: z.output<typeof worksta
   return groupFixtures(space, intent, intent.kind, roles[intent.kind]);
 }
 
-export function roomCompositionFixtures(space: Room, intent: z.output<typeof roomComposition>) {
+export function roomCompositionFixtures(
+  space: Room,
+  intent: z.output<typeof explicitRoomComposition>,
+) {
   return [
     ...groupFixtures(space, intent.focus, intent.focus.kind, focalGroups[intent.focus.kind]),
     ...intent.support.flatMap((group) =>

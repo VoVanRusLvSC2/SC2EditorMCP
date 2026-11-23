@@ -19,6 +19,8 @@ import { loadCampaignLandscape } from "./missionLandscape.js";
 import { compileWorldSurface } from "./surface.js";
 import { traceFacilityFloorJoints } from "./floorJoints.js";
 import { worldDecor } from "./decor.js";
+import { selectDecorCoverage, type DecorCoverage } from "./decorCoverage.js";
+import { loadRoomRecipes } from "./roomDressing.js";
 import { DecorPalette } from "../placement/decorPalette.js";
 import { TerrainWorkspace } from "../terrain/workspace.js";
 import {
@@ -32,6 +34,15 @@ import {
 import { worldTriggers } from "./gameplay.js";
 
 const digest = (data: Buffer | string) => createHash("sha256").update(data).digest("hex");
+const summarizeCoverage = (coverage: DecorCoverage) => ({
+  minimum: coverage.minimum,
+  zones: coverage.zones.map(({ id, reference, trainingSources, composition }) => ({
+    id,
+    reference: reference ?? null,
+    ...(composition ? { composition: composition.composition } : {}),
+    ...(trainingSources.length ? { trainingSources } : {}),
+  })),
+});
 export class WorldWorkspace {
   constructor(
     private workspace: Workspace,
@@ -92,10 +103,22 @@ export class WorldWorkspace {
           throw Error("WORLD_MATERIAL_UNAVAILABLE: " + zone.id + "/" + id);
     }
     const campaign = await loadCampaignLandscape(spec, layout, sets, structures);
+    if (spec.decorBudget && spec.decorReference)
+      throw Error("WORLD_DECOR_BUDGET_REFERENCE_CONFLICT");
+    const reference = spec.decorReference ?? (campaign && !spec.decorBudget ? "auto" : undefined);
+    const coverage = reference ? await selectDecorCoverage(layout, reference) : undefined;
+    if (coverage && campaign)
+      coverage.minimum = Math.max(coverage.minimum, campaign.decorBudget.min);
     return {
       sets,
-      generatorVersion: 33,
+      generatorVersion: 36,
+      ...(structures.facility.spaces.some(
+        ({ roomComposition }) => roomComposition && "activity" in roomComposition,
+      )
+        ? { roomRecipeRevision: (await loadRoomRecipes()).revision }
+        : {}),
       campaign,
+      coverage,
       localDependencies: resolution.source.localTrees.map((t) => ({
         root: t.root,
         sha256: digest(JSON.stringify(t.manifest)),
@@ -171,7 +194,7 @@ export class WorldWorkspace {
       ...(resources.campaign
         ? {
             landscape: {
-              decorBudget: resources.campaign.decorBudget,
+              ...(resources.coverage ? {} : { decorBudget: resources.campaign.decorBudget }),
               zones: resources.campaign.zones.map(({ id, profile, style, materials, roles }) => ({
                 id,
                 profile,
@@ -184,6 +207,7 @@ export class WorldWorkspace {
           }
         : {}),
       palettes: resources.sets.map((s) => ({ id: s.id, textures: s.textures })),
+      ...(resources.coverage ? { decorCoverage: summarizeCoverage(resources.coverage) } : {}),
       gameBuild: resources.build,
     };
   }
@@ -333,13 +357,24 @@ export class WorldWorkspace {
           resources.campaign,
           assembled.objects.map((o) => o.catalogId),
           assembled.reserved,
+          resources.coverage,
         );
         return { assembled, decoration, gates };
       });
       const decor = decoration.placements;
       objects.addMany(decor);
       const scenicTypes = new Set(decoration.scenicTypes);
-      if (resources.campaign) {
+      if (resources.coverage) {
+        const placed = decoration.qualifyingTypes.length;
+        if (placed < resources.coverage.minimum)
+          throw Error(
+            "WORLD_DECOR_REFERENCE_SHORTFALL: " +
+              JSON.stringify({
+                ...summarizeCoverage(resources.coverage),
+                placed,
+              }),
+          );
+      } else if (resources.campaign) {
         const { min, max } = resources.campaign.decorBudget;
         if (scenicTypes.size < min || scenicTypes.size > max)
           throw Error(
@@ -401,6 +436,9 @@ export class WorldWorkspace {
           ? { facilityFloorJoints: assembled.floorJointObjects }
           : {}),
         ...(assembled.facilityObjects.length ? { facilityObjects: assembled.facilityObjects } : {}),
+        ...(assembled.roomCompositions.length
+          ? { roomCompositions: assembled.roomCompositions }
+          : {}),
         ...(assembled.perimeterObjects.length
           ? { facilityPerimeter: assembled.perimeterObjects }
           : {}),
@@ -428,11 +466,21 @@ export class WorldWorkspace {
           ).size,
         })),
         decorTypes: [...new Set(decor.map((d) => d.catalogId))],
+        ...(resources.coverage
+          ? {
+              decorCoverage: {
+                ...summarizeCoverage(resources.coverage),
+                placedTypes: decoration.qualifyingTypes.length,
+                placedByRole: decoration.qualifyingByRole,
+                types: decoration.qualifyingTypes,
+              },
+            }
+          : {}),
         ...(resources.campaign
           ? {
               landscape: {
                 distinctScenicTypes: scenicTypes.size,
-                decorBudget: resources.campaign.decorBudget,
+                ...(resources.coverage ? {} : { decorBudget: resources.campaign.decorBudget }),
                 requiredDecor: decoration.requiredDecor,
                 nativeCliffCells: state.descriptor.parsed.nodes.filter((n) => n.tag === "cc")
                   .length,

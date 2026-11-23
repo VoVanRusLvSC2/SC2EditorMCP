@@ -1,0 +1,225 @@
+{
+  "version": 1,
+  "source": "Authored placement guidance for measured SC2 Actor assets",
+  "referenceTilesets": {
+    "UmojaEx3": ["DominionLab"],
+    "Char": ["Char2", "CharDunes"],
+    "Char2": ["Char", "CharDunes"],
+    "CharDunes": ["Char", "Char2"],
+    "BelShir": ["BelShirEx1"]
+  },
+  "nativeCanopyProfiles": ["lava", "ash", "lunar", "void", "cave"],
+  "profiles": {
+    "agria": {"roleOrder": ["canopy", "ground_detail", "cargo", "fixture"], "composition": "Use fields as large shapes, with tree belts along paths and equipment at the edge of working yards."},
+    "protoss": {"roleOrder": ["structure", "cliff", "marking", "light", "fixture"], "composition": "Frame the approach with stepped architecture. Use a dominant monument, open court and lit service edges."},
+    "ruin": {"roleOrder": ["structure", "rock", "understory", "ground_detail"], "composition": "Retain the original architectural axis. Cluster growth against remains and leave quiet gaps between groups."},
+    "zerg": {"roleOrder": ["rock", "ground_detail", "understory", "structure"], "composition": "Build irregular organic masses with growth around the edges and a free route through the organism."},
+    "platform": {"roleOrder": ["connection", "wall", "utility", "light", "cargo"], "composition": "Frame docking and transfer pads with modular edges. Connect machines with service routes and put lights at transitions."},
+    "forest": {"roleOrder": ["canopy", "understory", "rock", "ground_detail"], "composition": "Use uneven groves, a broken understory edge, variable trail widths and intentionally open clearings."},
+    "interior": {"roleOrder": ["structure", "wall", "fixture", "utility", "light", "marking", "cargo"], "composition": "Give each room a distinct work area and doorway. Fit consoles along walls, hold an operator apron in front, pair low lights at stair landings and use repeated lights along aisle edges. Use straight retaining edges and centered stair openings on built decks. Put experiments downstairs and a row of analysis consoles above in split-level containment rooms."},
+    "prison": {"roleOrder": ["wall", "connection", "fixture", "light", "utility"], "composition": "Repeat secure bays along a controlled route. Make each gate legible and keep sightlines to inspection points open."},
+    "lava": {"roleOrder": ["rock", "ground_detail", "understory", "canopy"], "composition": "Put volcanic forms on ridges and rims, add low organic groups at their feet and keep the route clear of the lava edge."},
+    "ash": {"roleOrder": ["rock", "ground_detail", "understory", "canopy"], "composition": "Arrange sparse detail in pockets at leeward rock bases. Keep broad ash fields and a clear route between ridges."},
+    "volcanic_fort": {"roleOrder": ["cliff", "wall", "utility", "fixture", "cargo"], "composition": "Build the fort into the edge of the volcanic terrain. Stage equipment inside protected pads and leave access to gates."},
+    "city": {"roleOrder": ["structure", "yard_prop", "fixture", "light", "utility", "marking"], "composition": "Build street-facing blocks with distinct public and service fronts. Keep courtyards open and give each district a landmark."},
+    "desert": {"roleOrder": ["rock", "ground_detail", "understory", "canopy"], "composition": "Use outcrops as landmarks and low detail in sheltered pockets. Vary the width and ground tone of dry routes."},
+    "jungle_river": {"roleOrder": ["canopy", "understory", "rock", "shore"], "composition": "Stagger groves along dry banks, add rock and reeds in shoreline pockets and leave both ends of crossings open."},
+    "generic": {"roleOrder": [], "composition": "Use the requested terrain and verified assets. Reserve routes, establish a focal scale and review a native view at that scale."},
+    "snow": {"roleOrder": ["rock", "canopy", "ground_detail", "shore"], "composition": "Keep open snowfields between sheltered groups. Expose rock spines and place taller silhouettes where the local palette supports them."},
+    "refinery": {"roleOrder": ["structure", "utility", "cargo", "light", "marking"], "composition": "Group tanks and conduits into connected process units. Give machinery service edges and leave truck routes free."},
+    "outskirts": {"roleOrder": ["structure", "yard_prop", "cargo", "utility", "light"], "composition": "Put props in loading lots or roadside pockets. Let paved work yards give way to larger patches of natural ground."},
+    "lunar": {"roleOrder": ["rock", "ground_detail", "utility", "light"], "composition": "Keep broad quiet terrain across the craters and concentrate equipment close to landing or survey stations."},
+    "void": {"roleOrder": ["rock", "structure", "ground_detail", "light"], "composition": "Use silhouettes at the perimeter and strong anchors on isolated islands. Keep paths and crossings visually distinct."},
+    "cave": {"roleOrder": ["rock", "ground_detail", "understory", "light"], "composition": "Cluster mineral forms at alcoves, ledges and side walls. Let chamber silhouettes change at narrow entrances."},
+    "primeval": {"roleOrder": ["canopy", "rock", "understory", "ground_detail"], "composition": "Use layered organic landmarks, contrasting enclosures and open ground punctuated by low clusters."}
+  },
+  "actorOverrides": {
+    "CaveEntrance": ["rock", "natural"],
+    "CharArm": ["ground_detail", "natural"],
+    "CharBlisterEgg": ["ground_detail", "natural"],
+    "CharBones": ["ground_detail", "natural"],
+    "CharBonesCliff": ["rock", "natural"],
+    "CharClaws": ["rock", "natural"],
+    "CharCrater": ["ground_detail", "natural"],
+    "CharCrystal": ["rock", "natural"],
+    "CharCrystalHuge": ["rock", "natural"],
+    "CharCrystalLarge": ["rock", "natural"],
+    "CharExhaustVents": ["ground_detail", "natural"],
+    "CharGlowingPods": ["ground_detail", "natural"],
+    "CharHorn": ["rock", "natural"],
+    "CharIntestines": ["ground_detail", "natural"],
+    "CharRibs": ["rock", "natural"],
+    "CharSpine": ["rock", "natural"],
+    "CharSpineLarge": ["rock", "natural"],
+    "CharTendrils": ["understory", "natural"],
+    "CharTendrilsCliff": ["rock", "natural"],
+    "CharWeed": ["understory", "natural"],
+    "CharWorm": ["ground_detail", "natural"],
+    "Spires": ["rock", "natural"],
+    "SpiresLarge": ["rock", "natural"],
+    "ZergBonePileLarge": ["ground_detail", "natural"],
+    "ZergBonePileMedium": ["ground_detail", "natural"],
+    "ZergBonePileSmall": ["ground_detail", "natural"],
+    "ZergCurbs": ["rock", "natural"],
+    "ZergRoots": ["understory", "natural"],
+    "ZergRootsCliff": ["rock", "natural"],
+    "ZergSpire": ["rock", "natural"],
+    "ZergSpireLarge": ["rock", "natural"],
+    "ZergThornSpire": ["understory", "natural"],
+    "ZergedCombs": ["ground_detail", "natural"]
+  },
+  "rules": {
+    "canopy": {
+      "placement": "cluster",
+      "layer": "silhouette",
+      "where": ["grove interiors", "backs of forest edges"],
+      "groupWith": ["understory", "ground_detail", "rock"],
+      "clear": ["trail centerlines", "clearings", "view of entrances"],
+      "pattern": "Use irregular groves with several canopy heights. Open gaps between groups and put the largest crowns behind the trail edge."
+    },
+    "understory": {
+      "placement": "cluster",
+      "layer": "support",
+      "where": ["grove margins", "tree bases", "bases of rocks"],
+      "groupWith": ["canopy", "ground_detail"],
+      "clear": ["walkable trails", "open food or combat clearings"],
+      "pattern": "Arrange uneven clumps across the canopy edge and fade their density into open ground."
+    },
+    "ground_detail": {
+      "placement": "cluster",
+      "layer": "detail",
+      "where": ["ground material patches", "bases of larger props", "gently disturbed ground"],
+      "groupWith": ["understory", "rock"],
+      "clear": ["paved lanes", "bare focal areas"],
+      "pattern": "Use low detail in small pockets and give the ground material room to show between them."
+    },
+    "rock": {
+      "placement": "cluster",
+      "layer": "silhouette",
+      "where": ["ridge shoulders", "cliff toes", "outside bends", "rocky material patches"],
+      "groupWith": ["cliff", "ground_detail", "shore"],
+      "clear": ["trail centers", "bridge mouths", "ramp landings"],
+      "pattern": "Start with a large outcrop and add a few smaller pieces at its foot. Follow the ridge or the turn in the trail."
+    },
+    "cliff": {
+      "placement": "layout",
+      "layer": "silhouette",
+      "where": ["native cliff faces", "retaining edges", "map perimeter"],
+      "groupWith": ["rock", "understory", "wall"],
+      "clear": ["ramps", "landings", "central work areas"],
+      "pattern": "Follow the native face and place the model with its visible side toward the camera. Fit ends and steps with measured pieces."
+    },
+    "shore": {
+      "placement": "layout",
+      "layer": "support",
+      "where": ["shorelines", "ice margins", "lava margins", "dry terraces above water"],
+      "groupWith": ["rock", "ground_detail", "connection"],
+      "clear": ["bridge mouths", "usable road surfaces"],
+      "pattern": "Align exposed pieces with the local shore or flow. Choose dry or submerged placement from the model's purpose."
+    },
+    "wall": {
+      "placement": "layout",
+      "layer": "silhouette",
+      "where": ["room boundaries", "facility perimeter", "terrace faces"],
+      "groupWith": ["connection", "fixture", "light", "marking"],
+      "clear": ["gates", "aisles", "stair ends"],
+      "pattern": "Fit continuous runs with corners and door frames. Use exposed faces on both sides where the wall stands in open terrain."
+    },
+    "connection": {
+      "placement": "layout",
+      "layer": "silhouette",
+      "where": ["route crossings", "door openings", "catwalk and stair approaches"],
+      "groupWith": ["wall", "marking", "light"],
+      "clear": ["clear width of the route", "both connection landings"],
+      "pattern": "Fit the measured piece to the route axis, span and surface heights. Reserve each landing before dressing the connection."
+    },
+    "structure": {
+      "placement": "layout",
+      "layer": "silhouette",
+      "where": ["assigned room focus", "building footprint", "purpose-built yard", "ceremonial edge"],
+      "groupWith": ["fixture", "utility", "light"],
+      "clear": ["work approaches", "main lane", "views of major entrances"],
+      "pattern": "Use one dominant assembly for each room or yard. Size the surrounding floor and secondary groups to its working footprint."
+    },
+    "fixture": {
+      "placement": "layout",
+      "layer": "support",
+      "where": ["wall recesses", "work bays", "service apron of a focal assembly"],
+      "groupWith": ["structure", "utility", "light"],
+      "clear": ["door swings", "stair landings", "aisles"],
+      "pattern": "Face consoles and monitors toward their operators. Group benches, specimens and terminals by task and provide a clear approach."
+    },
+    "cargo": {
+      "placement": "layout",
+      "layer": "support",
+      "where": ["cargo bays", "loading edges", "storage corners", "secondary bench-side staging"],
+      "groupWith": ["fixture", "utility", "marking"],
+      "clear": ["main lane", "doorways", "loading clearance"],
+      "pattern": "Use frequent crates in a few dense lots with staggered depth. Leave the loading side clear and use smaller batches at workstations."
+    },
+    "utility": {
+      "placement": "layout",
+      "layer": "support",
+      "where": ["service walls", "utility recesses", "around machinery", "along conduits"],
+      "groupWith": ["fixture", "structure", "light"],
+      "clear": ["walkway width", "doorways"],
+      "pattern": "Run pipes and cabling between plausible endpoints. Place vents and tanks in connected service groups."
+    },
+    "light": {
+      "placement": "layout",
+      "layer": "detail",
+      "where": ["gates", "equipment bays", "junctions", "pad edges"],
+      "groupWith": ["fixture", "connection", "marking"],
+      "clear": ["unrelated quiet areas", "unmotivated uniform grids"],
+      "pattern": "Anchor the light to an actual fixture or signal point. Use intensity and color to differentiate local function."
+    },
+    "marking": {
+      "placement": "layout",
+      "layer": "detail",
+      "where": ["thresholds", "loading lines", "equipment pads", "road edges"],
+      "groupWith": ["wall", "connection", "cargo"],
+      "clear": ["unrelated floor regions", "seams beneath raised surface models"],
+      "pattern": "Align low markings to the floor grid or direction of travel. Give floor-replacement models a matching cutout or substrate."
+    },
+    "yard_prop": {
+      "placement": "layout",
+      "layer": "support",
+      "where": ["parking pads", "aprons", "curbs", "service pockets"],
+      "groupWith": ["structure", "cargo", "marking"],
+      "clear": ["traffic lanes", "pedestrian approaches"],
+      "pattern": "Face vehicles and street props along the service direction and reserve space to access them."
+    },
+    "damage": {
+      "placement": "manual",
+      "layer": "condition",
+      "where": ["specified damaged bays", "local impact sites", "ruin edges"],
+      "groupWith": ["structure", "wall"],
+      "clear": ["operational defaults", "unrelated rooms"],
+      "pattern": "Localize damage to its declared cause. Leave intact examples of the same architectural family nearby."
+    },
+    "effect": {
+      "placement": "manual",
+      "layer": "condition",
+      "where": ["explicit emitters", "weather zones", "hazards specified by the scene"],
+      "groupWith": ["utility", "shore"],
+      "clear": ["ordinary decor coverage"],
+      "pattern": "Use effects where their source or area is clear. Check visibility and overhead in the native view."
+    },
+    "technical": {
+      "placement": "manual",
+      "layer": "technical",
+      "where": ["explicit gameplay or editor support locations"],
+      "groupWith": [],
+      "clear": ["scenic type counts"],
+      "pattern": "Author and verify the gameplay purpose separately from the scenic pass."
+    },
+    "review": {
+      "placement": "manual",
+      "layer": "review",
+      "where": ["user-selected locations after checking the model"],
+      "groupWith": [],
+      "clear": ["automatic decor coverage"],
+      "pattern": "Verify the model, scale and use before selecting a placement family."
+    }
+  }
+}

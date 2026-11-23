@@ -75,6 +75,7 @@ export const worldFacility = z
             kind: z.enum(["accessible", "scenic"]).default("accessible"),
             floor: id.optional(),
             faceActor: id.optional(),
+            faceStyle: z.literal("square").optional(),
             stairs: z
               .array(
                 z
@@ -234,6 +235,7 @@ type Terrace = {
   area: Rect;
   floor?: string;
   faceActor?: string;
+  faceStyle?: "square";
   stairs: Stair[];
 };
 type Perimeter = z.infer<typeof perimeterStyle>;
@@ -453,6 +455,7 @@ export function planFacilities(spec: WorldSpec, layout: WorldLayout) {
         area,
         floor: t.floor,
         faceActor: t.faceActor,
+        ...(t.faceStyle ? { faceStyle: t.faceStyle } : {}),
         stairs,
       });
     }
@@ -507,7 +510,9 @@ export function planFacilities(spec: WorldSpec, layout: WorldLayout) {
           ...part.fixtures,
           ...(part.cargoBays ?? []).flatMap((bay) => cargoBayFixtures(part, bay)),
           ...(part.workstations ?? []).flatMap((station) => workstationFixtures(part, station)),
-          ...(part.roomComposition ? roomCompositionFixtures(part, part.roomComposition) : []),
+          ...(part.roomComposition && "focus" in part.roomComposition
+            ? roomCompositionFixtures(part, part.roomComposition)
+            : []),
         ],
         zone: zone.id,
         bank: zone.bank,
@@ -624,6 +629,59 @@ export function planFacilities(spec: WorldSpec, layout: WorldLayout) {
       }
       passages.push({ ...link, zone: zone.id, bank: zone.bank, ports, points, parts });
     }
+  }
+  for (const space of spaces) {
+    const passport = space.roomComposition;
+    if (!passport || !("activity" in passport)) continue;
+    const stairs = terraces
+      .filter(
+        (t) =>
+          t.zone === space.zone &&
+          facilitySpaceDistance(space, { x: t.area.minX, y: t.area.minY }) >= 0 &&
+          facilitySpaceDistance(space, { x: t.area.maxX, y: t.area.maxY }) >= 0,
+      )
+      .flatMap((t) => t.stairs);
+    if (passport.placement === "upper" && !stairs.length)
+      throw Error("WORLD_ROOM_UPPER_REQUIRES_STAIRS: " + space.id);
+    const aisles = [...(space.aisles ?? [])];
+    const add = (from: Point2, to: Point2, width = passport.aisleWidth) => {
+      if (from.x !== to.x || from.y !== to.y) aisles.push({ from, to, width });
+    };
+    const corridor = passport.activity === "circulation";
+    const vertical = space.height > space.width;
+    const first = space.openings[0];
+    const hub = { ...space.center };
+    if (space.openings.length === 1 && !stairs.length) {
+      const normal = facilitySides[first.side];
+      hub.x += normal.x * 3;
+      hub.y += normal.y * 3;
+    }
+    if (corridor) {
+      const from = facilityFace(space, vertical ? "south" : "west", 0);
+      const to = facilityFace(space, vertical ? "north" : "east", 0);
+      add(from, to);
+    }
+    const automatic = !space.aisles?.length || corridor;
+    for (const opening of space.openings) {
+      const from = facilityFace(space, opening.side, opening.offset);
+      const normal = facilitySides[opening.side];
+      const landing = corridor ? 2 : 4;
+      const throat = { x: from.x - normal.x * landing, y: from.y - normal.y * landing };
+      const width = Math.min(passport.aisleWidth, opening.width);
+      add(from, throat, width);
+      if (automatic)
+        add(
+          throat,
+          corridor ? (vertical ? { x: hub.x, y: throat.y } : { x: throat.x, y: hub.y }) : hub,
+          width,
+        );
+    }
+    for (const stair of stairs) {
+      const normal = facilitySides[stair.direction];
+      if (automatic) add(hub, stair.center);
+      add(stair.center, { x: stair.center.x + normal.x * 5, y: stair.center.y + normal.y * 5 }, 4);
+    }
+    space.aisles = aisles;
   }
   for (const pass of passages)
     for (const space of spaces) {

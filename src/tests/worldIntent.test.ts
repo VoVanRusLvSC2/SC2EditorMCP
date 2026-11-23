@@ -8,6 +8,9 @@ import type { TerrainState } from "../modules/terrain/operations.js";
 import { planWorld, resolveWorldSpec } from "../modules/world/plan.js";
 import { structureLayout, structureObjects } from "../modules/world/structures.js";
 import { compileWorldIntent, worldIntent } from "../modules/world/intent.js";
+import { StyleCatalog } from "../modules/placement/styleCatalog.js";
+import { selectDecorCoverage } from "../modules/world/decorCoverage.js";
+import { segmentDistance } from "../modules/terrain/geometry.js";
 
 const palettes: TerrainSet[] = ["BelShir", "UmojaEx3", "Korhal"].map((id) => ({
   id,
@@ -29,6 +32,46 @@ const mission = worldIntent.parse({
   starts: ["Forest"],
   objective: "Lab",
   textureBudget: 16,
+});
+
+test("stock decor covers missions and training and guides automatic references", async () => {
+  const catalog = new StyleCatalog();
+  const lab = await catalog.query({ mission: "zlab02", limit: 3 });
+  assert.ok("mission" in lab && lab.mission);
+  assert.equal(lab.mission.types, 90);
+  assert.equal(lab.mission.instances, 1212);
+  assert.equal(lab.items[0].id, "Decal");
+  assert.equal(lab.compositionRules?.marking?.placement, "layout");
+  const evolution = await catalog.query({ section: "missions", query: "evolution" });
+  const challenges = await catalog.query({ section: "missions", query: "challenge" });
+  assert.ok("total" in evolution && "total" in challenges);
+  assert.equal(evolution.total, 7);
+  assert.equal(challenges.total, 9);
+
+  const { spec, layout } = await compileWorldIntent(mission, 197, palettes);
+  assert.equal(spec.decorReference, "auto");
+  const automatic = await selectDecorCoverage(layout, spec.decorReference);
+  const forest = automatic.zones.find((zone) => zone.id === "Forest")!;
+  const laboratory = automatic.zones.find((zone) => zone.id === "Lab")!;
+  assert.ok(
+    forest.trainingSources.some(
+      ({ mission, role }) => mission === "zevolutionroach" && role === "evolution",
+    ),
+  );
+  assert.ok(forest.trainingSources.some(({ role }) => role === "challenge"));
+  assert.equal(laboratory.reference?.mission, "zlab02");
+  assert.equal(laboratory.reference?.match, "family");
+  assert.equal(automatic.minimum, laboratory.reference?.eligibleTypes);
+  const explicit = await selectDecorCoverage(layout, "zevolutionroach");
+  assert.equal(
+    explicit.zones.find((zone) => zone.id === "Forest")?.reference?.mapRole,
+    "evolution",
+  );
+  assert.equal(explicit.zones.find((zone) => zone.id === "Forest")?.reference?.match, "requested");
+  await assert.rejects(
+    selectDecorCoverage(layout, "zstorylab"),
+    /WORLD_DECOR_REFERENCE_UNAVAILABLE/,
+  );
 });
 
 test("one mission brief produces repeatable and distinct routes, crossings and interiors", async () => {
@@ -94,6 +137,233 @@ test("city defaults reserve a main street and distinct uses of adjoining blocks"
       (space) => space.id !== "MainStreet" && space.role === "courtyard",
     ),
   );
+});
+
+test("room passports fit role-specific modules around aisles and on a raised work surface", async () => {
+  const request = worldIntent.parse({
+    ...mission,
+    zones: [
+      mission.zones[0],
+      {
+        ...mission.zones[1],
+        rooms: [
+          { role: "lab", activity: "containment", placement: "upper", density: "busy" },
+          { role: "command", activity: "briefing", placement: "island" },
+          "storage",
+          { role: "production", condition: "abandoned" },
+        ],
+      },
+    ],
+  });
+  const { structures } = await compileWorldIntent(request, 317, palettes);
+  const deck = structures.facility.terraces[0].area;
+  const terrace = structures.facility.terraces[0];
+  const stair = terrace.stairs[0];
+  assert.equal(terrace.faceStyle, "square");
+  const across = stair.side === "north" || stair.side === "south" ? "x" : "y";
+  assert.equal(
+    stair.at,
+    across === "x" ? (deck.minX + deck.maxX) / 2 : (deck.minY + deck.maxY) / 2,
+  );
+  const deckInsets = structures.facility.spaces.find(({ role }) => role === "lab")!.inlays[0];
+  const deckBuffer = {
+    south: deckInsets.min.y - deck.minY,
+    north: deck.maxY - deckInsets.max.y,
+    west: deckInsets.min.x - deck.minX,
+    east: deck.maxX - deckInsets.max.x,
+  };
+  assert.equal(deckBuffer[structures.facility.terraces[0].stairs[0].side], 2);
+  assert.ok(structures.facility.grounds[0].floorJoints);
+  assert.ok(structures.facility.passages.every(({ threshold }) => !threshold));
+  assert.equal(structures.facility.spaces[0].trim, structures.facility.spaces[0].floor);
+  const mock = {
+    resolveAsset: async (id: string) => ({ actor: { id } }),
+    resolve: async ({ id, variation }: { id: string; variation: number }) => {
+      const halfSize = id === "LandingLights" ? 0.1 : 0.5;
+      const longPanel = id === "UmojanLabWallConsoles";
+      const halfWidth = longPanel ? 2.12 + variation * 0.03 : halfSize;
+      const halfDepth = longPanel ? (variation === 2 ? 2.25 : 0.65) : halfSize;
+      const pivot = longPanel ? variation * 0.12 : 0;
+      return {
+        actor: { id },
+        variation,
+        variants: longPanel ? ["monitor_00.m3", "monitor_01.m3", "monitor_02.m3"] : [],
+        measured: {
+          measurement: {
+            center: [0, 0, 0.5],
+            bounds: {
+              min: [pivot - halfWidth, -halfDepth, 0],
+              max: [pivot + halfWidth, halfDepth, 1],
+            },
+            dimensions: { width: 2 * halfWidth, depth: 2 * halfDepth, height: 1 },
+          },
+        },
+      };
+    },
+    catalog: { pack: async () => ({ sections: { decor: [] } }) },
+  } as unknown as DecorPalette;
+  const built = await structureObjects(structures, mock, (p) => ({
+    ...p,
+    z: p.x >= deck.minX && p.x <= deck.maxX && p.y >= deck.minY && p.y <= deck.maxY ? 6 : 4,
+  }));
+  assert.equal(built.roomCompositions.length, 5);
+  const chamber = built.roomCompositions.find(({ activity }) => activity === "containment")!;
+  assert.equal(chamber.fitted[0].actor, "UmojanLabZergChamberLarge");
+  assert.equal(chamber.fitted[0].position.z, 4);
+  assert.ok(chamber.workApproach);
+  assert.ok(chamber.secondaryApproach);
+  const lowerBench = chamber.fitted.find(({ slot }) => slot === "labBench")!;
+  assert.equal(lowerBench.actor, "UmojanLabDissectionTable");
+  assert.equal(lowerBench.position.z, 4);
+  const lowerConsole = chamber.fitted.find(({ slot }) => slot === "console")!;
+  assert.equal(lowerConsole.position.z, 4);
+  const analysis = chamber.fitted.filter(({ slot }) => slot === "analysisConsole");
+  assert.equal(analysis.length, 3);
+  assert.ok(analysis.every(({ actor }) => actor === "UmojanLabWallConsoles"));
+  assert.deepEqual(
+    analysis.map(({ variation }) => variation),
+    [0, 1, 0],
+  );
+  const low = across === "x" ? "minX" : "minY";
+  const high = across === "x" ? "maxX" : "maxY";
+  const bank = analysis.map(({ operator }) => operator!.footprint).sort((a, b) => a[low] - b[low]);
+  const bankWidth = bank.at(-1)![high] - bank[0][low];
+  assert.ok(bankWidth > (deck[high] - deck[low]) * 0.9);
+  for (let i = 1; i < bank.length; i++)
+    assert.ok(Math.abs(bank[i][low] - bank[i - 1][high] - 0.2) < 1e-6);
+  const sideConsoles = chamber.fitted.filter(({ slot }) => slot === "sideConsole");
+  assert.equal(sideConsoles.length, 2);
+  assert.ok(
+    sideConsoles.every(
+      ({ actor, position }) =>
+        actor === "UmojanLabMonitorFloor" &&
+        position.z === 6 &&
+        Math.abs(position[across] - stair.at) > Math.abs(analysis[0].position[across] - stair.at),
+    ),
+  );
+  const chamberSpace = structures.facility.spaces.find(({ id }) => id === chamber.space)!;
+  const { position: anchor, rotation } = chamber.fitted[0];
+  const center = chamberSpace.center;
+  const towardInterior =
+    (center.x - anchor.x) * Math.sin(rotation) - (center.y - anchor.y) * Math.cos(rotation);
+  assert.ok(towardInterior > 0 && Math.abs(Math.sin(2 * rotation)) < 1e-6);
+  assert.ok((anchor[across] - center[across]) * (lowerBench.position[across] - center[across]) < 0);
+  const rearAxis = across === "x" ? "y" : "x";
+  assert.ok(
+    (anchor[rearAxis] - center[rearAxis]) *
+      (stair.direction === "north" || stair.direction === "east" ? 1 : -1) >
+      0,
+  );
+  assert.ok(analysis.every(({ position }) => position.z === 6));
+  assert.equal(
+    new Set(analysis.map(({ position }) => (across === "x" ? position.y : position.x))).size,
+    1,
+  );
+  assert.equal(chamber.stairLights.length, 2);
+  assert.deepEqual(
+    chamber.stairLights.map((pair) => pair[0].z),
+    [4, 6],
+  );
+  for (const [left, right] of chamber.stairLights) {
+    assert.equal(left.z, right.z);
+    assert.ok(Math.abs((left[across] + right[across]) / 2 - stair.at) < 1e-6);
+  }
+  assert.ok(built.roomCompositions.find(({ activity }) => activity === "briefing")?.workApproach);
+  assert.ok(built.roomCompositions.every(({ fit }) => fit === "placed"));
+  const power = built.roomCompositions.find(({ activity }) => activity === "power")!;
+  assert.equal(power.lightRuns.length, 0);
+  assert.equal(power.stairLights.length, 0);
+  assert.ok(power.fitted.every(({ slot }) => slot !== "pathLight"));
+  assert.ok(chamber.lightRuns.length + chamber.entryLights.length > 0);
+  assert.ok(chamber.fitted.filter(({ slot }) => slot === "sampleStation").length >= 4);
+  assert.ok(chamber.fitted.some(({ slot }) => slot === "sampleAux"));
+  const gallery = built.roomCompositions.find(({ activity }) => activity === "circulation")!;
+  const gallerySpace = structures.facility.spaces.find(({ id }) => id === gallery.space)!;
+  const tallGallery = gallerySpace.height > gallerySpace.width;
+  const axis = tallGallery ? "x" : "y";
+  const roadHalfWidth = (tallGallery ? gallerySpace.width : gallerySpace.height) / 2;
+  assert.ok(gallery.galleryLights.length >= 2);
+  for (const [a, b] of gallery.galleryLights) {
+    assert.equal(a[tallGallery ? "y" : "x"], b[tallGallery ? "y" : "x"]);
+    assert.equal((a[axis] + b[axis]) / 2, gallerySpace.center[axis]);
+    assert.ok(Math.abs(a[axis] - gallerySpace.center[axis]) > roadHalfWidth);
+  }
+  assert.equal(gallery.postOutline?.length, 8);
+  assert.equal(gallery.postDecal?.actor, "Terran_Target_Splat");
+  assert.ok(built.objects.some(({ catalogId }) => catalogId === gallery.postDecal?.actor));
+  assert.ok(gallery.fitted.filter(({ slot }) => slot === "postSupply").length >= 2);
+  const caps = built.objects.filter(
+    ({ catalogId, scale }) => catalogId === terrace.faceActor && scale?.z === 0.16,
+  );
+  assert.ok(caps.length >= 2);
+  const cross = across === "x" ? "y" : "x";
+  assert.equal(new Set(caps.map(({ position }) => position[cross])).size, 1);
+  const expectedCapAngle =
+    (across === "x" ? 0 : Math.PI / 2) +
+    (stair.side === "east" || stair.side === "south" ? 0 : Math.PI);
+  assert.ok(caps.every(({ rotation }) => rotation === expectedCapAngle));
+  for (const report of built.roomCompositions) {
+    const planned = structures.facility.spaces.find(({ id }) => id === report.space)!;
+    assert.ok(planned.aisles?.length);
+    assert.deepEqual(
+      report.fitted.filter(({ slot }) => slot === "pathLight").map(({ position }) => position),
+      [
+        ...report.stairLights.flat(),
+        ...report.entryLights.flat(),
+        ...report.galleryLights.flat(),
+        ...report.lightRuns.flatMap(({ positions }) => positions),
+      ],
+    );
+    for (const { from, to, spacing, positions } of report.lightRuns) {
+      assert.ok(positions.length >= 2);
+      for (const [i, point] of positions.slice(1).entries()) {
+        const previous = positions[i];
+        const dx = point.x - previous.x,
+          dy = point.y - previous.y;
+        assert.ok(Math.abs(Math.hypot(dx, dy) - spacing) < 1e-6);
+        assert.ok(Math.abs(dx * (to.y - from.y) - dy * (to.x - from.x)) < 1e-6);
+      }
+    }
+    assert.ok(
+      report.fitted.every(
+        ({ actor }) => actor !== "UmojanLabConsoleSmall" && actor !== "UmojanLabAlarms",
+      ),
+    );
+    const consoles = report.fitted.flatMap(({ operator, position, slot }) =>
+      operator ? [{ ...operator, z: position.z, slot }] : [],
+    );
+    for (const [i, current] of consoles.entries()) {
+      const b = current.footprint,
+        a = current.approach;
+      const workingSide = {
+        north: a.minY >= b.maxY,
+        south: a.maxY <= b.minY,
+        west: a.maxX <= b.minX,
+        east: a.minX >= b.maxX,
+      };
+      assert.ok(workingSide[current.front]);
+      for (const other of consoles
+        .slice(0, i)
+        .filter((item) => Math.abs(item.z - current.z) < 0.75)) {
+        const c = other.footprint;
+        const sameBank = current.slot === "analysisConsole" && other.slot === current.slot;
+        assert.ok(
+          Math.hypot(
+            Math.max(0, b.minX - c.maxX, c.minX - b.maxX),
+            Math.max(0, b.minY - c.maxY, c.minY - b.maxY),
+          ) >=
+            (sameBank ? 0.2 : 3) - 1e-6,
+        );
+      }
+    }
+    assert.ok(
+      report.fitted.every(({ position }) =>
+        planned.aisles!.every(
+          ({ from, to, width }) => segmentDistance(position, from, to) > width / 2,
+        ),
+      ),
+    );
+  }
 });
 
 test("ladder and arcade briefs use their existing mode-specific constraints", async () => {

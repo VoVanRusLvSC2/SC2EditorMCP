@@ -129,9 +129,9 @@ Author `aisles` as `{from, to, width}` segments in the room's existing
 coordinates. Reserve the route inside doors, through divider gaps and to
 both stair landings. Fixture fitting rejects a measured prop whose horizontal
 clearance overlaps an aisle. Workstation placements use the same measurement
-and reservation rules as authored fixtures. The automatic Umojan intent uses
-workstations for sufficiently large rooms and retains conservative fittings
-for compact or raised rooms whose passages need explicit review.
+and reservation rules as authored fixtures. Automatic facilities use
+[room passports](WORLD_GENERATION.md#room-passports) and fit groups after the
+planner reserves entrances, aisles and landings.
 
 ### Room composition
 
@@ -151,10 +151,64 @@ use the same side, offset, setback and flip convention as workstations. Use
 this field for composed rooms. Ordinary workstation arrays remain available
 for independent equipment bays. Asset scaling on a focal prop also scales its
 fixture clearance. Briefing consoles stay aligned and close to the wall when
-the primary display is set farther into the room. The automatic Umojan plan
-uses focal groups in suitable
-command and unraised laboratory rooms. A raised observation deck can use an
-explicit observation focus after both stair landings and aisles are defined.
+the primary display is set farther into the room. Automatic room passports fit
+a primary and supporting stations to the same reserved space. A raised
+observation deck can use a containment passport or an explicit observation
+focus after stair landings and aisles are defined.
+
+### Umojan relay review against Lab02
+
+Counts come from the packed `Objects` reopened from
+`Deity-Relay-Command.SC2Map` and the installed `zlab02` from the survey above.
+Instances are saved `ObjectDoodad` rows. Types are distinct Actor IDs. Decal
+variations sharing an Actor ID count as one type. Coordinate ranges use inclusive
+minima and exclusive maxima. The stock samples are rectangular windows around
+named mission markers. The full original mission also includes the tram and
+spaceport.
+
+| Area | Instances | Types | Placement evidence |
+| --- | ---: | ---: | --- |
+| Relay map | 1,247 | 49 | Includes the forest and exterior. |
+| Relay complex, `[11,122) × [60,137)` | 802 | 23 | 452 wall caps, 183 tall cliff-wall pieces and 68 glass panels. The remaining 99 instances include 51 cargo props. |
+| Relay operations, 34 × 22 | 68 | 7 | 55 instances of the three shell families above, seven crates and six devices. |
+| Relay research, 42 × 36 | 138 | 14 | 118 instances of those shell families, five cargo props and 15 other props. |
+| Relay main gallery, 18 × 44 | 41 | 3 | 38 trims, two floor monitors and one power-line prop. |
+| Lab02 full mission | 1,212 | 90 | 432 `Decal` instances, 42 Umojan pillars and 68 one- or two-high wall panels. |
+| Lab02 opening laboratory and elevator approach, `[8,90) × [84,149)` | 364 | 51 | 150 `Decal` placements, 18 Umojan pillars, three large containment chambers and three Umojan floodlights. |
+| Lab02 lower containment sector, `[72,111) × [8,54)` | 101 | 34 | 20 `Decal` placements, six wall consoles, five Umojan pillars and one large containment chamber. |
+
+Review the [original laboratory corridor](https://www.gamepressure.com/starcraftiiheartoftheswarm/gfx/word/346861656.jpg)
+and [lower-level checkpoint](https://www.gamepressure.com/starcraftiiheartoftheswarm/gfx/word/346861703.jpg)
+at gameplay scale. Their open routes are framed by deep walls, large built-in
+assemblies, floor changes and local status lighting. The relay has crisp seams
+and reserved aisles. Its sparse room centers and uniformly lit gallery need
+stronger silhouettes around those open areas. Counts measure placements.
+Model scale, visibility and visual coverage require an Editor view.
+
+Use these rules when planning laboratory profiles:
+
+- Lay out the room shell as wall bays, door frames, pillars and service recesses.
+  Put the corridor's focal points at doors, junctions and turns. Keep the
+  through lane and approaches clear.
+- Give each room a large assembly tied to its purpose, then fit secondary
+  modules to the space left around its aisles. Use a display island and
+  operator positions in command, a containment chamber and monitoring
+  stations in research, and a connected cargo transfer or pipe assembly in
+  service. Scale the focal footprint or reduce the usable room depth when
+  the room stays visually empty at gameplay scale.
+- Give each working bay a floor and lighting treatment. Add low-profile
+  markings at thresholds and work areas, with local indicators at consoles
+  and gates. Verify the model or decal against the selected dependencies.
+  Use damage or emergency lighting only where the room's condition calls for it.
+- Reuse the functional roles with faction-specific assets. Umoja can use
+  paneled bays, glass, cyan instrumentation and a large containment chamber.
+  Castanar can emphasize repeated stasis and monitors. The installed
+  `thorner05s` places 32 `CastanarStasisTube`, 17
+  `CastanarStasisTubeWall` and 17 `CastanarMonitorWall` instances across the map.
+
+Review shell, functional equipment, cargo and floor detail separately in a
+wide map view and at gameplay scale. Repeated trim and cargo can account for
+most placements in a room while leaving its purpose hard to read.
 
 ### Raised laboratory bays
 

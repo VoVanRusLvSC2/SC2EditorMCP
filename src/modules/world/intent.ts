@@ -7,8 +7,21 @@ import { planIntentFacility } from "./intentFacility.js";
 import { structureLayout } from "./structures.js";
 import { readWorldStyles } from "./missionLandscape.js";
 import { planWorld, resolveWorldSpec, seedFor, worldId, worldSize, worldSpec } from "./plan.js";
+import { roomPassport } from "./workstations.js";
 
 const sector = z.enum(["north", "south", "east", "west", "center"]);
+const roomRole = facilityRole.exclude(["landing", "organic"]);
+const roomBrief = roomPassport
+  .pick({
+    activity: true,
+    density: true,
+    condition: true,
+    placement: true,
+    aisleWidth: true,
+  })
+  .partial()
+  .extend({ role: roomRole })
+  .strict();
 const zone = z
   .object({
     id: worldId,
@@ -19,7 +32,7 @@ const zone = z
     layout: z.enum(["open", "lab", "city"]).optional(),
     condition: z.literal("operational").default("operational"),
     rooms: z
-      .array(facilityRole.exclude(["landing", "organic"]))
+      .array(z.union([roomRole, roomBrief]))
       .min(1)
       .max(4)
       .optional(),
@@ -57,6 +70,7 @@ export const worldIntent = z
     dependencies: dependencySchema.optional(),
     textureBudget: z.number().int().min(1).max(64).default(64),
     decorBudget: worldSpec.shape.decorBudget,
+    decorReference: worldSpec.shape.decorReference,
   })
   .strict();
 
@@ -273,6 +287,11 @@ function resolveIntentLayout(
     seed: worldSeed,
     dependencies: intent.dependencies,
     decorBudget: intent.decorBudget,
+    decorReference:
+      intent.decorReference ??
+      (!intent.decorBudget && intent.zones.every((zone) => !zone.distinctActors)
+        ? "auto"
+        : undefined),
     starts: intent.starts,
     objective: intent.objective,
     zones: [
