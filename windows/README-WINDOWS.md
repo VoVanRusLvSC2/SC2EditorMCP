@@ -1,8 +1,12 @@
-# SC2Editor MCP for Windows x64
+# SC2EditorMCP for Windows x64
+
+SC2EditorMCP is a server for creating and editing StarCraft II maps and mods.
+Use it for procedural map generation, terrain, game Data, GUI triggers, Galaxy
+scripts, cutscenes, UI and localization. [Project overview](../README.md)
 
 The portable package uses `runtime\node.exe` with `app\dist\index.js`, or the
 `SC2-MCP.cmd` launcher. Installing npm or Node.js is unnecessary for the portable
-package. `SC2-UI-Workbench.exe` opens the optional web GUI; stdio MCP does not need it.
+package. `SC2-UI-Workbench.exe` opens the optional browser workbench.
 
 Build the optional toolbar/chat extension with `npm run ai-button:build` before
 packaging to include `SC2EditorToolkit.exe` and `modules/ai-button`. That EXE
