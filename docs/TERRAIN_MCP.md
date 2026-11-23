@@ -257,7 +257,7 @@ point predicates still require their own exact-map evidence.
 
 | Operation/profile | Supported authoring scope | Refusal or preservation boundary |
 | --- | --- | --- |
-| Native cliff strokes | Qualified v115 identity transform, two-cell grid, adjacent levels1..3, measured corner/saddle normalization | Multi-level/void or unmeasured junctions reject. Coarse outline, base heights and independent mask bits are retained. |
+| Native cliff strokes | Qualified v115 identity transform, two-cell grid, adjacent levels 0..3. Level 0/1 edges and corners use profiles measured in Steps of the Rite. | Multi-level joins and level 0 saddles reject. Coarse outline, base heights and independent mask bits are retained. |
 | Cardinal ramp creation | Measured width-four frames, native directions0..3, coherent adjacent one-level landings | Missing boundary, uneven side rails, unmeasured widths/frames and protected ramp intersections reject. |
 | Registered cliff repair | Existing registered f=1 cells using the measured fine-height/sync profile | Unregistered freeform depressions remain unchanged. Ramp contact rejects; this operation cannot infer that an intentional hole should be filled. |
 | Legacy ramp repair | Exact measured legacy frame/channel signature with the diagnosed direction mismatch | Edited or unknown channels reject; the accepted change is the direction attribute, not a guessed new mesh. |

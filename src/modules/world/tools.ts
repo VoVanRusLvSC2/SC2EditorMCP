@@ -30,7 +30,7 @@ export function registerWorldTools(
     "world.plan_intent",
     {
       description:
-        "Generate a seeded SC2 layout from a map brief: relative sectors, biomes, styles, links and room roles. Converts intent into a standard world plan for world.build. Use mirrored zone pairs and links for ladder. Mission supports automatic labs and cities.",
+        "Generate a seeded SC2 layout from a map brief: relative sectors, biomes, styles, links and room roles. Converts intent into a standard world plan for world.build. Use mirrored zone pairs and links for ladder. Mission supports laboratories, street districts, and architectural bases with role-based dressing and floor joints.",
       inputSchema: z.object({ intent: worldIntent, seed: intentSeed }).strict(),
     },
     (a) => response(world.planIntent(a.intent, a.seed)),

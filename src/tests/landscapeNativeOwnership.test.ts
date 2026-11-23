@@ -27,6 +27,23 @@ async function fixture(t:test.TestContext){
 const rect=(minX:number,minY:number,maxX:number,maxY:number)=>({type:'rectangle' as const,minX,minY,maxX,maxY});
 function zone(id='west',dx=0){return {id,config:{locationType:'custom' as const,area:{...rect(dx,0,dx+30,32),z:0},objectCount:0,terrain:{style:'city' as const,heightMode:'preserve' as const,textureMode:'preserve' as const,relief:0,topology:{cliffs:[{area:rect(dx+8,8,dx+20,24),level:2}],ramps:[{id:'entrance',center:{x:dx+22,y:15},direction:'west' as const}]}}}};}
 
+test('an owned level zero rift writes native geometry and retains the surrounding default cliff level',async t=>{
+ const f=await fixture(t),region=zone(),before=await f.terrain.state();
+ region.config.terrain.topology={cliffs:[{area:rect(10,8,16,16),level:0}],ramps:[]};
+ const input={zones:[region]};
+ await f.apply(input);
+ const after=await f.terrain.state();
+ assert.equal(after.heights.mask(12,12)&255,0);
+ assert.equal(after.heights.mask(6,6)&255,1);
+ assert.ok(Math.abs(after.heights.z(12,12)-before.heights.z(12,12)+8)<.002);
+ const sync=after.sources.get('t3SyncCliffLevel')!;
+ const edge=[(10*64+16),(10*64+17),(11*64+16),(11*64+17)];
+ assert.deepEqual(edge.map(i=>sync.readUInt16LE(32+i*2)),[0,64,0,64]);
+ assert.ok(edge.every(i=>(after.sources.get('t3CellFlags')![32+i]&1)===1));
+ const repeat=await f.terrain.ownedLandscape(input);
+ assert.ok(repeat.files.every(file=>file.changedBytes===0));
+});
+
 test('independent native regions own local cells and ramps, prepare once and repeat byte-identically',async t=>{
  const f=await fixture(t),input={zones:[zone(),zone('east',32)]},before=await f.terrain.state(),objects=await fs.readFile(path.join(f.root,'Objects'));
  const p=await f.apply(input);assert.equal(p.ownership.foundationPreparation?.changed,true);assert.deepEqual(p.ownership.topologyZones,['west','east']);

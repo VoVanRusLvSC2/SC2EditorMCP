@@ -111,7 +111,7 @@ export class WorldWorkspace {
       coverage.minimum = Math.max(coverage.minimum, campaign.decorBudget.min);
     return {
       sets,
-      generatorVersion: 36,
+      generatorVersion: 39,
       ...(structures.facility.spaces.some(
         ({ roomComposition }) => roomComposition && "activity" in roomComposition,
       )

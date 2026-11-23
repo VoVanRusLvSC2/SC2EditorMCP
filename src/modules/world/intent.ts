@@ -10,7 +10,7 @@ import { planWorld, resolveWorldSpec, seedFor, worldId, worldSize, worldSpec } f
 import { roomPassport } from "./workstations.js";
 
 const sector = z.enum(["north", "south", "east", "west", "center"]);
-const roomRole = facilityRole.exclude(["landing", "organic"]);
+const roomRole = facilityRole.exclude(["landing"]);
 const roomBrief = roomPassport
   .pick({
     activity: true,
@@ -29,7 +29,7 @@ const zone = z
     tileSet: worldId,
     sector: sector.optional(),
     style: worldId.optional(),
-    layout: z.enum(["open", "lab", "city"]).optional(),
+    layout: z.enum(["open", "lab", "city", "base"]).optional(),
     condition: z.literal("operational").default("operational"),
     rooms: z
       .array(z.union([roomRole, roomBrief]))
@@ -177,6 +177,44 @@ function resolveIntentLayout(
     locations.set(z.id, { x: width - at.x, y: height - at.y });
   }
 
+  const styleOf = (z: Zone) => z.style ?? registry.tilesets[z.tileSet]?.profile;
+  const layoutOf = (z: Zone) =>
+    z.layout ??
+    (z.biome !== "engineered"
+      ? "open"
+      : z.rooms || z.raised
+        ? "lab"
+        : styleOf(z) === "city"
+          ? "city"
+          : styleOf(z) === "interior" || z.tileSet === "UmojaEx3"
+            ? "lab"
+            : ["Aiur4City", "Slayn", "SlaynTemple"].includes(z.tileSet)
+              ? "base"
+              : "open");
+  // Compact, single-bank sites use one aligned approach and a separate floor plan.
+  const site = intent.zones.find((z) => z.id === intent.objective);
+  const start = intent.zones.find((z) => z.id === intent.starts[0]);
+  const compactSide = start?.sector && start.sector !== "center" ? start.sector : "south";
+  const compact =
+    mode === "mission" &&
+    width === 64 &&
+    height === 64 &&
+    intent.zones.length === 2 &&
+    intent.links.length === 1 &&
+    intent.links[0].kind === "route" &&
+    site?.biome === "engineered" &&
+    start?.layout === "open" &&
+    site.tileSet === start.tileSet &&
+    (site.rooms?.length ?? 4) === 4 &&
+    intent.links[0].character !== "trail" &&
+    layoutOf(site) !== "open";
+  if (compact) {
+    const axis = compactSide === "north" || compactSide === "south" ? "y" : "x";
+    const positive = compactSide === "north" || compactSide === "east";
+    locations.set(start.id, { x: 32, y: 32, [axis]: positive ? 54 : 10 });
+    locations.set(site.id, { x: 32, y: 32, [axis]: positive ? 30 : 34 });
+  }
+
   const bridges = intent.links.filter((link) => link.kind === "bridge");
   if (bridges.length > 1 && mode === "mission")
     throw Error("WORLD_INTENT_CROSSING_LIMIT: one independent river per mission");
@@ -265,19 +303,16 @@ function resolveIntentLayout(
     });
   }
 
-  const styleOf = (z: Zone) => z.style ?? registry.tilesets[z.tileSet]?.profile;
-  const layoutOf = (z: Zone) =>
-    z.layout ??
-    (z.biome !== "engineered"
-      ? "open"
-      : z.rooms || z.raised
-        ? "lab"
-        : styleOf(z) === "city"
-          ? "city"
-          : z.tileSet === "UmojaEx3"
-            ? "lab"
-            : "open");
   const campaign = mode === "mission" && intent.zones.every((z) => styleOf(z));
+  const compositionBudget =
+    campaign &&
+    !intent.decorReference &&
+    intent.zones.some(
+      ({ tileSet }) => tileSet === "BlackopsLab_A" || registry.tilesets[tileSet]?.spatial,
+    )
+      ? { min: 45, max: 65 }
+      : undefined;
+  const decorBudget = intent.decorBudget ?? compositionBudget;
   const specInput: SpecInput = {
     version: 1,
     name: intent.name,
@@ -286,12 +321,10 @@ function resolveIntentLayout(
     mode,
     seed: worldSeed,
     dependencies: intent.dependencies,
-    decorBudget: intent.decorBudget,
+    decorBudget,
     decorReference:
       intent.decorReference ??
-      (!intent.decorBudget && intent.zones.every((zone) => !zone.distinctActors)
-        ? "auto"
-        : undefined),
+      (!decorBudget && intent.zones.every((zone) => !zone.distinctActors) ? "auto" : undefined),
     starts: intent.starts,
     objective: intent.objective,
     zones: [
@@ -382,6 +415,7 @@ function resolveIntentLayout(
       seed,
       materials: entry?.materials ?? {},
       arrival: arrivals.get(z.id),
+      ...(compact && site.id === z.id ? { compactSide, topologySeed: worldSeed } : {}),
     });
     Object.assign(specInput.zones[index], facility);
   }

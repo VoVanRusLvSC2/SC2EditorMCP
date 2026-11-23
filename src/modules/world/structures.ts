@@ -13,6 +13,7 @@ import type { DecorPalette } from "../placement/decorPalette.js";
 import { areaDistance, segmentDistance, valueNoise } from "../terrain/geometry.js";
 import type { FloorJoint } from "./floorJoints.js";
 import { createRoomDresser, loadRoomRecipes } from "./roomDressing.js";
+import { wallCourseHeight, wallSections } from "./composition.js";
 import {
   facilityFace,
   facilityPassageDistance,
@@ -692,20 +693,26 @@ export async function structureObjects(
     const model = await panel(edge.style.actor);
     const length = panelLength(model);
     let sections = 0;
+    const point = (at: number) =>
+      pointOnGround(edge.vertical ? { x: edge.fixed, y: at } : { x: at, y: edge.fixed });
     for (const item of edge.spans) {
       const from = item.from - (item.from === edge.from ? edge.style.depth / 2 : 0);
       const to = item.to + (item.to === edge.to ? edge.style.depth / 2 : 0);
-      const pieces = Math.ceil((to - from) / edge.style.spacing);
-      const span = (to - from) / pieces;
-      for (let i = 0; i < pieces; i++) {
-        const at = from + (i + 0.5) * span;
-        const p = edge.vertical ? { x: edge.fixed, y: at } : { x: at, y: edge.fixed };
+      const panels = wallSections(from, to, edge.style.spacing);
+      const course = wallCourseHeight([
+        point(item.from).z,
+        ...panels.map((part) => point(part.center).z),
+        point(item.to).z,
+      ]);
+      for (const part of panels) {
+        const position = point(part.center);
+        if (course !== undefined) position.z = course;
         objects.push(
           ...wallPanels(
             model,
-            pointOnGround(p),
+            position,
             edge.vertical,
-            span + 0.025,
+            part.span + 0.025,
             length,
             edge.style.faces,
             edge.style,
@@ -714,11 +721,36 @@ export async function structureObjects(
         sections++;
       }
     }
+    let corners = 0;
+    if ("corners" in edge && edge.corners)
+      for (const corner of edge.corners) {
+        const cornerModel = await panel(corner.actor);
+        const at = pointOnGround(corner.point);
+        const size = cornerModel.measured.measurement.dimensions;
+        const span = panelLength(cornerModel);
+        objects.push(
+          fittedPanel(
+            cornerModel,
+            at,
+            false,
+            span * corner.scale,
+            span,
+            {
+              depth: Math.min(size.width, size.depth) * corner.scale,
+              height: size.height * corner.scale,
+              reverse: false,
+            },
+            corner.rotation,
+          ),
+        );
+        corners++;
+      }
     perimeterObjects.push({
       zone: edge.zone,
       side: edge.side,
       sections,
       backFaces: edge.style.faces === "double" ? sections : 0,
+      ...(corners ? { corners } : {}),
     });
   }
   const spaces = s.facility.spaces;

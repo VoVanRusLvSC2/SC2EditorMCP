@@ -405,8 +405,9 @@ Use `config.terrain.topology` inside a named location intent:
 ```
 
 The map must provide the measured v115 identity/even-grid profile and the selected
-cliff set. Cliff rectangles use the two-cell lattice and adjacent levels 1..3;
-ramps use the existing cardinal width-four donor profile. Their full native
+cliff set. Cliff rectangles use the two-cell lattice and adjacent levels 0..3.
+Level 0/1 supports the straight edges and single-corner joins measured in Steps
+of the Rite. Ramps use the existing cardinal width-four donor profile. Their full native
 coverage/halo must fit the location. Protected areas conservatively reserve their
 bounding rectangles for native cell writes. Unsupported joins, uneven ramp rails,
 opaque caches and unhandled list payload reject before staging. This does not

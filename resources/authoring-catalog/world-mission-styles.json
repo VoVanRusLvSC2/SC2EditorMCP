@@ -1,5 +1,14 @@
 {
   "profiles": {
+    "taldarim": {
+      "paint": "by_intent",
+      "cliff": "scarp",
+      "tags": [
+        "ceremonial_approach",
+        "rock_perimeter",
+        "inlaid_paving"
+      ]
+    },
     "agria": {
       "paint": "mixed",
       "cliff": "scarp",
@@ -357,43 +366,86 @@
       "roles": [
         {
           "role": "landmark",
-          "label": "Большой архитектурный акцент",
+          "label": "Dominant structure",
           "actors": [
             "Aiur_CityBuilding_Spire",
-            "Aiur_CityBuilding_Spire_Abandoned",
-            "Aiur_CityBuilding_Temple"
+            "Aiur_CityBuilding_Temple",
+            "Aiur_CityBuilding_Tower"
           ]
         },
         {
           "role": "support",
-          "label": "Архитектурная граница",
+          "label": "Supporting structure",
           "actors": [
-            "Aiur_City_Floating_Platform_Abandoned",
+            "Protoss_Base_OuterWalls",
             "Aiur_City_Floating_Platform_Disk",
-            "Aiur_City_Floating_Platform_Disk_Abandoned"
+            "Aiur_City_GenericBuilding"
           ]
         },
         {
           "role": "detail",
-          "label": "Энергетический акцент",
+          "label": "Ground-level details",
           "actors": [
-            "Aiur_GroundConsole",
-            "Aiur_GroundConsole_Abandoned",
-            "Aiur_City_Light"
+            "Aiur_City_Light",
+            "Aiur_PortLight",
+            "Aiur_GroundConsole"
           ]
         }
       ],
       "actors": [
+        "Protoss_Base_CoreMatrix",
+        "Protoss_Base_Terminals",
+        "Protoss_Base_RepairBay",
+        "Protoss_Base_Repair_Bot",
+        "Aiur_Power_Point",
+        "Aiur_PowerCrystal",
+        "Protoss_Base_GroundTrim",
+        "Protoss_Base_Railings",
+        "Aiur_City_Curb",
+        "Aiur_Plantlife",
         "AiurTree_Ex2",
-        "AiurTree_Grouped",
-        "Aiur_Archway",
-        "Aiur_Archway_Abandoned",
-        "Aiur_ChiseledRock_Brown",
-        "Aiur_ChiseledRock_Brown_Large",
-        "Aiur_CityBuilding_Tower_Abandoned",
-        "Aiur_City_Archway_Large_Abandoned"
+        "Aiur_GroundCover",
+        "Aiur_City_Pillar",
+        "Protoss_Base_OmniLights"
       ],
-      "materials": {}
+      "materials": {
+        "floor": [
+          "Aiur4City4",
+          "Aiur4City5",
+          "Aiur4City8"
+        ],
+        "path": [
+          "Aiur4City2"
+        ],
+        "accent": [
+          "Aiur4City6"
+        ],
+        "ground": [
+          "Aiur4City1"
+        ]
+      },
+      "spatial": "citadel",
+      "candidatePrefixes": [
+        "Aiur_",
+        "AiurTree",
+        "Protoss_Base_"
+      ],
+      "preferredActors": [
+        "Protoss_Base_CoreMatrix",
+        "Protoss_Base_Terminals",
+        "Protoss_Base_RepairBay",
+        "Protoss_Base_Repair_Bot",
+        "Aiur_Power_Point",
+        "Aiur_PowerCrystal",
+        "Protoss_Base_GroundTrim",
+        "Protoss_Base_Railings",
+        "Aiur_City_Curb",
+        "Aiur_Plantlife",
+        "AiurTree_Ex2",
+        "Aiur_GroundCover",
+        "Aiur_City_Pillar",
+        "Protoss_Base_OmniLights"
+      ]
     },
     "Aiur4Temple": {
       "profile": "ruin",
@@ -673,28 +725,29 @@
       "roles": [
         {
           "role": "landmark",
-          "label": "Сохранившийся ориентир",
+          "label": "Dominant structure",
           "actors": [
-            "Aiur_Stone_Temple_Doodads",
-            "Aiur_Stone_Temple_Rubble",
-            "Aiur_Temple_Bigwalls"
+            "Aiur_Stone_Temple",
+            "Aiur_Stone_Temple_Shrine",
+            "Aiur_Temple_StoneAltar"
           ]
         },
         {
           "role": "support",
-          "label": "Обломки",
+          "label": "Supporting structure",
           "actors": [
-            "Aiur_ChiseledRock_Brown",
-            "Aiur_ChiseledRock_Brown_Large",
-            "Aiur_CliffRocks_SmallRocks"
+            "Aiur_Temple_Archway",
+            "Aiur_Temple_OldWalls",
+            "Aiur_Temple_Bigwalls"
           ]
         },
         {
           "role": "detail",
-          "label": "Обрастание",
+          "label": "Ground-level details",
           "actors": [
-            "Aiur_Vines_Cliff",
-            "BelShirCliffRoots"
+            "Aiur_Temple_Small_Pillar_Destroyed",
+            "Aiur_Stone_Temple_Rubble",
+            "Aiur_Temple_BrickGroup"
           ]
         }
       ],
@@ -706,9 +759,81 @@
         "Aiur_Temple_CliffDoodads",
         "Aiur_Temple_Inlay",
         "Aiur_Temple_OldWalls",
-        "Aiur_Temple_Ruins_Set"
+        "Aiur_Temple_Ruins_Set",
+        "Aiur_Overgrowth",
+        "Aiur_GroundCover",
+        "Aiur_Plantlife",
+        "Aiur_MossClumps",
+        "Aiur_Trees_Tall",
+        "Aiur_Vines_Cliff",
+        "Aiur_Temple_Statue_ZealotBust_Crumbled",
+        "Aiur_City_Stonegate_Damaged",
+        "Aiur_City_Archway_Large_Abandoned",
+        "Aiur_City_Pillar_Destroyed",
+        "Aiur_Temple_Small_Pillar_Destroyed",
+        "Aiur_Temple_Platform",
+        "Aiur_Temple_Pillars_Broken",
+        "Aiur_Temple_Buildings_Destroyed",
+        "Aiur_City_Debris_Pile",
+        "Aiur_Trees_Log",
+        "Aiur_Trees_Log_Small",
+        "Aiur_Trees_Regular",
+        "Aiur_Trees_Regular_Grouped",
+        "Aiur_Stone_Temple_Shrine_Destroyed",
+        "Aiur_CliffDoodads_Medium_Abandoned",
+        "Aiur_Pyramid_Tower_Medium_Abandoned"
       ],
-      "materials": {}
+      "materials": {
+        "ground": [
+          "AiurTempleJungle1"
+        ],
+        "path": [
+          "AiurTempleJungle4"
+        ],
+        "scatter": [
+          "AiurTempleJungle1",
+          "AiurTempleJungle3",
+          "AiurTempleJungle4"
+        ]
+      },
+      "spatial": "temple",
+      "preferredActors": [
+        "AiurTree_Ex2",
+        "AiurTree_Grouped",
+        "Aiur_Temple_BrickGroup",
+        "Aiur_Temple_Bricks",
+        "Aiur_Temple_CliffDoodads",
+        "Aiur_Temple_Inlay",
+        "Aiur_Temple_OldWalls",
+        "Aiur_Temple_Ruins_Set",
+        "Aiur_Overgrowth",
+        "Aiur_GroundCover",
+        "Aiur_Plantlife",
+        "Aiur_MossClumps",
+        "Aiur_Trees_Tall",
+        "Aiur_Vines_Cliff",
+        "Aiur_Temple_Statue_ZealotBust_Crumbled",
+        "Aiur_City_Stonegate_Damaged",
+        "Aiur_City_Archway_Large_Abandoned",
+        "Aiur_City_Pillar_Destroyed",
+        "Aiur_Temple_Small_Pillar_Destroyed",
+        "Aiur_Temple_Platform",
+        "Aiur_Temple_Pillars_Broken",
+        "Aiur_Temple_Buildings_Destroyed",
+        "Aiur_City_Debris_Pile",
+        "Aiur_Trees_Log",
+        "Aiur_Trees_Log_Small",
+        "Aiur_Trees_Regular",
+        "Aiur_Trees_Regular_Grouped",
+        "Aiur_Stone_Temple_Shrine_Destroyed",
+        "Aiur_CliffDoodads_Medium_Abandoned",
+        "Aiur_Pyramid_Tower_Medium_Abandoned"
+      ],
+      "candidatePrefixes": [
+        "Aiur_",
+        "AiurTree",
+        "BelShirCliffRoots"
+      ]
     },
     "Avernus": {
       "profile": "platform",
@@ -1056,29 +1181,31 @@
       "roles": [
         {
           "role": "landmark",
-          "label": "Граница помещения",
+          "label": "Отсек стазиса",
           "actors": [
-            "DOM_Walls_Details_Interior",
-            "SpacePlatformWallDamage",
-            "DOM_LabGlassWalls"
+            "DOM_StasisTubeLarge",
+            "DOM_StasisTube",
+            "DOM_LabTestingFacility"
           ]
         },
         {
           "role": "support",
-          "label": "Приборный узел",
+          "label": "Консоли контроля",
           "actors": [
             "DOM_BaseMonitors",
             "DOM_LabConsoles",
-            "DOM_LabStasisTubeWalls"
+            "DOM_MonitorLabDestructible"
           ]
         },
         {
           "role": "detail",
-          "label": "Освещение и обслуживание",
+          "label": "Инженерный край",
           "actors": [
-            "SpaceDockPowerLines",
-            "CableLight",
-            "DOM_Crate"
+            "DOM_Ground_Grate",
+            "DOM_LabFloodLight",
+            "Korhal_Platform_Hatches",
+            "DOM_GroundTrims",
+            "LandingLights"
           ]
         }
       ],
@@ -1092,7 +1219,84 @@
         "DesertPlanetLandingLight",
         "ExhaustPipes"
       ],
-      "materials": {}
+      "materials": {
+        "floor": [
+          "BlackOpsLabA6",
+          "BlackOpsLabA4",
+          "BlackOpsLabA7"
+        ],
+        "path": [
+          "BlackOpsLabA5"
+        ],
+        "accent": [
+          "BlackOpsLabA8",
+          "BlackOpsLabA3"
+        ]
+      },
+      "preferredActors": [
+        "DOM_LabGlassWalls",
+        "DOM_GroundTrims",
+        "DOM_Ground_Grate",
+        "DOM_Groundlights",
+        "DOM_LabConsoles",
+        "DOM_BaseMonitors",
+        "DOM_LabWallScreens",
+        "DOM_LabTable",
+        "DOM_LabTestingFacility",
+        "DOM_StasisTube",
+        "DOM_StasisTubeLarge",
+        "DOM_LabStasisTubeWalls",
+        "DOM_RoboArm_Large",
+        "DOM_HybridCapsule",
+        "DOM_VentTower",
+        "DOM_LabFloodLight",
+        "DOM_Table_WarRoom",
+        "DOM_PsiEmitter",
+        "DOM_LabCrates",
+        "DOM_Crate",
+        "DOM_GunRacks",
+        "DOM_LabVehicleFacility",
+        "DOM_Rocket",
+        "DOM_RocketPallet",
+        "DOM_Walkways",
+        "DOM_Walls_Details_Interior",
+        "DOM_Walls_Corners_Interior",
+        "DOM_WallCap",
+        "DOM_Walls_Caps_Interior",
+        "DOM_CliffStructures",
+        "DOM_MonitorLabDestructible",
+        "SpaceDockEquipment",
+        "SpaceDockPowerLines",
+        "GenericSpacePipes",
+        "PipesSmallLong",
+        "ExhaustPipes",
+        "LandingLights",
+        "DesertPlanetLandingLight",
+        "Korhal_Platform_Pipes",
+        "Korhal_Platform_Hatches",
+        "Korhal_SpacePort_Hose",
+        "Korhal_SpacePort_Container",
+        "OilPuddle",
+        "WaterPuddle",
+        "MilitarySupplies",
+        "UmojanLabDissectionArm",
+        "UmojanLabConsoleSmall",
+        "MoebiusLab_MonitorWall",
+        "MoebiusLabConsoles",
+        "MoebiusLabFloodLight",
+        "SpacePrisonPlatformHose",
+        "CableLight",
+        "Floodlight"
+      ],
+      "candidatePrefixes": [
+        "DOM_",
+        "MoebiusLab",
+        "SpaceDock",
+        "Korhal_Platform_",
+        "Korhal_SpacePort_",
+        "PipesSmall"
+      ],
+      "spatial": "annex"
     },
     "BlackopsLab_B": {
       "profile": "interior",
@@ -1984,43 +2188,90 @@
       "roles": [
         {
           "role": "landmark",
-          "label": "Фасад или башня",
+          "label": "Dominant structure",
           "actors": [
-            "DefendersCity_Building_Municipal",
-            "DefendersCity_Buildings_Industrial",
-            "DefendersCity_Buildings_IndustrialDestroyed"
+            "KorhalBuildingsMedium",
+            "PortCity_Downtown_Building",
+            "Korhal_Residential_Building"
           ]
         },
         {
           "role": "support",
-          "label": "Маршрут",
+          "label": "Supporting structure",
           "actors": [
-            "DefendersCity_SkyBridges",
-            "DefendersCity_SkyBridges_Group",
-            "DefendersCity_StreetLight"
+            "Korhal_Curbs",
+            "PortCity_StreetLightPost",
+            "KorhalStreet_Props"
           ]
         },
         {
           "role": "detail",
-          "label": "Площадь",
+          "label": "Ground-level details",
           "actors": [
-            "DefendersCity_Museum_Banner",
+            "PortCity_Garden_Plants",
             "KorhalTopiary",
-            "PortCity_Fountain"
+            "PortCity_Bench"
           ]
         }
       ],
       "actors": [
-        "AiurTree_Ex2",
-        "Aiur_Tree_Large",
-        "Blast_Craters_Big",
-        "BraxisAlphaBarrels",
-        "ChainLinkFencePost",
-        "ChainLinkFenceStraight",
-        "CivilianCars",
-        "DOM_Crate"
+        "KorhalBuilding",
+        "KorhalSkyScrapersMedium",
+        "Korhal_CorporateSignage",
+        "Korhal_Manhole",
+        "PortCity_BuildingRound",
+        "PortCity_SubwayEntrance",
+        "PortCity_Fountain",
+        "PortCity_Statue",
+        "PortCity_Trims",
+        "DefendersCity_GreenBelt",
+        "DefendersCity_Wall_Municipal",
+        "DefendersCity_Building_Municipal",
+        "DefendersCity_Buildings_Industrial",
+        "DefendersCity_Buildings_Pipes_Tanks_Industrial",
+        "PortCity_StreetSigns",
+        "PortCity_GroundLights",
+        "Korhal_SpacePort_LuggageTruck",
+        "Korhal_SpacePort_Container",
+        "Korhal_FuelTank",
+        "Korhal_Platform_Pipes",
+        "SpaceDockEquipment"
       ],
-      "materials": {}
+      "materials": {},
+      "spatial": "streets",
+      "preferredActors": [
+        "KorhalBuilding",
+        "KorhalSkyScrapersMedium",
+        "Korhal_CorporateSignage",
+        "Korhal_Manhole",
+        "PortCity_BuildingRound",
+        "PortCity_SubwayEntrance",
+        "PortCity_Fountain",
+        "PortCity_Statue",
+        "PortCity_Trims",
+        "DefendersCity_GreenBelt",
+        "DefendersCity_Wall_Municipal",
+        "DefendersCity_Building_Municipal",
+        "DefendersCity_Buildings_Industrial",
+        "DefendersCity_Buildings_Pipes_Tanks_Industrial",
+        "PortCity_StreetSigns",
+        "PortCity_GroundLights",
+        "Korhal_SpacePort_LuggageTruck",
+        "Korhal_SpacePort_Container",
+        "Korhal_FuelTank",
+        "Korhal_Platform_Pipes",
+        "SpaceDockEquipment"
+      ],
+      "candidatePrefixes": [
+        "Korhal",
+        "PortCity",
+        "DefendersCity",
+        "Road",
+        "LandingLights",
+        "SpaceDock",
+        "CityBuilding",
+        "CityBillboards"
+      ]
     },
     "DesertWorld": {
       "profile": "desert",
@@ -2907,41 +3158,54 @@
       "roles": [
         {
           "role": "landmark",
-          "label": "Фасад или башня",
+          "label": "Dominant structure",
           "actors": [
-            "KorhalBuilding",
-            "KorhalBuildingWrecked",
-            "KorhalBuildingWreckedSmall"
+            "KorhalBuildingsMedium",
+            "PortCity_Downtown_Building",
+            "Korhal_Residential_Building"
           ]
         },
         {
           "role": "support",
-          "label": "Маршрут",
+          "label": "Supporting structure",
           "actors": [
-            "KorhalBridge",
-            "KorhalBridgeDestroyed",
-            "KorhalBridgeLong"
+            "Korhal_Curbs",
+            "PortCity_StreetLightPost",
+            "KorhalStreet_Props"
           ]
         },
         {
           "role": "detail",
-          "label": "Площадь",
+          "label": "Ground-level details",
           "actors": [
-            "KorhalLoneMarineStatue",
-            "KorhalWraithSquadronStatue",
-            "KorhalTopiary"
+            "PortCity_Garden_Plants",
+            "KorhalTopiary",
+            "PortCity_Bench"
           ]
         }
       ],
       "actors": [
-        "KorhalStoreFront",
-        "KorhalRedCarpet",
-        "MengskStatueAloneCreep",
-        "MengskStatueAloneDoodad",
-        "MengskStatueCreep",
-        "WolfStatueDoodad",
-        "BridgeOrdinalFootprint",
-        "Bush"
+        "KorhalBuilding",
+        "KorhalSkyScrapersMedium",
+        "Korhal_CorporateSignage",
+        "Korhal_Manhole",
+        "PortCity_BuildingRound",
+        "PortCity_SubwayEntrance",
+        "PortCity_Fountain",
+        "PortCity_Statue",
+        "PortCity_Trims",
+        "DefendersCity_GreenBelt",
+        "DefendersCity_Wall_Municipal",
+        "DefendersCity_Building_Municipal",
+        "DefendersCity_Buildings_Industrial",
+        "DefendersCity_Buildings_Pipes_Tanks_Industrial",
+        "PortCity_StreetSigns",
+        "PortCity_GroundLights",
+        "Korhal_SpacePort_LuggageTruck",
+        "Korhal_SpacePort_Container",
+        "Korhal_FuelTank",
+        "Korhal_Platform_Pipes",
+        "SpaceDockEquipment"
       ],
       "materials": {
         "ground": [
@@ -2959,47 +3223,96 @@
         "accent": [
           "Korhal7"
         ]
-      }
+      },
+      "spatial": "streets",
+      "preferredActors": [
+        "KorhalBuilding",
+        "KorhalSkyScrapersMedium",
+        "Korhal_CorporateSignage",
+        "Korhal_Manhole",
+        "PortCity_BuildingRound",
+        "PortCity_SubwayEntrance",
+        "PortCity_Fountain",
+        "PortCity_Statue",
+        "PortCity_Trims",
+        "DefendersCity_GreenBelt",
+        "DefendersCity_Wall_Municipal",
+        "DefendersCity_Building_Municipal",
+        "DefendersCity_Buildings_Industrial",
+        "DefendersCity_Buildings_Pipes_Tanks_Industrial",
+        "PortCity_StreetSigns",
+        "PortCity_GroundLights",
+        "Korhal_SpacePort_LuggageTruck",
+        "Korhal_SpacePort_Container",
+        "Korhal_FuelTank",
+        "Korhal_Platform_Pipes",
+        "SpaceDockEquipment"
+      ],
+      "candidatePrefixes": [
+        "Korhal",
+        "PortCity",
+        "DefendersCity",
+        "Road",
+        "LandingLights",
+        "SpaceDock",
+        "CityBuilding",
+        "CityBillboards"
+      ]
     },
     "KorhalCity": {
       "profile": "city",
       "roles": [
         {
           "role": "landmark",
-          "label": "Фасад или башня",
+          "label": "Dominant structure",
           "actors": [
-            "KorhalDestroyedBuilding",
-            "KorhalSkyScrapers",
-            "KorhalSkyScrapersLarge"
+            "KorhalBuildingsMedium",
+            "PortCity_Downtown_Building",
+            "Korhal_Residential_Building",
+            "PortCity_BuildingRound"
           ]
         },
         {
           "role": "support",
-          "label": "Маршрут",
+          "label": "Supporting structure",
           "actors": [
-            "KorhalBridge",
-            "KorhalBridgeDestroyed",
-            "KorhalBridgeLong"
+            "Korhal_Curbs",
+            "PortCity_StreetLightPost",
+            "KorhalStreet_Props"
           ]
         },
         {
           "role": "detail",
-          "label": "Площадь",
+          "label": "Ground-level details",
           "actors": [
+            "PortCity_Garden_Plants",
             "KorhalTopiary",
-            "MengskStatueAloneCreep"
+            "PortCity_Bench"
           ]
         }
       ],
       "actors": [
-        "KorhalRedCarpet",
-        "KorhalMengskSymbol",
+        "KorhalBuilding",
         "KorhalSkyScrapersMedium",
-        "KorhalSkyScrapersSmall",
-        "BelShirTree",
-        "BraxisAlphaFloodLights",
-        "ChainLinkFenceDiagonal",
-        "CityBuilding"
+        "Korhal_CorporateSignage",
+        "Korhal_Manhole",
+        "PortCity_BuildingRound",
+        "PortCity_SubwayEntrance",
+        "PortCity_Fountain",
+        "PortCity_Statue",
+        "PortCity_Trims",
+        "DefendersCity_GreenBelt",
+        "DefendersCity_Wall_Municipal",
+        "DefendersCity_Building_Municipal",
+        "DefendersCity_Buildings_Industrial",
+        "DefendersCity_Buildings_Pipes_Tanks_Industrial",
+        "PortCity_StreetSigns",
+        "PortCity_GroundLights",
+        "Korhal_SpacePort_LuggageTruck",
+        "Korhal_SpacePort_Container",
+        "Korhal_FuelTank",
+        "Korhal_Platform_Pipes",
+        "SpaceDockEquipment"
       ],
       "materials": {
         "ground": [
@@ -3013,50 +3326,136 @@
           "KorhalCity4"
         ],
         "accent": [
-          "KorhalCity8"
+          "KorhalCity6"
+        ],
+        "path": [
+          "KorhalCity5"
         ]
-      }
+      },
+      "spatial": "streets",
+      "preferredActors": [
+        "KorhalBuilding",
+        "KorhalSkyScrapersMedium",
+        "Korhal_CorporateSignage",
+        "Korhal_Manhole",
+        "PortCity_BuildingRound",
+        "PortCity_SubwayEntrance",
+        "PortCity_Fountain",
+        "PortCity_Statue",
+        "PortCity_Trims",
+        "DefendersCity_GreenBelt",
+        "DefendersCity_Wall_Municipal",
+        "DefendersCity_Building_Municipal",
+        "DefendersCity_Buildings_Industrial",
+        "DefendersCity_Buildings_Pipes_Tanks_Industrial",
+        "PortCity_StreetSigns",
+        "PortCity_GroundLights",
+        "Korhal_SpacePort_LuggageTruck",
+        "Korhal_SpacePort_Container",
+        "Korhal_FuelTank",
+        "Korhal_Platform_Pipes",
+        "SpaceDockEquipment"
+      ],
+      "candidatePrefixes": [
+        "Korhal",
+        "PortCity",
+        "DefendersCity",
+        "Road",
+        "LandingLights",
+        "SpaceDock",
+        "CityBuilding",
+        "CityBillboards"
+      ]
     },
     "KorhalCityEx2": {
       "profile": "city",
       "roles": [
         {
           "role": "landmark",
-          "label": "Фасад или башня",
+          "label": "Dominant structure",
           "actors": [
-            "KorhalBuildingDebris",
             "KorhalBuildingsMedium",
-            "KorhalDestroyedBuilding"
+            "PortCity_Downtown_Building",
+            "Korhal_Residential_Building"
           ]
         },
         {
           "role": "support",
-          "label": "Маршрут",
+          "label": "Supporting structure",
           "actors": [
-            "KorhalStreet_Props",
-            "RoadCornerStraight",
-            "RoadDestroyedCornerDiagonal"
+            "Korhal_Curbs",
+            "PortCity_StreetLightPost",
+            "KorhalStreet_Props"
           ]
         },
         {
           "role": "detail",
-          "label": "Площадь",
+          "label": "Ground-level details",
           "actors": [
-            "KorhalTopiary"
+            "PortCity_Garden_Plants",
+            "KorhalTopiary",
+            "PortCity_Bench"
           ]
         }
       ],
       "actors": [
-        "Blast_Craters",
-        "Blast_Craters_Big",
-        "ColonistVehicleAbandoned",
-        "GenericFire_Large",
-        "GenericFire_Large_Long",
-        "GenericFire_Medium",
-        "GenericFire_Medium_Area",
-        "GenericFire_Medium_Long"
+        "KorhalBuilding",
+        "KorhalSkyScrapersMedium",
+        "Korhal_CorporateSignage",
+        "Korhal_Manhole",
+        "PortCity_BuildingRound",
+        "PortCity_SubwayEntrance",
+        "PortCity_Fountain",
+        "PortCity_Statue",
+        "PortCity_Trims",
+        "DefendersCity_GreenBelt",
+        "DefendersCity_Wall_Municipal",
+        "DefendersCity_Building_Municipal",
+        "DefendersCity_Buildings_Industrial",
+        "DefendersCity_Buildings_Pipes_Tanks_Industrial",
+        "PortCity_StreetSigns",
+        "PortCity_GroundLights",
+        "Korhal_SpacePort_LuggageTruck",
+        "Korhal_SpacePort_Container",
+        "Korhal_FuelTank",
+        "Korhal_Platform_Pipes",
+        "SpaceDockEquipment"
       ],
-      "materials": {}
+      "materials": {},
+      "spatial": "streets",
+      "preferredActors": [
+        "KorhalBuilding",
+        "KorhalSkyScrapersMedium",
+        "Korhal_CorporateSignage",
+        "Korhal_Manhole",
+        "PortCity_BuildingRound",
+        "PortCity_SubwayEntrance",
+        "PortCity_Fountain",
+        "PortCity_Statue",
+        "PortCity_Trims",
+        "DefendersCity_GreenBelt",
+        "DefendersCity_Wall_Municipal",
+        "DefendersCity_Building_Municipal",
+        "DefendersCity_Buildings_Industrial",
+        "DefendersCity_Buildings_Pipes_Tanks_Industrial",
+        "PortCity_StreetSigns",
+        "PortCity_GroundLights",
+        "Korhal_SpacePort_LuggageTruck",
+        "Korhal_SpacePort_Container",
+        "Korhal_FuelTank",
+        "Korhal_Platform_Pipes",
+        "SpaceDockEquipment"
+      ],
+      "candidatePrefixes": [
+        "Korhal",
+        "PortCity",
+        "DefendersCity",
+        "Road",
+        "LandingLights",
+        "SpaceDock",
+        "CityBuilding",
+        "CityBillboards"
+      ]
     },
     "KorhalEx1": {
       "profile": "city",
@@ -3118,7 +3517,7 @@
       }
     },
     "KorhalOutskirts": {
-      "profile": "outskirts",
+      "profile": "city",
       "roles": [
         {
           "role": "landmark",
@@ -3171,10 +3570,11 @@
           "KorhalOutskirts2",
           "KorhalOutskirts3"
         ]
-      }
+      },
+      "spatial": "streets"
     },
     "KorhalPlatform": {
-      "profile": "platform",
+      "profile": "city",
       "roles": [
         {
           "role": "landmark",
@@ -3219,10 +3619,11 @@
           "KorhalPlatform2",
           "KorhalPlatform3"
         ]
-      }
+      },
+      "spatial": "streets"
     },
     "KorhalPlatformEx2": {
-      "profile": "platform",
+      "profile": "city",
       "roles": [
         {
           "role": "landmark",
@@ -3267,7 +3668,8 @@
           "KorhalPlatformEx2_2",
           "KorhalPlatformEx2_3"
         ]
-      }
+      },
+      "spatial": "streets"
     },
     "KorhalWastes": {
       "profile": "outskirts",
@@ -3980,43 +4382,90 @@
       "roles": [
         {
           "role": "landmark",
-          "label": "Фасад или башня",
+          "label": "Dominant structure",
           "actors": [
-            "PortCity_BuildingRound",
-            "PortCity_BuildingRound_Destroyed",
-            "PortCity_Building_Foundation"
+            "KorhalBuildingsMedium",
+            "PortCity_Downtown_Building",
+            "Korhal_Residential_Building"
           ]
         },
         {
           "role": "support",
-          "label": "Маршрут",
+          "label": "Supporting structure",
           "actors": [
-            "PortCity_Bridge",
-            "PortCity_Bridge_Destroyed",
-            "PortCity_StreetAlarms"
+            "Korhal_Curbs",
+            "PortCity_StreetLightPost",
+            "KorhalStreet_Props"
           ]
         },
         {
           "role": "detail",
-          "label": "Площадь",
+          "label": "Ground-level details",
           "actors": [
-            "PortCity_Fountain",
-            "PortCity_Fountain_Destroyed",
-            "PortCity_Garden_PlantsTopiary"
+            "PortCity_Garden_Plants",
+            "KorhalTopiary",
+            "PortCity_Bench"
           ]
         }
       ],
       "actors": [
-        "BelShirFoliage",
-        "Blast_Craters",
-        "ChainLinkFencePost",
-        "ChainLinkFenceStraight",
-        "ColonistVehicleAbandoned",
-        "DOM_Crate",
-        "Elsecaro_Civilian_Car",
-        "Elsecaro_Civilian_Car_Orange"
+        "KorhalBuilding",
+        "KorhalSkyScrapersMedium",
+        "Korhal_CorporateSignage",
+        "Korhal_Manhole",
+        "PortCity_BuildingRound",
+        "PortCity_SubwayEntrance",
+        "PortCity_Fountain",
+        "PortCity_Statue",
+        "PortCity_Trims",
+        "DefendersCity_GreenBelt",
+        "DefendersCity_Wall_Municipal",
+        "DefendersCity_Building_Municipal",
+        "DefendersCity_Buildings_Industrial",
+        "DefendersCity_Buildings_Pipes_Tanks_Industrial",
+        "PortCity_StreetSigns",
+        "PortCity_GroundLights",
+        "Korhal_SpacePort_LuggageTruck",
+        "Korhal_SpacePort_Container",
+        "Korhal_FuelTank",
+        "Korhal_Platform_Pipes",
+        "SpaceDockEquipment"
       ],
-      "materials": {}
+      "materials": {},
+      "spatial": "streets",
+      "preferredActors": [
+        "KorhalBuilding",
+        "KorhalSkyScrapersMedium",
+        "Korhal_CorporateSignage",
+        "Korhal_Manhole",
+        "PortCity_BuildingRound",
+        "PortCity_SubwayEntrance",
+        "PortCity_Fountain",
+        "PortCity_Statue",
+        "PortCity_Trims",
+        "DefendersCity_GreenBelt",
+        "DefendersCity_Wall_Municipal",
+        "DefendersCity_Building_Municipal",
+        "DefendersCity_Buildings_Industrial",
+        "DefendersCity_Buildings_Pipes_Tanks_Industrial",
+        "PortCity_StreetSigns",
+        "PortCity_GroundLights",
+        "Korhal_SpacePort_LuggageTruck",
+        "Korhal_SpacePort_Container",
+        "Korhal_FuelTank",
+        "Korhal_Platform_Pipes",
+        "SpaceDockEquipment"
+      ],
+      "candidatePrefixes": [
+        "Korhal",
+        "PortCity",
+        "DefendersCity",
+        "Road",
+        "LandingLights",
+        "SpaceDock",
+        "CityBuilding",
+        "CityBillboards"
+      ]
     },
     "PortCityB": {
       "profile": "city",
@@ -4826,46 +5275,171 @@
       "materials": {}
     },
     "Slayn": {
-      "profile": "ruin",
+      "profile": "taldarim",
       "roles": [
         {
           "role": "landmark",
-          "label": "Сохранившийся ориентир",
+          "label": "Dominant structure",
           "actors": [
-            "Slayn_CliffTemples",
+            "Slayn_Cliff_Temple_Entrance",
+            "Slayn_Generic_Temple",
             "Slayn_CliffTemples_Lit",
-            "Slayn_Cliff_Temple_Entrance"
+            "Slayn_Sacrificial_Altar_Big"
           ]
         },
         {
           "role": "support",
-          "label": "Обломки",
+          "label": "Supporting structure",
           "actors": [
-            "Slayn_RockCliffTall",
-            "Slayn_Temple_Pillars_Broken",
-            "Slayn_Temple_Rubble"
+            "Slayn_Temple_BigWalls",
+            "Slayn_Temple_Pillars",
+            "Slayn_CliffDoodads"
           ]
         },
         {
           "role": "detail",
-          "label": "Обрастание",
+          "label": "Ground-level details",
           "actors": [
-            "Aiur_MossClumps",
-            "Shakuras_Vines_Cliffs"
+            "Slayn_Braziers",
+            "Slayn_Brazier_Fire",
+            "Slayn_Temple_Deco"
           ]
         }
       ],
       "actors": [
-        "Aiur_Temple_Bricks",
-        "Aiur_Temple_Statue_ZealotBust_Crumbled",
-        "ChiseledRockEx1",
-        "ChiseledRockEx1Large",
-        "Slayn_Brazier_Fire",
+        "Slayn_CliffSpires",
+        "Slayn_RockCliffTall",
+        "Slayn_RockCliffShort",
+        "Slayn_Stone_Bricks_Piece",
+        "Slayn_Stone_Bricks_Crumbled",
+        "Slayn_TallGrass",
+        "Slayn_TallGrassWindy",
+        "Slayn_Weeds",
+        "Slayn_Brambles",
+        "Slayn_Banner",
+        "Slayn_Temple_BigWalls",
         "Slayn_Road_Inlay",
+        "Slayn_Temple_Inlay",
+        "Slayn_Temple_Banners",
         "Slayn_Sacrificial_Altar",
-        "Slayn_Sacrificial_Altar_Big"
+        "Slayn_Sacrificial_Altar_Big",
+        "Slayn_BrickFloor",
+        "Slayn_Statues",
+        "TheVoid_RubblePile",
+        "ChiseledRockEx1",
+        "Slayn_CliffTemples",
+        "Slayn_CliffTemples_Lit",
+        "Slayn_CliffDoodads",
+        "Slayn_Cliff_Temple_Entrance",
+        "Slayn_Generic_Temple",
+        "Slayn_GiantWalls",
+        "Slayn_Temple_Pillars",
+        "Slayn_Temple_Pillars_Broken",
+        "Slayn_Brazier_Embers",
+        "Slayn_Ramps",
+        "Slayn_Tree",
+        "Slayn_StoneDoodads",
+        "Slayn_StoneDoodads_Temple",
+        "Slayn_Temple_CliffDoodads_Small",
+        "Slayn_Temple_Banners_Slow",
+        "Slayn_Temple_Bricks_Anim",
+        "Slayn_Stone_Bricks",
+        "Slayn_Terrazine_Temple",
+        "Slayn_TerrazineGeyser",
+        "Slayn_Temple_Deco",
+        "Slayn_Temple_Rubble",
+        "Slayn_PitOfDoom",
+        "SlaynMissileTurretNoAnim",
+        "Shakuras_Temple_Pillar_Small",
+        "Shakuras_Stone_Temple_Rubble",
+        "ChiseledRockLarge",
+        "ChiseledRockEx1Large",
+        "XelNaga_Cavern_ArchPost",
+        "XelNaga_Cavern_Pillars",
+        "XelNaga_RampCover"
       ],
-      "materials": {}
+      "materials": {
+        "ground": [
+          "Slayn1",
+          "Slayn2"
+        ],
+        "path": [
+          "Slayn3"
+        ],
+        "floor": [
+          "Slayn2",
+          "Slayn5",
+          "Slayn6"
+        ],
+        "accent": [
+          "Slayn4",
+          "Slayn7"
+        ],
+        "scatter": [
+          "Slayn1",
+          "Slayn2",
+          "Slayn3",
+          "Slayn4"
+        ]
+      },
+      "spatial": "citadel",
+      "preferredActors": [
+        "Slayn_CliffSpires",
+        "Slayn_RockCliffTall",
+        "Slayn_RockCliffShort",
+        "Slayn_Stone_Bricks_Piece",
+        "Slayn_Stone_Bricks_Crumbled",
+        "Slayn_TallGrass",
+        "Slayn_TallGrassWindy",
+        "Slayn_Weeds",
+        "Slayn_Brambles",
+        "Slayn_Banner",
+        "Slayn_Temple_BigWalls",
+        "Slayn_Road_Inlay",
+        "Slayn_Temple_Inlay",
+        "Slayn_Temple_Banners",
+        "Slayn_Sacrificial_Altar",
+        "Slayn_Sacrificial_Altar_Big",
+        "Slayn_BrickFloor",
+        "Slayn_Statues",
+        "TheVoid_RubblePile",
+        "ChiseledRockEx1",
+        "Slayn_CliffTemples",
+        "Slayn_CliffTemples_Lit",
+        "Slayn_CliffDoodads",
+        "Slayn_Cliff_Temple_Entrance",
+        "Slayn_Generic_Temple",
+        "Slayn_GiantWalls",
+        "Slayn_Temple_Pillars",
+        "Slayn_Temple_Pillars_Broken",
+        "Slayn_Brazier_Embers",
+        "Slayn_Ramps",
+        "Slayn_Tree",
+        "Slayn_StoneDoodads",
+        "Slayn_StoneDoodads_Temple",
+        "Slayn_Temple_CliffDoodads_Small",
+        "Slayn_Temple_Banners_Slow",
+        "Slayn_Temple_Bricks_Anim",
+        "Slayn_Stone_Bricks",
+        "Slayn_Terrazine_Temple",
+        "Slayn_TerrazineGeyser",
+        "Slayn_Temple_Deco",
+        "Slayn_Temple_Rubble",
+        "Slayn_PitOfDoom",
+        "SlaynMissileTurretNoAnim",
+        "Shakuras_Temple_Pillar_Small",
+        "Shakuras_Stone_Temple_Rubble",
+        "ChiseledRockLarge",
+        "ChiseledRockEx1Large",
+        "XelNaga_Cavern_ArchPost",
+        "XelNaga_Cavern_Pillars",
+        "XelNaga_RampCover"
+      ],
+      "candidatePrefixes": [
+        "Slayn",
+        "TheVoid_RubblePile",
+        "ChiseledRock"
+      ]
     },
     "SlaynGrass": {
       "profile": "ruin",
@@ -4916,43 +5490,171 @@
       }
     },
     "SlaynTemple": {
-      "profile": "protoss",
+      "profile": "taldarim",
       "roles": [
         {
           "role": "landmark",
-          "label": "Большой архитектурный акцент",
+          "label": "Dominant structure",
           "actors": [
-            "RockArch",
-            "RockTower"
+            "Slayn_Cliff_Temple_Entrance",
+            "Slayn_Generic_Temple",
+            "Slayn_CliffTemples_Lit",
+            "Slayn_Sacrificial_Altar_Big"
           ]
         },
         {
           "role": "support",
-          "label": "Архитектурная граница",
+          "label": "Supporting structure",
           "actors": [
-            "CastanarMonitorWall",
-            "CastanarStasisTubeWall"
+            "Slayn_Temple_BigWalls",
+            "Slayn_Temple_Pillars",
+            "Slayn_CliffDoodads"
           ]
         },
         {
           "role": "detail",
-          "label": "Энергетический акцент",
+          "label": "Ground-level details",
           "actors": [
-            "SpacePlatformWallLight",
-            "Aiur_GroundConsole"
+            "Slayn_Braziers",
+            "Slayn_Brazier_Fire",
+            "Slayn_Temple_Deco"
           ]
         }
       ],
       "actors": [
-        "RockWaterfall",
-        "BrokenGroundEdgingWide",
-        "TaurenFlyingOutHouse",
-        "Rock",
-        "RockGiant",
-        "RockLarge",
-        "RockSmall"
+        "Slayn_CliffSpires",
+        "Slayn_RockCliffTall",
+        "Slayn_RockCliffShort",
+        "Slayn_Stone_Bricks_Piece",
+        "Slayn_Stone_Bricks_Crumbled",
+        "Slayn_TallGrass",
+        "Slayn_TallGrassWindy",
+        "Slayn_Weeds",
+        "Slayn_Brambles",
+        "Slayn_Banner",
+        "Slayn_Temple_BigWalls",
+        "Slayn_Road_Inlay",
+        "Slayn_Temple_Inlay",
+        "Slayn_Temple_Banners",
+        "Slayn_Sacrificial_Altar",
+        "Slayn_Sacrificial_Altar_Big",
+        "Slayn_BrickFloor",
+        "Slayn_Statues",
+        "TheVoid_RubblePile",
+        "ChiseledRockEx1",
+        "Slayn_CliffTemples",
+        "Slayn_CliffTemples_Lit",
+        "Slayn_CliffDoodads",
+        "Slayn_Cliff_Temple_Entrance",
+        "Slayn_Generic_Temple",
+        "Slayn_GiantWalls",
+        "Slayn_Temple_Pillars",
+        "Slayn_Temple_Pillars_Broken",
+        "Slayn_Brazier_Embers",
+        "Slayn_Ramps",
+        "Slayn_Tree",
+        "Slayn_StoneDoodads",
+        "Slayn_StoneDoodads_Temple",
+        "Slayn_Temple_CliffDoodads_Small",
+        "Slayn_Temple_Banners_Slow",
+        "Slayn_Temple_Bricks_Anim",
+        "Slayn_Stone_Bricks",
+        "Slayn_Terrazine_Temple",
+        "Slayn_TerrazineGeyser",
+        "Slayn_Temple_Deco",
+        "Slayn_Temple_Rubble",
+        "Slayn_PitOfDoom",
+        "SlaynMissileTurretNoAnim",
+        "Shakuras_Temple_Pillar_Small",
+        "Shakuras_Stone_Temple_Rubble",
+        "ChiseledRockLarge",
+        "ChiseledRockEx1Large",
+        "XelNaga_Cavern_ArchPost",
+        "XelNaga_Cavern_Pillars",
+        "XelNaga_RampCover"
       ],
-      "materials": {}
+      "materials": {
+        "ground": [
+          "Slayn1",
+          "Slayn2"
+        ],
+        "path": [
+          "Slayn3"
+        ],
+        "floor": [
+          "Slayn2",
+          "Slayn5",
+          "Slayn6"
+        ],
+        "accent": [
+          "Slayn4",
+          "Slayn7"
+        ],
+        "scatter": [
+          "Slayn1",
+          "Slayn2",
+          "Slayn3",
+          "Slayn4"
+        ]
+      },
+      "spatial": "citadel",
+      "preferredActors": [
+        "Slayn_CliffSpires",
+        "Slayn_RockCliffTall",
+        "Slayn_RockCliffShort",
+        "Slayn_Stone_Bricks_Piece",
+        "Slayn_Stone_Bricks_Crumbled",
+        "Slayn_TallGrass",
+        "Slayn_TallGrassWindy",
+        "Slayn_Weeds",
+        "Slayn_Brambles",
+        "Slayn_Banner",
+        "Slayn_Temple_BigWalls",
+        "Slayn_Road_Inlay",
+        "Slayn_Temple_Inlay",
+        "Slayn_Temple_Banners",
+        "Slayn_Sacrificial_Altar",
+        "Slayn_Sacrificial_Altar_Big",
+        "Slayn_BrickFloor",
+        "Slayn_Statues",
+        "TheVoid_RubblePile",
+        "ChiseledRockEx1",
+        "Slayn_CliffTemples",
+        "Slayn_CliffTemples_Lit",
+        "Slayn_CliffDoodads",
+        "Slayn_Cliff_Temple_Entrance",
+        "Slayn_Generic_Temple",
+        "Slayn_GiantWalls",
+        "Slayn_Temple_Pillars",
+        "Slayn_Temple_Pillars_Broken",
+        "Slayn_Brazier_Embers",
+        "Slayn_Ramps",
+        "Slayn_Tree",
+        "Slayn_StoneDoodads",
+        "Slayn_StoneDoodads_Temple",
+        "Slayn_Temple_CliffDoodads_Small",
+        "Slayn_Temple_Banners_Slow",
+        "Slayn_Temple_Bricks_Anim",
+        "Slayn_Stone_Bricks",
+        "Slayn_Terrazine_Temple",
+        "Slayn_TerrazineGeyser",
+        "Slayn_Temple_Deco",
+        "Slayn_Temple_Rubble",
+        "Slayn_PitOfDoom",
+        "SlaynMissileTurretNoAnim",
+        "Shakuras_Temple_Pillar_Small",
+        "Shakuras_Stone_Temple_Rubble",
+        "ChiseledRockLarge",
+        "ChiseledRockEx1Large",
+        "XelNaga_Cavern_ArchPost",
+        "XelNaga_Cavern_Pillars",
+        "XelNaga_RampCover"
+      ],
+      "candidatePrefixes": [
+        "Slayn",
+        "TheVoid_RubblePile",
+        "ChiseledRock"
+      ]
     },
     "SnowRefinery": {
       "profile": "refinery",
@@ -6384,9 +7086,9 @@
           "role": "detail",
           "label": "Малая группа",
           "actors": [
-            "ZerusPlantClusterLarge",
+            "ZerusPlantClusterSmall",
             "ZerusPlantClusterMedium",
-            "ZerusRockCliffShort"
+            "ZerusTallGrassCluster"
           ]
         }
       ],
@@ -6398,7 +7100,59 @@
         "ZerusRockCliffTall",
         "ZerusRockLarge",
         "ZerusTree",
-        "ZerusBrambles"
+        "ZerusBrambles",
+        "ZerusChrysalisEggBase",
+        "ZerusChrysalisSpike",
+        "ZerusSwampPlants",
+        "ZerusSwampPlantsLarge",
+        "ZerusDeadlyPlant",
+        "ZerusTallGrassCluster",
+        "ZerusOrganicSpire",
+        "ZerusWaterPlant",
+        "ZerusTarPit",
+        "ZergBonePileMedium",
+        "CharBlisterEgg",
+        "CharHorn",
+        "ZerusCave",
+        "ZerusRockCliffMedium",
+        "ZerusCurtain",
+        "ZerusLargeVines",
+        "ZerusCliffVines",
+        "ZerusBubble",
+        "ZerusGroundVines",
+        "ZerusLavaGroundSpire",
+        "ZerusWaterfall",
+        "Aiur_Zerg_Ribs",
+        "Aiur_Zerg_Intestines",
+        "ZergWallDecorTwoHigh",
+        "ZergCurbs",
+        "Aiur_Zerg_GlowingPods",
+        "CharCrystal",
+        "CharCrystalLarge",
+        "MarSaraBones",
+        "MarSaraSkeletonLarge",
+        "MammothFossils",
+        "ZergBonePileLarge",
+        "Bonepile",
+        "DeadPrimalisk",
+        "AiurUnderbrush",
+        "Brambles",
+        "CharRibs",
+        "CharSpineLarge",
+        "CharWeed",
+        "CliffZerusRockTall",
+        "CreepWeb",
+        "GroundCracks",
+        "Spires",
+        "TarBubble",
+        "Vines",
+        "ZergBonePileSmall",
+        "ZergedCombs",
+        "ZerusLargeTree",
+        "ZerusPlant",
+        "ZerusPlantClusterLarge",
+        "ZerusPlantClusterMedium",
+        "ZerusRockCliffShort"
       ],
       "materials": {
         "ground": [
@@ -6408,8 +7162,87 @@
         ],
         "accent": [
           "Zerus4"
+        ],
+        "path": [
+          "Zerus2"
+        ],
+        "scatter": [
+          "Zerus1",
+          "Zerus5",
+          "Zerus7",
+          "Zerus3"
         ]
-      }
+      },
+      "spatial": "groves",
+      "preferredActors": [
+        "CliffZerusRockShort",
+        "ZerusLargeTreeShadow",
+        "ZerusPlantClusterSmall",
+        "ZerusPlantlife",
+        "ZerusRockCliffTall",
+        "ZerusRockLarge",
+        "ZerusTree",
+        "ZerusBrambles",
+        "ZerusChrysalisEggBase",
+        "ZerusChrysalisSpike",
+        "ZerusSwampPlants",
+        "ZerusSwampPlantsLarge",
+        "ZerusDeadlyPlant",
+        "ZerusTallGrassCluster",
+        "ZerusOrganicSpire",
+        "ZerusWaterPlant",
+        "ZerusTarPit",
+        "ZergBonePileMedium",
+        "CharBlisterEgg",
+        "CharHorn",
+        "ZerusCave",
+        "ZerusRockCliffMedium",
+        "ZerusCurtain",
+        "ZerusLargeVines",
+        "ZerusCliffVines",
+        "ZerusBubble",
+        "ZerusGroundVines",
+        "ZerusLavaGroundSpire",
+        "ZerusWaterfall",
+        "Aiur_Zerg_Ribs",
+        "Aiur_Zerg_Intestines",
+        "ZergWallDecorTwoHigh",
+        "ZergCurbs",
+        "Aiur_Zerg_GlowingPods",
+        "CharCrystal",
+        "CharCrystalLarge",
+        "MarSaraBones",
+        "MarSaraSkeletonLarge",
+        "MammothFossils",
+        "ZergBonePileLarge",
+        "Bonepile",
+        "DeadPrimalisk",
+        "AiurUnderbrush",
+        "Brambles",
+        "CharRibs",
+        "CharSpineLarge",
+        "CharWeed",
+        "CliffZerusRockTall",
+        "CreepWeb",
+        "GroundCracks",
+        "Spires",
+        "TarBubble",
+        "Vines",
+        "ZergBonePileSmall",
+        "ZergedCombs",
+        "ZerusLargeTree",
+        "ZerusPlant",
+        "ZerusPlantClusterLarge",
+        "ZerusPlantClusterMedium",
+        "ZerusRockCliffShort"
+      ],
+      "candidatePrefixes": [
+        "Zerus",
+        "CliffZerus",
+        "CharBlister",
+        "CharHorn",
+        "ZergBonePile"
+      ]
     },
     "ZhakulDas": {
       "profile": "ruin",

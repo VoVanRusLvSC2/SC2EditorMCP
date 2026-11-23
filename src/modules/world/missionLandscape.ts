@@ -9,6 +9,7 @@ import { facilityPassageDistance, facilitySpaceDistance } from "./facility.js";
 
 type PaintMode = "blend" | "hard_zones" | "mixed" | "by_intent";
 type CliffShape = "ellipse" | "volcanic" | "ridge" | "terrace" | "scarp" | "none";
+type SpatialStyle = "streets" | "groves" | "temple" | "citadel" | "annex";
 export interface DecorRole {
   role: string;
   label: string;
@@ -16,6 +17,7 @@ export interface DecorRole {
 }
 interface StyleEntry {
   profile: string;
+  spatial?: SpatialStyle;
   cliffSet?: string;
   roles: DecorRole[];
   actors: string[];
@@ -81,6 +83,7 @@ export function planCampaignLandscape(
       id: zone.id,
       profile,
       style: preset.paint,
+      spatial: use?.spatial,
       shape: preset.cliff,
       tags: preset.tags,
       roles: use?.roles ?? [],
@@ -123,6 +126,7 @@ export function planCampaignLandscape(
     const random = (n: number) => (1 + valueNoise(n, 0, seed)) / 2;
     const blocks = layout.blocks.flatMap((owner, i) => (owner === index ? [i] : []));
     const columns = spec.width / 8;
+    const compact = Math.min(spec.width, spec.height) <= 80;
     const count = zone.shape === "volcanic" && blocks.length >= 80 ? 2 : 1;
     for (let slot = 0; slot < count; slot++)
       for (let attempt = 0; attempt < 90; attempt++) {
@@ -130,11 +134,14 @@ export function planCampaignLandscape(
         const block = blocks[Math.min(blocks.length - 1, Math.floor(random(n) * blocks.length))];
         const x = (block % columns) * 8 + 4,
           y = Math.floor(block / columns) * 8 + 4;
-        const rx = 8 + 2 * Math.floor(5 * random(n + 1));
-        const ry =
+        const size = (radius: number) =>
+          compact ? Math.max(4, 2 * Math.floor(radius / 3)) : radius;
+        const rx = size(8 + 2 * Math.floor(5 * random(n + 1)));
+        const ry = size(
           zone.shape === "ridge"
             ? 6 + 2 * Math.floor(3 * random(n + 2))
-            : 8 + 2 * Math.floor(4 * random(n + 2));
+            : 8 + 2 * Math.floor(4 * random(n + 2)),
+        );
         const points = [];
         for (let yy = y - ry - 2; yy <= y + ry + 2; yy += 2)
           for (let xx = x - rx - 2; xx <= x + rx + 2; xx += 2) points.push({ x: xx, y: yy });
@@ -146,8 +153,10 @@ export function planCampaignLandscape(
               p.y < 4 ||
               p.y > spec.height - 4 ||
               layout.blocks[Math.floor(p.y / 8) * columns + Math.floor(p.x / 8)] !== index ||
-              layout.zones.some((z) => Math.hypot(p.x - z.center.x, p.y - z.center.y) < 11) ||
-              layout.routes.some((r) => routeEdgeDistance(p, r) < 5) ||
+              layout.zones.some(
+                (z) => Math.hypot(p.x - z.center.x, p.y - z.center.y) < (compact ? 8 : 11),
+              ) ||
+              layout.routes.some((r) => routeEdgeDistance(p, r) < (compact ? 3 : 5)) ||
               structures.facility.grounds.some((ground) => areaDistance(ground.area, p) >= -3) ||
               structures.facility.terraces.some((t) => areaDistance(t.area, p) >= -5) ||
               structures.facility.spaces.some((space) => facilitySpaceDistance(space, p) >= -3) ||

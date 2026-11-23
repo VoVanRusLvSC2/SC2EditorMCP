@@ -75,7 +75,9 @@ export function compileWorldSurface(
         base,
         slots,
         engineering,
-        featheredForest: styled?.profile === "forest" && zone.biome === "natural",
+        featheredForest:
+          (styled?.profile === "forest" || styled?.spatial === "groves") &&
+          zone.biome === "natural",
         mixed,
         accents,
         roadEdge: zone.materials?.roadEdge ? slot(zone.materials.roadEdge) : undefined,

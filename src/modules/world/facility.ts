@@ -34,6 +34,14 @@ const perimeterStyle = z
     height: z.number().min(0.5).max(6),
     depth: z.number().min(0.5).max(5),
     faces: wallFaces.default("double"),
+    corner: z
+      .object({
+        actor: id,
+        scale: z.number().min(0.25).max(3).default(1),
+        rotation: z.number().min(0).max(360).default(45),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 const partition = z
@@ -259,7 +267,7 @@ export function terraceFace(area: Rect, side: Side) {
 
 type BoundaryRoute = { points: Point2[]; halfWidthAt: (point: Point2) => number };
 export function facilityPerimeter(area: Rect, style: Perimeter, paths: BoundaryRoute[]) {
-  return side.options.map((name) => {
+  const faces = side.options.map((name) => {
     const face = terraceFace(area, name);
     const fixed = face.vertical ? "x" : "y",
       along = face.vertical ? "y" : "x";
@@ -288,6 +296,28 @@ export function facilityPerimeter(area: Rect, style: Perimeter, paths: BoundaryR
       start = Math.max(start, gate.to);
     }
     return { ...face, side: name, style, spans };
+  });
+  return faces.map((face) => {
+    if (face.vertical || !style.corner) return face;
+    const { actor, scale, rotation } = style.corner;
+    const north = face.side === "north";
+    const corners = (["west", "east"] as const).flatMap((lateral) => {
+      const x = lateral === "west" ? face.from : face.to;
+      const cross = faces.find((edge) => edge.side === lateral)!;
+      const reaches = (edge: typeof face, at: number) =>
+        edge.spans.some(({ from, to }) => from <= at && to >= at);
+      if (!reaches(face, x) || !reaches(cross, face.fixed)) return [];
+      const turn = north ? (lateral === "west" ? 0 : 3) : lateral === "west" ? 1 : 2;
+      return [
+        {
+          actor,
+          scale,
+          point: { x, y: face.fixed },
+          rotation: ((rotation + turn * 90) * Math.PI) / 180,
+        },
+      ];
+    });
+    return { ...face, corners };
   });
 }
 

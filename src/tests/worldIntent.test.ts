@@ -518,3 +518,150 @@ test("measured workstation fixtures leave an authored aisle clear", async () => 
     /WORLD_FACILITY_FIXTURE_CLEARANCE: Workbench\/UmojanLabHoloProjector/,
   );
 });
+
+test("Nova preserves one dark lab brief across distinct room and passage layouts", async () => {
+  const set: TerrainSet = {
+    id: "BlackopsLab_A",
+    cliffs: [],
+    sourcePaths: [],
+    textures: Array.from({ length: 8 }, (_, i) => "BlackOpsLabA" + (i + 1)),
+  };
+  const request = worldIntent.parse({
+    version: 1,
+    name: "Nova research annex",
+    mode: "mission",
+    width: 128,
+    height: 128,
+    zones: [
+      { id: "Access", biome: "engineered", tileSet: set.id, sector: "south", layout: "open" },
+      {
+        id: "NovaLab",
+        biome: "engineered",
+        tileSet: set.id,
+        sector: "north",
+        rooms: [
+          { role: "lab", activity: "containment", placement: "upper" },
+          { role: "command", activity: "briefing" },
+          { role: "storage", activity: "sorting" },
+          { role: "production", activity: "power" },
+        ],
+      },
+    ],
+    links: [{ from: "Access", to: "NovaLab" }],
+    starts: ["Access"],
+    objective: "NovaLab",
+  });
+  const seeds = [197, 317, 911];
+  const layouts = await Promise.all(seeds.map((seed) => compileWorldIntent(request, seed, [set])));
+  assert.deepEqual(layouts[0], await compileWorldIntent(request, seeds[0], [set]));
+  const graphs = layouts.map(({ spec, structures: { facility } }) => {
+    assert.deepEqual(spec.decorBudget, { min: 45, max: 65 });
+    assert.equal(facility.grounds[0].floorJoints?.actor, "DOM_GroundTrims");
+    assert.notEqual(facility.spaces[0].trim, facility.spaces[0].floor);
+    const lab = facility.spaces.find(({ role }) => role === "lab")!;
+    assert.equal(lab.walls?.actor, "DOM_LabGlassWalls");
+    assert.equal(lab.inlays.length, 1);
+    assert.equal(facility.terraces[0].stairs.length, 1);
+    return facility.passages.map(({ ports }) => ports.map(({ space }) => space.role));
+  });
+  assert.equal(new Set(graphs.map((graph) => JSON.stringify(graph))).size, 3);
+});
+
+test("constructed Aiur and Slayn reserve separate functional pads and trim families", async () => {
+  for (const [tileSet, pattern, decoration, joint] of [
+    ["Aiur4City", "Aiur4City", "garden", "Protoss_Base_GroundTrim"],
+    ["SlaynTemple", "Slayn", "ritual", "Slayn_Road_Inlay"],
+  ] as const) {
+    const set: TerrainSet = {
+      id: tileSet,
+      cliffs: [],
+      sourcePaths: [],
+      textures: Array.from({ length: 8 }, (_, i) => pattern + (i + 1)),
+    };
+    const request = worldIntent.parse({
+      version: 1,
+      name: "Protoss settlement",
+      mode: "mission",
+      width: 128,
+      height: 128,
+      zones: [
+        { id: "Approach", biome: "engineered", tileSet, sector: "south", layout: "open" },
+        { id: "Site", biome: "engineered", tileSet, sector: "north" },
+      ],
+      links: [{ from: "Approach", to: "Site" }],
+      starts: ["Approach"],
+      objective: "Site",
+    });
+    const {
+      structures: { facility },
+    } = await compileWorldIntent(request, 197, [set]);
+    assert.equal(facility.grounds[0].floorJoints?.actor, joint);
+    assert.ok(
+      facility.spaces.some(
+        ({ roomComposition }) =>
+          roomComposition &&
+          "activity" in roomComposition &&
+          roomComposition.activity === decoration,
+      ),
+    );
+  }
+});
+
+test("a compact facility brief changes its circulation topology without losing room access", async () => {
+  for (const [tileSet, texture, layout] of [
+    ["BlackopsLab_A", "BlackOpsLabA", "lab"],
+    ["Aiur4City", "Aiur4City", "base"],
+  ] as const) {
+    const set: TerrainSet = {
+      id: tileSet,
+      cliffs: [],
+      sourcePaths: [],
+      textures: Array.from({ length: 8 }, (_, i) => texture + (i + 1)),
+    };
+    for (const sector of ["south", "east", "north", "west"] as const) {
+      const intent = worldIntent.parse({
+        version: 1,
+        name: "Compact facility",
+        mode: "mission",
+        width: 64,
+        height: 64,
+        zones: [
+          { id: "Arrival", biome: "engineered", tileSet, sector, layout: "open" },
+          { id: "Facility", biome: "engineered", tileSet, sector: "center", layout },
+        ],
+        links: [{ from: "Arrival", to: "Facility" }],
+        starts: ["Arrival"],
+        objective: "Facility",
+        decorBudget: { min: 45, max: 65 },
+      });
+      for (const [seed, id] of [
+        [198, "MainGallery"],
+        [199, "CrossHall"],
+        [200, "CentralCourt"],
+      ] as const) {
+        const result = await compileWorldIntent(intent, seed, [set]);
+        const { spaces, passages } = result.structures.facility;
+        assert.deepEqual(result.spec.decorBudget, { min: 45, max: 65 });
+        assert.equal(spaces[0].id, id);
+        assert.equal(spaces.length, 5);
+        assert.equal(passages.length, 5);
+        assert.equal(passages[0].ports[0].side, sector);
+        assert.deepEqual(
+          passages.slice(1).map((pass) => pass.ports[1].space.id),
+          ["Room1", "Room2", "Room3", "Room4"],
+        );
+        for (const pass of passages.slice(1)) {
+          const room = pass.ports[1].space;
+          assert.equal(room.openings.length, 1);
+          assert.ok(room.aisles?.length);
+          assert.equal(
+            room.roomComposition &&
+              "activity" in room.roomComposition &&
+              room.roomComposition.tileSet,
+            tileSet,
+          );
+        }
+      }
+    }
+  }
+});

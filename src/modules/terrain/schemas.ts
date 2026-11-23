@@ -280,7 +280,7 @@ export const terrainGenerateSchema = z
   .object({ ...terrainGenerateOptions, area: terrainAreaSchema })
   .strict();
 export const nativeTopologyIntentSchema=z.object({
- cliffs:z.array(z.object({area:terrainRectangleSchema,level:z.number().int().min(1).max(3),cliffSet:z.number().int().min(0).max(63).default(0),variation:z.number().int().min(0).max(3).default(0)}).strict()).max(16).default([]),
+ cliffs:z.array(z.object({area:terrainRectangleSchema,level:z.number().int().min(0).max(3),cliffSet:z.number().int().min(0).max(63).default(0),variation:z.number().int().min(0).max(3).default(0)}).strict()).max(16).default([]),
  ramps:z.array(z.object({id:z.string().regex(/^[A-Za-z][A-Za-z0-9_-]{0,63}$/),center:terrainPointSchema,direction:z.enum(['west','south','east','north']),lowerLevel:z.number().int().min(1).max(2).default(1),cliffSet:z.number().int().min(0).max(63).default(0),width:z.literal(4).default(4)}).strict()).max(16).default([]),
 }).strict().refine(v=>new Set(v.ramps.map(r=>r.id)).size===v.ramps.length,'Duplicate native ramp id');
 export const terrainLocationSchema=z.object({...terrainGenerateOptions,topology:nativeTopologyIntentSchema.optional(),routes:z.array(z.object({points:z.array(terrainPointSchema).min(2).max(100),width:number.positive(),texture:z.string().min(1).optional(),flatten:z.boolean().default(false),height:number.optional(),edgeBlend:number.nonnegative().optional()}).strict()).max(16).default([])}).strict();

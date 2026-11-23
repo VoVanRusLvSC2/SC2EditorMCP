@@ -5,6 +5,12 @@ import type { worldFacility } from "./facility.js";
 import type { WorldIntent } from "./intent.js";
 import { seedFor, type WorldLayout } from "./plan.js";
 import type { RoomPassport } from "./workstations.js";
+import {
+  compactFacilityLayout,
+  compactPassage,
+  compactWorkDeck,
+  opposite,
+} from "./compactFacility.js";
 
 type Facility = input<typeof worldFacility>;
 type Side = "south" | "east" | "north" | "west";
@@ -18,6 +24,13 @@ type Dimensions = { left: number; right: number; bottom: number; top: number };
 const sides = ["south", "east", "north", "west"] as const;
 const labRooms: StructureRole[] = ["lab", "storage", "command", "production"];
 const cityRooms: StructureRole[] = ["courtyard", "command", "storage", "production"];
+const protossRooms: StructureRole[] = ["organic", "command", "production", "courtyard"];
+const ritualRooms: StructureRole[] = ["command", "entry", "production", "courtyard"];
+const nova = {
+  wall: "DOM_LabGlassWalls",
+  retainingWall: "DOM_CliffStructures",
+  trim: "DOM_GroundTrims",
+};
 const umoja = {
   wall: "UmojanLabGlassWallPanel",
   retainingWall: "UmojanLabCliffWallsTall",
@@ -36,7 +49,7 @@ const roomActivities: Record<StructureRole, RoomPassport["activity"]> = {
 
 interface FacilityInput {
   zone: WorldIntent["zones"][number];
-  kind: "lab" | "city";
+  kind: "lab" | "city" | "base";
   layout: WorldLayout;
   width: number;
   height: number;
@@ -44,12 +57,14 @@ interface FacilityInput {
   materials: Partial<Record<"floor" | "path" | "accent", string[]>>;
   seed: number;
   arrival?: { side: Side; bank: number };
+  compactSide?: Side;
+  topologySeed?: number;
 }
 
 export function planIntentFacility(args: FacilityInput) {
-  const { zone, kind, layout, width, height, set, materials, seed, arrival } = args;
+  const { zone, kind, layout, width, height, set, materials, seed, arrival, compactSide } = args;
   const { center, bank } = layout.zones.find((z) => z.id === zone.id)!;
-  const rotation = sides.indexOf(arrival?.side ?? "south");
+  const rotation = sides.indexOf(compactSide ?? arrival?.side ?? "south");
   const face = (direction: Side) => sides[(sides.indexOf(direction) + rotation) % 4];
   const local = (u: number, v: number): Point2 => {
     const offset = [
@@ -86,8 +101,18 @@ export function planIntentFacility(args: FacilityInput) {
     return true;
   };
   const pick = (key: string, n: number) => (seedFor(seed, zone.id + "/facility/" + key) >>> 0) % n;
-  const order: RoomRequest[] = (zone.rooms ?? (kind === "city" ? cityRooms : labRooms)).map(
-    (room) => (typeof room === "string" ? { role: room } : room),
+  const isNova = set.id === "BlackopsLab_A";
+  const isTalDarim = set.id === "Slayn" || set.id === "SlaynTemple";
+  const roomDefaults =
+    kind === "city"
+      ? cityRooms
+      : kind === "lab"
+        ? labRooms
+        : isTalDarim
+          ? ritualRooms
+          : protossRooms;
+  const order: RoomRequest[] = (zone.rooms ?? roomDefaults).map((room) =>
+    typeof room === "string" ? { role: room } : room,
   );
   for (let i = order.length - 1; i > 0; i--) {
     const j = pick("room/" + i, i + 1);
@@ -96,14 +121,18 @@ export function planIntentFacility(args: FacilityInput) {
   const twoRows = order.length > 2;
   const sideSize = order.length > 1 ? 19 : 10;
   const rowSize = twoRows ? 24 : 11;
-  const site = { left: -sideSize, right: 19, bottom: -rowSize, top: rowSize };
+  const site = compactSide
+    ? { left: -27, right: 27, bottom: -24, top: 24 }
+    : { left: -sideSize, right: 19, bottom: -rowSize, top: rowSize };
   if (arrival) {
     site.bottom = Math.max(site.bottom, -landLimit + 2);
   }
   if (site.top - site.bottom < (twoRows ? 42 : 22) || !fits(site))
     throw Error("WORLD_INTENT_SITE_CLEARANCE: " + zone.id + " needs a larger contiguous site");
   // Grow along each face while all of its cells remain on the site's bank.
-  const limits = { left: -42, right: 42, bottom: -Math.min(36, landLimit - 2), top: 36 };
+  const limits = compactSide
+    ? { ...site }
+    : { left: -42, right: 42, bottom: -Math.min(36, landLimit - 2), top: 36 };
   for (const side of ["left", "right", "bottom", "top"] as const) {
     const limit = limits[side];
     const step = Math.sign(limit - site[side]);
@@ -116,11 +145,24 @@ export function planIntentFacility(args: FacilityInput) {
   const isUmojan = set.id === "UmojaEx3" || set.id === "DominionLab";
   const asset: { wall: string; trim?: string; retainingWall?: string } | undefined = isUmojan
     ? umoja
-    : set.id === "Castanar"
-      ? { wall: "MetalWall" }
-      : set.id === "BlackopsLab_A"
-        ? { wall: "DOM_LabGlassWalls", trim: "DOM_LabWallCap" }
+    : isNova
+      ? nova
+      : set.id === "Castanar"
+        ? { wall: "MetalWall" }
         : undefined;
+  const jointActor = isUmojan
+    ? umoja.trim
+    : isNova
+      ? nova.trim
+      : kind === "base"
+        ? isTalDarim
+          ? "Slayn_Road_Inlay"
+          : "Protoss_Base_GroundTrim"
+        : kind === "city" && /^Korhal/.test(set.id)
+          ? "Korhal_Curbs"
+          : kind === "city" && ["PortCity", "DefendersCity"].includes(set.id)
+            ? "PortCity_Trims"
+            : undefined;
   const available = (values: string[] = []) => values.filter((id) => set.textures.includes(id));
   const floors = [...new Set([...available(materials.floor), ...set.textures])];
   const ground = floors[0];
@@ -130,7 +172,14 @@ export function planIntentFacility(args: FacilityInput) {
     kind === "city"
       ? ([...accents, ...floors].find((id) => id !== road && id !== ground) ?? ground)
       : (accents[0] ?? floors[2] ?? ground);
-  const circulationTrim = isUmojan ? road : trim;
+  const circulationTrim = jointActor && !isNova ? road : trim;
+  const perimeterActor =
+    asset?.retainingWall ??
+    (kind === "base"
+      ? isTalDarim
+        ? "Slayn_Temple_BigWalls"
+        : "Protoss_Base_OuterWalls"
+      : undefined);
   const palette = (preferred: string, otherwise: string) =>
     set.textures.includes(preferred) ? preferred : otherwise;
   const roomFloors =
@@ -142,6 +191,31 @@ export function planIntentFacility(args: FacilityInput) {
         ]
       : floors.filter((id) => id !== road);
 
+  const rotateOffset = (side: Side, value: number) => {
+    const yAxis = side === "west" || side === "east";
+    const start = local(0, 0);
+    const end = yAxis ? local(0, value) : local(value, 0);
+    const worldSide = face(side);
+    return worldSide === "west" || worldSide === "east" ? end.y - start.y : end.x - start.x;
+  };
+  const roomActivity = (role: StructureRole, upper: boolean) =>
+    upper && role === "lab"
+      ? "containment"
+      : kind === "base" && isTalDarim && role === "command"
+        ? "ritual"
+        : kind === "base" && role === "organic"
+          ? "garden"
+          : kind === "city" && role === "courtyard"
+            ? "plaza"
+            : kind === "city" && role === "command"
+              ? "frontage"
+              : roomActivities[role];
+  const roomFloor = (role: StructureRole, index: number) => {
+    const floor = roomFloors[index % roomFloors.length] ?? ground;
+    return kind === "base" && role === "organic"
+      ? palette(compactSide ? "Aiur4City6" : "Aiur4City7", floor)
+      : floor;
+  };
   const spineWidth = kind === "city" ? 12 : 8 + 2 * pick("spine", 3);
   const spineBottom = site.bottom + 4;
   const spineTop = site.top - 4 - pick("far-end", 3);
@@ -156,6 +230,157 @@ export function planIntentFacility(args: FacilityInput) {
     height: rotation % 2 ? w : h,
   });
   const spine = kind === "city" ? "MainStreet" : "MainGallery";
+  const assemble = () => ({
+    materials: { ground, road, trim, roadEdge: trim, scatter: floors.slice(0, 3) },
+    facility: {
+      wallFaces: "double" as const,
+      grounds: {
+        ...bounds(site),
+        floor: ground,
+        trim,
+        exterior: floors.at(-1)!,
+        ...(jointActor
+          ? {
+              floorJoints: {
+                actor: jointActor,
+                width: isUmojan ? 0.34 : 0.29,
+                height: 0.075,
+                segmentLength: 4.5,
+              },
+            }
+          : {}),
+        ...(perimeterActor
+          ? {
+              perimeter: {
+                actor: perimeterActor,
+                spacing: 4.8,
+                height: 2.7,
+                depth: 1.8,
+                ...(set.id === "Aiur4City"
+                  ? { corner: { actor: "Aiur_CliffCorner", scale: 1.2 } }
+                  : {}),
+              },
+            }
+          : {}),
+      },
+      spaces,
+      passages,
+      terraces,
+    },
+  });
+  if (compactSide) {
+    const family = kind === "city" ? 0 : (args.topologySeed ?? seed) % 3;
+    const compact = compactFacilityLayout(family, pick("setback", 3));
+    const [left, bottom, right, top] = compact.gallery;
+    const galleryId = ["MainGallery", "CrossHall", "CentralCourt"][family];
+    spaces.push({
+      id: galleryId,
+      role: "courtyard",
+      ...rect((left + right) / 2, (bottom + top) / 2, right - left, top - bottom),
+      floor: road,
+      trim: circulationTrim,
+      roomComposition: {
+        activity: "circulation",
+        placement: "wall",
+        aisleWidth: 4,
+        side: face(family === 1 ? "north" : "east"),
+        tileSet: set.id,
+        seed: seedFor(seed, zone.id + "/gallery") >>> 0,
+      },
+    });
+    passages.push({
+      id: "SiteEntrance",
+      width: 6,
+      floor: road,
+      trim: circulationTrim,
+      from: { space: galleryId, side: face("south") },
+      waypoints: [local(0, site.bottom - 1)],
+    });
+    const upperRooms = order.filter(({ placement }) => placement === "upper");
+    if (upperRooms.length > 1) throw Error("WORLD_INTENT_MULTIPLE_UPPER_ROOMS: " + zone.id);
+    const upperRoom =
+      upperRooms[0] ??
+      (zone.raised ? (order.find(({ role }) => role === "lab") ?? order.at(-1)) : undefined);
+    for (const [i, geometry] of compact.rooms.entries()) {
+      const room = order[i];
+      const { role } = room;
+      const [a, b, c, d] = geometry.bounds;
+      const id = "Room" + (i + 1);
+      const side = geometry.gallerySide;
+      const across = compactPassage(compact.gallery, geometry);
+      const axis = side === "north" || side === "south" ? (a + c) / 2 : (b + d) / 2;
+      const upper = room === upperRoom;
+      const activity = room.activity ?? roomActivity(role, upper);
+      const floor = roomFloor(role, i);
+      const workFloor = roomFloors.find((value) => value !== floor && value !== road);
+      // Reserve the doorway and put the main group on the opposite, uninterrupted wall.
+      const workSide = side;
+      const inset = workSide === "west" || workSide === "east";
+      const shift = workSide === "west" || workSide === "south" ? -2 : 2;
+      const roomRect = rect((a + c) / 2, (b + d) / 2, c - a, d - b);
+      if (upper) {
+        const deck = compactWorkDeck(roomRect, face(workSide));
+        if (!deck) throw Error("WORLD_INTENT_TERRACE_CLEARANCE: " + zone.id + "/" + role);
+        terraces.push({
+          id: "UpperWorkBay",
+          min: deck.min,
+          max: deck.max,
+          floor: workFloor ?? floor,
+          faceActor: asset?.retainingWall,
+          faceStyle: "square",
+          stairs: [{ ...deck.stair, treadActor: asset?.trim }],
+        });
+      }
+      spaces.push({
+        id,
+        role,
+        ...roomRect,
+        floor,
+        trim,
+        roomComposition: {
+          activity,
+          placement: upper ? "upper" : (room.placement ?? "wall"),
+          side: face(workSide),
+          tileSet: set.id,
+          seed: seedFor(seed, zone.id + "/" + id + "/composition") >>> 0,
+          density: room.density,
+          condition: room.condition,
+          aisleWidth: room.aisleWidth,
+        },
+        ...(asset && kind === "lab" && role !== "courtyard"
+          ? { walls: { actor: asset.wall, sides: [...sides] } }
+          : {}),
+        ...(!upper && workFloor && !["circulation", "garden", "plaza"].includes(activity)
+          ? {
+              inlays: [
+                {
+                  ...bounds({
+                    left: a + 4 + (inset ? shift : 0),
+                    right: c - 4 + (inset ? shift : 0),
+                    bottom: b + 4 + (inset ? 0 : shift),
+                    top: d - 4 + (inset ? 0 : shift),
+                  }),
+                  floor: workFloor,
+                },
+              ],
+            }
+          : {}),
+      });
+      passages.push({
+        id: "Access" + i,
+        width: 4,
+        floor: road,
+        trim: circulationTrim,
+        from: { space: galleryId, side: face(side), offset: rotateOffset(side, across) },
+        to: {
+          space: id,
+          side: face(opposite[side]),
+          offset: rotateOffset(opposite[side], across - axis),
+        },
+      });
+    }
+    return assemble();
+  }
   spaces.push({
     id: spine,
     role: "courtyard",
@@ -182,6 +407,8 @@ export function planIntentFacility(args: FacilityInput) {
     });
   }
   const swap = pick("first-wing", 2) ? 1 : -1;
+  // Shift the two wings independently to produce staggered cross-halls.
+  const wingOffset = (i: number) => (isNova ? pick("wing-offset/" + (i % 2), 3) - 1 : 0);
   const split = spineV + (pick("row-split", 5) - 2);
   const hallW = spineWidth / 2;
   const upperIndex = order.findIndex((room) => room.placement === "upper");
@@ -189,7 +416,13 @@ export function planIntentFacility(args: FacilityInput) {
     throw Error("WORLD_INTENT_MULTIPLE_UPPER_ROOMS: " + zone.id);
   const labIndex = order.findIndex(({ role }) => role === "lab");
   const raisedIndex =
-    upperIndex >= 0 ? upperIndex : zone.raised ? (labIndex >= 0 ? labIndex : order.length - 1) : -1;
+    upperIndex >= 0
+      ? upperIndex
+      : zone.raised || (isNova && labIndex >= 0 && twoRows)
+        ? labIndex >= 0
+          ? labIndex
+          : order.length - 1
+        : -1;
   for (const [i, room] of order.entries()) {
     const { role } = room;
     const sign = i % 2 ? -swap : swap;
@@ -202,21 +435,13 @@ export function planIntentFacility(args: FacilityInput) {
     if (Math.min(roomW, roomH) < 10)
       throw Error("WORLD_INTENT_ROOM_CLEARANCE: " + zone.id + "/" + role);
     const u = sign * (hallW + 4 + roomW / 2 + pick("room-setback/" + i, 2));
-    const v = outerY;
+    const v = outerY + wingOffset(i);
     const id = "Room" + (i + 1);
-    const floor = roomFloors[i % roomFloors.length] ?? ground;
+    const floor = roomFloor(role, i);
     const closed = kind === "lab" && role !== "courtyard";
-    const rotateOffset = (side: Side, value: number) => {
-      const yAxis = side === "west" || side === "east";
-      const start = local(0, 0);
-      const end = yAxis ? local(0, value) : local(value, 0);
-      const worldSide = face(side);
-      return worldSide === "west" || worldSide === "east" ? end.y - start.y : end.x - start.x;
-    };
     const outerSide = sign > 0 ? "east" : "west";
     const upper = i === raisedIndex;
-    const activity =
-      room.activity ?? (upper && role === "lab" ? "containment" : roomActivities[role]);
+    const activity = room.activity ?? roomActivity(role, upper);
     const focusSide = pick("focus-side/" + i, 3) ? outerSide : "north";
     const compositionPlacement =
       room.placement && room.placement !== "auto"
@@ -247,7 +472,11 @@ export function planIntentFacility(args: FacilityInput) {
         condition: room.condition,
         aisleWidth: room.aisleWidth,
       },
-      ...(!upper && workFloor && roomW >= 18 && roomH >= 14 && activity !== "circulation"
+      ...(!upper &&
+      workFloor &&
+      roomW >= 18 &&
+      roomH >= 14 &&
+      !["circulation", "garden"].includes(activity)
         ? {
             inlays: [
               {
@@ -297,7 +526,11 @@ export function planIntentFacility(args: FacilityInput) {
     });
     const hallSide = sign > 0 ? "east" : "west";
     const roomSide = sign > 0 ? "west" : "east";
-    const service = i >= 2 && pick("service-link/" + i, 2) === 1;
+    const service =
+      i >= 2 &&
+      (isNova
+        ? (pick("service-network", 4) & (1 << (i - 2))) !== 0
+        : pick("service-link/" + i, 2) === 1);
     if (service) {
       const prior = i - 2;
       // The rooms face each other across a service aisle. Setbacks can differ by one.
@@ -313,7 +546,7 @@ export function planIntentFacility(args: FacilityInput) {
           offset: rotateOffset("north", u - priorU),
         },
         to: { space: id, side: face("south") },
-        ...(!isUmojan && asset?.trim ? { threshold: asset.trim } : {}),
+        ...(!jointActor && asset?.trim ? { threshold: asset.trim } : {}),
       });
     } else {
       passages.push({
@@ -323,7 +556,7 @@ export function planIntentFacility(args: FacilityInput) {
         trim: circulationTrim,
         from: { space: spine, side: face(hallSide), offset: rotateOffset(hallSide, v - spineV) },
         to: { space: id, side: face(roomSide) },
-        ...(!isUmojan && asset?.trim ? { threshold: asset.trim } : {}),
+        ...(!jointActor && asset?.trim ? { threshold: asset.trim } : {}),
       });
     }
     if (upper) {
@@ -340,20 +573,28 @@ export function planIntentFacility(args: FacilityInput) {
       const across = stairSide === "south" || stairSide === "north" ? min.x : min.y;
       const upperFloor =
         roomFloors.includes("UmojaEx3_5") && floor !== "UmojaEx3_5" ? "UmojaEx3_5" : workFloor;
-      if (isUmojan && activity === "containment" && upperFloor && upperFloor !== floor) {
-        spaces.at(-1)!.inlays = [
-          {
-            min: {
-              x: min.x + (stairSide === "west" ? 2 : 1),
-              y: min.y + (stairSide === "south" ? 2 : 1),
-            },
-            max: {
-              x: max.x - (stairSide === "east" ? 2 : 1),
-              y: max.y - (stairSide === "north" ? 2 : 1),
-            },
-            floor: upperFloor,
-          },
-        ];
+      if (
+        (isUmojan || isNova) &&
+        activity === "containment" &&
+        upperFloor &&
+        upperFloor !== floor
+      ) {
+        const roomBounds = bounds({
+          left: u - roomW / 2,
+          right: u + roomW / 2,
+          bottom: v - roomH / 2,
+          top: v + roomH / 2,
+        });
+        const inlayMin = {
+          x: Math.max(min.x + (stairSide === "west" ? 2 : 1), roomBounds.min.x + 2),
+          y: Math.max(min.y + (stairSide === "south" ? 2 : 1), roomBounds.min.y + 2),
+        };
+        const inlayMax = {
+          x: Math.min(max.x - (stairSide === "east" ? 2 : 1), roomBounds.max.x - 2),
+          y: Math.min(max.y - (stairSide === "north" ? 2 : 1), roomBounds.max.y - 2),
+        };
+        if (inlayMin.x < inlayMax.x && inlayMin.y < inlayMax.y)
+          spaces.at(-1)!.inlays = [{ min: inlayMin, max: inlayMax, floor: upperFloor }];
       }
       terraces.push({
         id: "UpperWorkBay",
@@ -366,27 +607,5 @@ export function planIntentFacility(args: FacilityInput) {
       });
     }
   }
-  return {
-    materials: { ground, road, trim, roadEdge: trim, scatter: floors.slice(0, 3) },
-    facility: {
-      wallFaces: "double" as const,
-      grounds: {
-        ...bounds(site),
-        floor: ground,
-        trim,
-        exterior: floors.at(-1)!,
-        ...(isUmojan
-          ? {
-              floorJoints: { actor: umoja.trim, width: 0.34, height: 0.075, segmentLength: 4.5 },
-            }
-          : {}),
-        ...(asset?.retainingWall
-          ? { perimeter: { actor: asset.retainingWall, spacing: 4.8, height: 2.7, depth: 1.8 } }
-          : {}),
-      },
-      spaces,
-      passages,
-      terraces,
-    },
-  };
+  return assemble();
 }

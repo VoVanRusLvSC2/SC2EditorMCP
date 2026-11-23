@@ -38,8 +38,34 @@ test('measured saddle corners retain low HMAP centers and high CLIF and SMAP cen
  }
 });
 
-test('unmeasured void and multi-level joins fail instead of writing guessed cliff sync',()=>{
- for(const corners of [[1,3,3,1],[0,1,1,0]])assert.throws(()=>nativeCliffSyncLevels(corners),/UNSUPPORTED/);
+test('level zero cliff profiles match the twelve measured Steps of the Rite orientations',()=>{
+ // Installed ptaldarim01.SC2Map, terrain v115. Each row records coarse cell
+ // origin, LL/LR/UR/UL corners, row-major HMAP/SMAP labels and CLIF words.
+ const samples=[
+  ['44,48', '0001', '000100110', [0,0,64,0]],
+  ['120,54','0010', '000001011', [0,0,0,64]],
+  ['46,50', '0011', '000111111', [0,0,64,64]],
+  ['136,78','0100', '011001000', [0,64,0,0]],
+  ['40,38', '0110', '011011011', [0,64,0,64]],
+  ['76,62', '0111', '011111111', [64,64,64,64]],
+  ['26,10', '1000', '110100000', [64,0,0,0]],
+  ['26,4',  '1001', '110110110', [64,0,64,0]],
+  ['60,70', '1011', '110111111', [64,64,64,64]],
+  ['24,10', '1100', '111111000', [64,64,0,0]],
+  ['22,10', '1101', '111111110', [64,64,64,64]],
+  ['76,90', '1110', '111111011', [64,64,64,64]],
+ ] as const;
+ for(const [source,corners,labels,syncCliff] of samples){
+  const coarse=[...corners].map(Number),fine=[...labels].map(Number);
+  assert.deepEqual(nativeCliffSyncLevels(coarse),syncCliff,source);
+  assert.deepEqual(nativeCliffFineLevels(coarse),fine,source);
+  assert.deepEqual(nativeCliffFineSyncLevels(coarse),fine,source);
+ }
+});
+
+test('unmeasured level zero saddles and multi-level joins fail',()=>{
+ for(const corners of [[1,3,3,1],[0,2,2,0],[0,1,0,1],[1,0,1,0]])assert.throws(()=>nativeCliffSyncLevels(corners),/UNSUPPORTED/);
+ assert.deepEqual(nativeCliffSyncLevels([0,0,0,0]),[0,0,0,0]);
  assert.deepEqual(nativeCliffSyncLevels([1,1,1,1]),[64,64,64,64]);
  assert.deepEqual(nativeCliffSyncLevels([1,2,2,2]),[128,128,128,128]);
 });

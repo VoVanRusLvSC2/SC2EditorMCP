@@ -1,16 +1,18 @@
-/** Measured f=1, one-level native cliff cells. Corners: LL, LR, UR, UL.
+/** Measured f=1 native cliff cells between adjacent levels. Corners: LL, LR, UR, UL.
  * Output: four CLIF words in row-major order. Three high corners close the low
  * corner in the sync cells; sampling the upper-right fine vertex is incorrect.
- * Diagonal high corners use the measured all-high CLIF closure as well.
+ * Diagonal high corners above level 0 use the measured all-high CLIF closure.
+ * Level 0/1 is measured in Steps of the Rite for the 12 non-saddle orientations.
  * This profile does not establish rendered closure or rebuild engine navigation.
  */
 export function nativeCliffSyncLevels(corners:readonly number[]):number[]{
  if(corners.length!==4||corners.some(v=>!Number.isInteger(v)||v<0||v>3))throw Error('NATIVE_CLIFF_CORNER_PROFILE_UNSUPPORTED');
  const lo=Math.min(...corners),hi=Math.max(...corners);
  if(lo===hi)return Array(4).fill(lo*64);
- if(lo<1||hi-lo!==1)throw Error('NATIVE_CLIFF_MULTI_LEVEL_OR_VOID_JUNCTION_UNSUPPORTED');
+ if(hi-lo!==1)throw Error('NATIVE_CLIFF_MULTI_LEVEL_JUNCTION_UNSUPPORTED');
  const high=corners.map(v=>v===hi),count=high.filter(Boolean).length;
  const saddle=count===2&&high[0]===high[2];
+ if(lo===0&&saddle)throw Error('NATIVE_CLIFF_LEVEL_ZERO_SADDLE_UNSUPPORTED');
  return (count===3||saddle?Array(4).fill(hi):[corners[0],corners[1],corners[3],corners[2]]).map(v=>v*64);
 }
 

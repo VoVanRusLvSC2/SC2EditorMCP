@@ -32,6 +32,10 @@ export const roomActivity = z.enum([
   "checkpoint",
   "circulation",
   "habitation",
+  "ritual",
+  "garden",
+  "plaza",
+  "frontage",
 ]);
 export const roomPassport = z
   .object({

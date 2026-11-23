@@ -1,6 +1,6 @@
 import type { DecorPalette } from "../placement/decorPalette.js";
 import type { PlacementObject } from "../placement/types.js";
-import { areaDistance, valueNoise } from "../terrain/geometry.js";
+import { areaDistance, segmentDistance, valueNoise } from "../terrain/geometry.js";
 import type { TerrainState } from "../terrain/operations.js";
 import { riverDepth, roomDistance, type Structures } from "./structures.js";
 import { readDoodadDescriptions } from "../browse/doodadDescriptions.js";
@@ -16,6 +16,7 @@ import {
 import { routeEdgeDistance, seedFor, type WorldSpec, type WorldLayout } from "./plan.js";
 
 import { isCargoProp } from "./cargo.js";
+import { companionPoint } from "./composition.js";
 
 export async function worldDecor(
   spec: WorldSpec,
@@ -96,6 +97,8 @@ export async function worldDecor(
             ).flatMap((r) => r.results.map((r) => r.id))
           : [];
       const preferred = new Set(styled.preferredActors);
+      const engineered =
+        styled.style === "hard_zones" || (styled.style === "by_intent" && !natural);
       candidates = [...new Set([...preferred, ...styled.actors, ...explicit, ...extra])].filter(
         (id) => {
           const d = descriptions?.get(id)?.description;
@@ -104,10 +107,12 @@ export async function worldDecor(
               preferred.has(id) ||
               styled.candidatePrefixes.some((prefix) => id.startsWith(prefix))) &&
             d?.role !== "effect" &&
-            !/blocker|invisible|dummy|camera|wrecked|destroyed|crashing|corpse|^lightomni|^fog|unused|^actor/i.test(
+            !/blocker|invisible|dummy|camera|crashing|corpse|^lightomni|^fog|unused|^actor/i.test(
               id,
             ) &&
-            (styled.style === "hard_zones" || d?.kind !== "built" || styled.style === "mixed")
+            (!/wrecked|destroyed/i.test(id) ||
+              (styled.spatial === "temple" && preferred.has(id))) &&
+            (engineered || d?.kind !== "built" || styled.style === "mixed" || preferred.has(id))
           );
         },
       );
@@ -210,6 +215,15 @@ export async function worldDecor(
     const pockets = zone.composition?.pockets;
     const grounds = structures.facility.grounds.filter((ground) => ground.bank === zone.bank);
     const localGround = grounds.find((ground) => ground.zone === zone.id);
+    const compactGround =
+      spec.width === 64 &&
+      spec.height === 64 &&
+      grounds.length === 1 &&
+      grounds[0].area.maxX - grounds[0].area.minX >= 44 &&
+      grounds[0].area.maxY - grounds[0].area.minY >= 44
+        ? grounds[0]
+        : undefined;
+    const annex = styled?.spatial === "annex" ? grounds[0]?.area : undefined;
     let interiorProps = 0;
     const placedInZone: { x: number; y: number; radius: number; role: string }[] = [];
     const interiorLimit = room?.room ? Math.ceil((room.hx * room.hy) / 12) : 5;
@@ -221,7 +235,13 @@ export async function worldDecor(
       : 1 / remaining;
     const share = styled || reference ? Math.max(0, Math.ceil((target - before) * shareWeight)) : 0;
     const existingRole = new Set<string>();
-    const place = async (id: string, role?: string) => {
+    const localRoutes = plan.routes.filter(({ from, to }) => from === zone.id || to === zone.id);
+    const segments = localRoutes.flatMap(({ points }) =>
+      points.slice(1).map((to, i) => ({ from: points[i], to })),
+    );
+    let monument: { x: number; y: number } | undefined;
+    const landscapeAnchors: { point: { x: number; y: number }; radius: number }[] = [];
+    const place = async (id: string, role?: string, supplement?: number) => {
       if (actors.has(id) || (!natural && isCargoProp(id))) return false;
       const automatic = reference && !zone.actors.length && !role;
       const placementRole = automatic ? evidence?.actors[id]?.role : undefined;
@@ -244,9 +264,20 @@ export async function worldDecor(
           model = (await measuredActor(id, variants[candidateIndex % variants.length])) ?? model;
       }
       const size = model.measured.measurement.dimensions;
-      const canopy = natural && size.height > 2.7 && size.width < 13;
-      const scale =
-        composed && natural
+      const grove = styled?.spatial === "groves" && natural;
+      const canopy =
+        natural &&
+        (grove
+          ? /(?:Tree|Canopy)/i.test(id) && !/(?:Shadow|Root|Stump|Log)/i.test(id)
+          : size.height > 2.7 && size.width < 13);
+      const nurseryProp = /Egg|Chrysalis|Swamp|TarPit|BonePile|CharHorn/i.test(id);
+      const rocky = /Rock|Cliff|Cave|Spire/i.test(id);
+      const ceremonial = /Temple|Altar|Inlay|Brazier|Statue|Banner|Pillar/i.test(id);
+      const vegetated = /Tree|Moss|GroundCover|Plant|Vines|Overgrowth/i.test(id);
+      if (supplement && (size.height > 5 || Math.max(size.width, size.depth) > 6)) return false;
+      const scale = supplement
+        ? supplement
+        : composed && natural
           ? (canopy ? 1.07 : 0.88) + 0.14 * valueNoise(candidateIndex, 0, zone.decorSeed)
           : 1;
       const bounds = model.measured.measurement.bounds;
@@ -262,7 +293,7 @@ export async function worldDecor(
       const repetition = !natural && styled?.candidatePrefixes.length ? 1.65 : 4;
       const repetitions =
         role === "landmark"
-          ? forest
+          ? forest || (grove && canopy)
             ? Math.min(6, Math.max(3, Math.ceil(blocks.length / 30)))
             : 1
           : pockets
@@ -275,8 +306,15 @@ export async function worldDecor(
                     ((zone.density + 0.55) * repetition * blocks.length) / Math.max(10, share),
                   )
                 : 1 + Math.floor((zone.density * repeats * blocks.length) / zone.distinctActors);
-      const count =
-        automatic && !pockets ? Math.min(repetitions, natural ? (canopy ? 4 : 3) : 2) : repetitions;
+      const count = supplement
+        ? 1
+        : grove
+          ? Math.min(repetitions, canopy ? 8 : nurseryProp ? 4 : 7)
+          : styled?.spatial === "temple" && role === "landmark"
+            ? 1
+            : automatic && !pockets
+              ? Math.min(repetitions, natural ? (canopy ? 4 : 3) : 2)
+              : repetitions;
       let placed = 0;
       for (let i = 0; i < 256 && placed < count; i++) {
         const ordinal = i + candidateIndex * 263;
@@ -294,19 +332,96 @@ export async function worldDecor(
           (!room.room || i % 3 !== 2);
         const reachX = room ? Math.max(0, room.hx - radius - 1.3) : 0;
         const reachY = room ? Math.max(0, room.hy - radius - 1.3) : 0;
-        const x = pocket
-          ? pocket.center.x + Math.cos(angle) * spread
+        const anchor =
+          natural &&
+          styled &&
+          !pocket &&
+          !interior &&
+          !supplement &&
+          !canopy &&
+          role !== "landmark" &&
+          radius < 3.6 &&
+          i < 88 &&
+          landscapeAnchors.length
+            ? landscapeAnchors[(candidateIndex + Math.floor(i / 8)) % landscapeAnchors.length]
+            : undefined;
+        const { x, y } = pocket
+          ? companionPoint(pocket.center, angle, spread)
           : interior
-            ? room.c.x + reachX * (2 * noise(2) - 1)
-            : ((block % (spec.width / 8)) + noise(2)) * 8;
-        const y = pocket
-          ? pocket.center.y + Math.sin(angle) * spread
-          : interior
-            ? room.c.y + reachY * (2 * noise(3) - 1)
-            : (Math.floor(block / (spec.width / 8)) + noise(3)) * 8;
+            ? {
+                x: room.c.x + reachX * (2 * noise(2) - 1),
+                y: room.c.y + reachY * (2 * noise(3) - 1),
+              }
+            : anchor
+              ? companionPoint(anchor.point, angle, anchor.radius + radius + 0.45 + noise(3) * 3.5)
+              : {
+                  x: ((block % (spec.width / 8)) + noise(2)) * 8,
+                  y: (Math.floor(block / (spec.width / 8)) + noise(3)) * 8,
+                };
+        if (x < 0 || y < 0 || x >= spec.width || y >= spec.height) continue;
         const owner = plan.blocks[Math.floor(y / 8) * (spec.width / 8) + Math.floor(x / 8)];
         if (owner !== index && (!interior || !room.room)) continue;
         const wallDistance = room ? roomDistance(room, x, y) : Infinity;
+        const point = { x, y };
+        const routeDistance = Math.min(
+          ...localRoutes.map((route) => routeEdgeDistance(point, route)),
+        );
+        const hasRoad = Number.isFinite(routeDistance);
+        if (annex && !compactGround && !pocket && i < 210) {
+          const yardEdge = -areaDistance(annex, point);
+          const alongSide = Math.min(Math.abs(y - annex.minY), Math.abs(y - annex.maxY));
+          const side = x < annex.minX || x > annex.maxX;
+          const cornerBay = side && alongSide <= 18;
+          const loadingApproach = y < annex.minY && hasRoad && routeDistance < 20;
+          if (yardEdge < radius + 1 || (!cornerBay && !loadingApproach)) continue;
+        }
+        if (grove && !pocket) {
+          const canopyDepth = valueNoise(x / 18, y / 18, zone.terrainSeed);
+          const openValley = valueNoise((x + 15) / 29, y / 29, zone.terrainSeed + 47);
+          const treeline = 7 + 7 * Math.max(0, openValley);
+          if (
+            canopy &&
+            ((hasRoad && routeDistance < radius + treeline) ||
+              (canopyDepth < (i < 190 ? -0.02 : -0.32) && role !== "landmark"))
+          )
+            continue;
+          // Reserve a varied low shoulder and group the nursery off the path.
+          if (nurseryProp && (canopyDepth < (i < 190 ? 0.17 : -0.1) || routeDistance < radius + 5))
+            continue;
+          if (
+            !canopy &&
+            !rocky &&
+            !nurseryProp &&
+            hasRoad &&
+            canopyDepth < 0.13 &&
+            routeDistance > radius + (i < 200 ? 5.5 : 8.5)
+          )
+            continue;
+        }
+        if (styled?.spatial === "temple" && !pocket && !localGround) {
+          const center = monument ?? zone.center;
+          const distance = Math.hypot(x - center.x, y - center.y);
+          if (
+            role === "landmark" &&
+            distance > Math.min(spec.width, spec.height) * (i < 180 ? 0.33 : 0.46)
+          )
+            continue;
+          if (
+            monument &&
+            (role === "support" || role === "detail" || ceremonial) &&
+            distance > radius + (i < 205 ? 17 : 27)
+          )
+            continue;
+          if (monument && vegetated && size.height > 3.2 && distance < radius + 11) continue;
+        }
+        if (
+          styled?.spatial === "citadel" &&
+          !localGround &&
+          monumentalFace(id) &&
+          hasRoad &&
+          routeDistance < radius + 6
+        )
+          continue;
         if (placementRole && !pocket) {
           if (natural) {
             const ridge = campaign?.features.find((feature) => feature.zone === zone.id);
@@ -337,11 +452,11 @@ export async function worldDecor(
               continue;
           }
         }
-        if (composed && natural && placed > 0) {
-          const grove = valueNoise(x / 21, y / 21, zone.decorSeed);
+        if (composed && natural && placed > 0 && !grove) {
+          const patch = valueNoise(x / 21, y / 21, zone.decorSeed);
           const distance = Math.hypot(x - zone.center.x, y - zone.center.y);
           if (
-            grove < (canopy ? -0.02 : -0.33) ||
+            patch < (canopy ? -0.02 : -0.33) ||
             distance > Math.min(spec.width, spec.height) * 0.46
           )
             continue;
@@ -364,7 +479,10 @@ export async function worldDecor(
           ) ||
           plan.expansions.some((p) => Math.hypot(x - p.x, y - p.y) < radius + 10) ||
           (!pocket &&
-            grounds.some((ground) => areaDistance(ground.area, { x, y }) > -radius - 1)) ||
+            grounds.some(
+              (ground) =>
+                ground !== compactGround && areaDistance(ground.area, point) > -radius - 1,
+            )) ||
           structures.perimeter.some((edge) => perimeterBlocks(edge, { x, y }, radius + 0.5)) ||
           structures.facility.terraces.some((t) => {
             const distance = areaDistance(t.area, { x, y });
@@ -401,7 +519,7 @@ export async function worldDecor(
           )
         )
           continue;
-        if (styled && role === "landmark" && i < 160) {
+        if (styled && role === "landmark" && i < 160 && styled.spatial !== "temple") {
           const cliff = campaign?.features.find((f) => f.zone === zone.id);
           if (cliff && Math.hypot(x - cliff.x, y - cliff.y) > Math.max(cliff.rx, cliff.ry) + 12)
             continue;
@@ -416,6 +534,16 @@ export async function worldDecor(
             continue;
           positions.push(reflected);
         }
+        const align =
+          Boolean(compactGround) ||
+          styled?.spatial === "streets" ||
+          ((styled?.spatial === "temple" || styled?.spatial === "citadel") && monumentalFace(id));
+        const angleToRoute =
+          align && segments.length ? facingNearestRoute(point, segments) : undefined;
+        const facing =
+          angleToRoute ??
+          (composed && !natural ? Math.floor(noise(4) * 4) / 4 : noise(4)) * Math.PI * 2;
+        if (styled?.spatial === "temple" && role === "landmark" && !monument) monument = point;
         for (const [side, position] of positions.entries()) {
           placements.push({
             kind: "Doodad",
@@ -423,13 +551,18 @@ export async function worldDecor(
             variation: model.variation ?? 0,
             flags: { HeightAbsolute: "1" },
             position: { ...position, z: surface.heights.sample(position).height },
-            rotation:
-              ((composed && !natural ? Math.floor(noise(4) * 4) / 4 : noise(4)) * Math.PI * 2 +
-                side * Math.PI) %
-              (Math.PI * 2),
+            rotation: (((facing + side * Math.PI) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2),
             ...(scale === 1 ? {} : { scale: { x: scale, y: scale, z: scale } }),
           });
           used.push({ ...position, radius });
+        }
+        if (
+          natural &&
+          styled &&
+          (role === "landmark" || ((canopy || rocky) && radius >= 1.2)) &&
+          landscapeAnchors.length < 16
+        ) {
+          landscapeAnchors.push({ point, radius });
         }
         if (placementRole) placedInZone.push({ x, y, radius, role: placementRole });
         if (interior) interiorProps++;
@@ -453,6 +586,16 @@ export async function worldDecor(
       );
       if (edge && rule.role === "support") {
         requiredDecor.push({ zone: zone.id, role: rule.label, actor: edge.actor });
+        continue;
+      }
+      // A compact approach and its facility share one furnishings palette.
+      // A role already represented by an assembled fixture needs no scatter duplicate.
+      const fixture =
+        compactGround &&
+        rule.actors.find((id) => structureActors.includes(id) && !existingRole.has(id));
+      if (fixture) {
+        requiredDecor.push({ zone: zone.id, role: rule.label, actor: fixture });
+        existingRole.add(fixture);
         continue;
       }
       const cargo = rule.actors.find((id) => placedCargo.has(id) && !existingRole.has(id));
@@ -499,6 +642,14 @@ export async function worldDecor(
         continue;
       await place(id);
     }
+    if (campaign && styled && !reference && Math.min(spec.width, spec.height) <= 80)
+      backfill.push(async () => {
+        for (const scale of [0.74, 0.62])
+          for (const id of candidates) {
+            if (scenicTypes.size >= campaign.decorBudget.min) return;
+            if (!scenicTypes.has(id) && !edgeActors.has(id)) await place(id, undefined, scale);
+          }
+      });
     if (reference && coverage)
       backfill.push(async () => {
         for (
@@ -535,4 +686,25 @@ export async function worldDecor(
     qualifyingTypes: [...qualifying],
     qualifyingByRole,
   };
+}
+
+function monumentalFace(id: string) {
+  return /Temple|Altar|Archway|Statue|Inlay|Facade|Wall|Banner/.test(id);
+}
+
+function facingNearestRoute(
+  point: { x: number; y: number },
+  segments: { from: { x: number; y: number }; to: { x: number; y: number } }[],
+) {
+  const nearest = segments.reduce((best, segment) =>
+    segmentDistance(point, segment.from, segment.to) < segmentDistance(point, best.from, best.to)
+      ? segment
+      : best,
+  );
+  const dx = nearest.to.x - nearest.from.x;
+  const dy = nearest.to.y - nearest.from.y;
+  const cross = dx * (point.y - nearest.from.y) - dy * (point.x - nearest.from.x);
+  // SC2 building assets use a cardinal local front. Face the side of the street.
+  const normal = Math.atan2(dy, dx) + (cross < 0 ? Math.PI / 2 : -Math.PI / 2);
+  return Math.round(normal / (Math.PI / 2)) * (Math.PI / 2);
 }

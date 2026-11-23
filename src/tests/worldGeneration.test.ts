@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { compactWorkDeck } from "../modules/world/compactFacility.js";
+import { planScenicBasin } from "../modules/world/scenicBasin.js";
+import { facilityPerimeter } from "../modules/world/facility.js";
+import { companionPoint, wallCourseHeight, wallSections } from "../modules/world/composition.js";
 import { resolveWorldSpec, planWorld, routeEdgeDistance } from "../modules/world/plan.js";
 import {
   campaignLandscapeEnabled,
@@ -744,4 +748,74 @@ test("a forest crossing preserves softened shoulders, a raised laboratory and ro
     assert.ok(Math.abs(framedSurface.heights.z(x, 41) - 7.1) < 0.001);
     assert.ok(Math.abs(framedSurface.heights.z(x, 45) - 7.1) < 0.001);
   }
+});
+
+test("a fitted boundary keeps one course and uses dedicated corners away from gates", () => {
+  const area = { type: "rectangle" as const, minX: 10, minY: 12, maxX: 40, maxY: 44 };
+  const style = {
+    actor: "Protoss_Base_OuterWalls",
+    spacing: 4.8,
+    depth: 1.8,
+    height: 2.7,
+    faces: "double" as const,
+    corner: { actor: "Aiur_CliffCorner", scale: 1.2, rotation: 45 },
+  };
+  const fit = (paths: Parameters<typeof facilityPerimeter>[2]) =>
+    facilityPerimeter(area, style, paths).flatMap((edge) =>
+      "corners" in edge ? (edge.corners ?? []) : [],
+    );
+  const corners = fit([]);
+  assert.equal(corners.length, 4);
+  assert.equal(new Set(corners.map(({ rotation }) => rotation)).size, 4);
+  assert.ok(corners.every(({ actor }) => actor === "Aiur_CliffCorner"));
+  for (const { point, rotation } of corners) {
+    assert.ok(Math.sin(rotation) * (point.x === area.minX ? 1 : -1) > 0);
+    assert.ok(-Math.cos(rotation) * (point.y === area.minY ? 1 : -1) > 0);
+  }
+  const cut = fit([
+    {
+      points: [
+        { x: 39.5, y: 40 },
+        { x: 39.5, y: 47 },
+      ],
+      halfWidthAt: () => 1.5,
+    },
+  ]);
+  assert.deepEqual(
+    cut.map(({ point }) => point),
+    corners.filter(({ point }) => point.x !== 40 || point.y !== 44).map(({ point }) => point),
+  );
+  const wall = wallSections(13, 29, 4.8);
+  assert.deepEqual(
+    wall.map(({ center }) => center),
+    [15, 19, 23, 27],
+  );
+  assert.equal(wallCourseHeight([6, 6.0625, 6.125]), 6.0625);
+  assert.equal(wallCourseHeight([4, 6]), undefined);
+  assert.deepEqual(companionPoint({ x: 12, y: 20 }, 0, 3), { x: 15, y: 20 });
+});
+
+test("compact work decks and scenic basins respect native grids", () => {
+  const room = { center: { x: 48, y: 24 }, width: 18, height: 18 };
+  const deck = compactWorkDeck(room, "east")!;
+  assert.deepEqual(deck.min, { x: 46, y: 20 });
+  assert.deepEqual(deck.max, { x: 54, y: 30 });
+  assert.deepEqual(deck.stair, { side: "west", at: 25 });
+  assert.equal(compactWorkDeck({ ...room, width: 12 }, "east"), undefined);
+
+  const params = {
+    center: { x: 44.8, y: 15.3 },
+    radiusX: 7.25,
+    radiusY: 5.15,
+    bankHeight: 4.15,
+    floorHeight: 2.11,
+    surfaceHeight: 3.22,
+    bedTexture: "Zerus4",
+    material: { id: "Backwater", parent: "Agria" },
+  };
+  const basin = planScenicBasin(params);
+  assert.equal(basin.terrain[1].op, "height.set");
+  assert.deepEqual(basin.bounds, { type: "rectangle", minX: 32, minY: 8, maxX: 56, maxY: 24 });
+  assert.equal(basin.water[1].op, "water.create");
+  assert.throws(() => planScenicBasin({ ...params, surfaceHeight: 5 }), /SUBMERGED_FLOOR/);
 });

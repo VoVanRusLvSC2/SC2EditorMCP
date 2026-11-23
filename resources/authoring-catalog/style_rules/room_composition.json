@@ -1,6 +1,9 @@
 {
   "version": 1,
-  "ergonomics": { "consoleGap": 3, "opposedWithin": 7 },
+  "ergonomics": {
+    "consoleGap": 3,
+    "opposedWithin": 7
+  },
   "wayfinding": {
     "spacing": 3.5,
     "edgeOffset": 0.48,
@@ -8,8 +11,18 @@
     "upperLandingDepth": 3.75
   },
   "raisedContainment": {
-    "experiments": { "anchor": "chamber", "support": ["labEquipment"] },
-    "samplePrep": { "anchor": "labBench", "support": ["specimen"] },
+    "experiments": {
+      "anchor": "chamber",
+      "support": [
+        "labEquipment"
+      ]
+    },
+    "samplePrep": {
+      "anchor": "labBench",
+      "support": [
+        "specimen"
+      ]
+    },
     "groundConsole": "console",
     "analysisConsole": "analysisConsole",
     "analysisSeam": 0.2,
@@ -17,173 +30,1354 @@
     "experimentRow": "sampleStation",
     "experimentPitch": 4.4,
     "experimentMax": 5,
-    "experimentSupport": ["sampleAux", "postSupply"]
+    "experimentSupport": [
+      "sampleAux",
+      "postSupply"
+    ]
   },
   "activities": {
     "research": {
       "anchor": "labBench",
-      "support": ["console", "equipment", "labBench", "utility", "bench"],
-      "secondary": { "anchor": "bench", "support": ["equipment", "console"] }
+      "support": [
+        "console",
+        "equipment",
+        "labBench",
+        "utility",
+        "bench"
+      ],
+      "secondary": {
+        "anchor": "bench",
+        "support": [
+          "equipment",
+          "console"
+        ]
+      }
     },
     "containment": {
       "anchor": "chamber",
-      "support": ["console", "specimen", "console", "specimen", "utility"],
+      "support": [
+        "console",
+        "specimen",
+        "console",
+        "specimen",
+        "utility"
+      ],
       "secondary": {
         "anchor": "labBench",
-        "support": ["labEquipment", "console", "specimen"]
+        "support": [
+          "labEquipment",
+          "console",
+          "specimen"
+        ]
       }
     },
     "briefing": {
       "anchor": "display",
-      "support": ["wallConsole", "wallConsole", "console", "bench", "console"],
-      "secondary": { "anchor": "wallConsole", "support": ["console"] }
+      "support": [
+        "wallConsole",
+        "wallConsole",
+        "console",
+        "bench",
+        "console"
+      ],
+      "secondary": {
+        "anchor": "wallConsole",
+        "support": [
+          "console"
+        ]
+      }
     },
     "sorting": {
       "anchor": "loading",
-      "support": ["bench", "console", "cargo", "cargo", "utility"],
-      "secondary": { "anchor": "cargo", "support": ["cargo", "cargo", "console"] }
+      "support": [
+        "bench",
+        "console",
+        "cargo",
+        "cargo",
+        "utility"
+      ],
+      "secondary": {
+        "anchor": "cargo",
+        "support": [
+          "cargo",
+          "cargo",
+          "console"
+        ]
+      }
     },
     "power": {
       "anchor": "generator",
-      "support": ["utility", "utility", "console", "equipment", "utility"],
-      "secondary": { "anchor": "utility", "support": ["utility", "console"] }
+      "support": [
+        "utility",
+        "utility",
+        "console",
+        "equipment",
+        "utility"
+      ],
+      "secondary": {
+        "anchor": "utility",
+        "support": [
+          "utility",
+          "console"
+        ]
+      }
     },
-    "checkpoint": { "anchor": "security", "support": ["console", "utility"] },
+    "checkpoint": {
+      "anchor": "security",
+      "support": [
+        "console",
+        "utility"
+      ]
+    },
     "circulation": {
       "anchor": "security",
-      "support": ["console", "equipment", "console"]
+      "support": [
+        "console",
+        "equipment",
+        "console"
+      ]
     },
     "habitation": {
       "anchor": "bench",
-      "support": ["cargo", "bench", "utility", "console"],
-      "secondary": { "anchor": "bench", "support": ["cargo"] }
+      "support": [
+        "cargo",
+        "bench",
+        "utility",
+        "console"
+      ],
+      "secondary": {
+        "anchor": "bench",
+        "support": [
+          "cargo"
+        ]
+      }
+    },
+    "ritual": {
+      "anchor": "altar",
+      "support": [
+        "brazier",
+        "pillar",
+        "brazier",
+        "pillar"
+      ],
+      "secondary": {
+        "anchor": "brazier",
+        "support": [
+          "pillar"
+        ]
+      }
+    },
+    "garden": {
+      "anchor": "tree",
+      "support": [
+        "gardenPlant",
+        "pathLight",
+        "gardenPlant",
+        "gardenPlant",
+        "pathLight"
+      ],
+      "secondary": {
+        "anchor": "gardenPlant",
+        "support": [
+          "gardenPlant",
+          "pathLight"
+        ]
+      }
+    },
+    "plaza": {
+      "anchor": "fountain",
+      "support": [
+        "gardenPlant",
+        "bench",
+        "pathLight",
+        "bench",
+        "gardenPlant"
+      ],
+      "secondary": {
+        "anchor": "gardenPlant",
+        "support": [
+          "bench",
+          "pathLight"
+        ]
+      }
+    },
+    "frontage": {
+      "anchor": "facade",
+      "support": [
+        "sign",
+        "pathLight",
+        "gardenPlant",
+        "bench"
+      ],
+      "secondary": {
+        "anchor": "sign",
+        "support": [
+          "pathLight",
+          "bench"
+        ]
+      }
     }
   },
   "slots": {
-    "labBench": { "roles": ["fixture"], "match": "Dissection|LabTable|CellTable|Bench" },
+    "labBench": {
+      "roles": [
+        "fixture"
+      ],
+      "match": "Dissection|LabTable|CellTable|Bench"
+    },
     "chamber": {
-      "roles": ["structure", "fixture"],
+      "roles": [
+        "structure",
+        "fixture"
+      ],
       "match": "Chamber|StasisTube|Capsule|TestTube|Cage"
     },
-    "display": { "roles": ["fixture"], "match": "Holo|Screen|Monitor|Console" },
+    "display": {
+      "roles": [
+        "fixture"
+      ],
+      "match": "Holo|Screen|Monitor|Console"
+    },
     "loading": {
-      "roles": ["utility", "structure", "cargo", "yard_prop"],
+      "roles": [
+        "utility",
+        "structure",
+        "cargo",
+        "yard_prop"
+      ],
       "match": "Dock|Cargo|Crate|Pallet|Conveyor"
     },
-    "generator": { "roles": ["utility", "structure"], "match": "Generator|Reactor|Power|Tank" },
-    "security": { "roles": ["fixture"], "match": "Console|Monitor|Security" },
-    "console": { "roles": ["fixture"], "match": "Console|Monitor|Terminal" },
-    "wallConsole": { "roles": ["fixture"], "match": "Console|Monitor|Screen|Terminal" },
-    "analysisConsole": { "roles": ["fixture"], "match": "Console|Monitor|Screen|Terminal" },
-    "sideConsole": { "roles": ["fixture"], "match": "Monitor|Console" },
-    "sampleAux": { "roles": ["fixture"], "match": "LabTable|CellTable|DissectionArm" },
+    "generator": {
+      "roles": [
+        "utility",
+        "structure"
+      ],
+      "match": "Generator|Reactor|Power|Tank"
+    },
+    "security": {
+      "roles": [
+        "fixture"
+      ],
+      "match": "Console|Monitor|Security"
+    },
+    "console": {
+      "roles": [
+        "fixture"
+      ],
+      "match": "Console|Monitor|Terminal"
+    },
+    "wallConsole": {
+      "roles": [
+        "fixture"
+      ],
+      "match": "Console|Monitor|Screen|Terminal"
+    },
+    "analysisConsole": {
+      "roles": [
+        "fixture"
+      ],
+      "match": "Console|Monitor|Screen|Terminal"
+    },
+    "sideConsole": {
+      "roles": [
+        "fixture"
+      ],
+      "match": "Monitor|Console"
+    },
+    "sampleAux": {
+      "roles": [
+        "fixture"
+      ],
+      "match": "LabTable|CellTable|DissectionArm"
+    },
     "sampleStation": {
-      "roles": ["fixture"],
+      "roles": [
+        "fixture"
+      ],
       "match": "TestTube|DissectionTable|CellTable|LabTable"
     },
-    "postSupply": { "roles": ["cargo", "utility"], "match": "Crate|Case|Container|Vent" },
+    "postSupply": {
+      "roles": [
+        "cargo",
+        "utility"
+      ],
+      "match": "Crate|Case|Container|Vent"
+    },
     "equipment": {
-      "roles": ["fixture", "utility"],
+      "roles": [
+        "fixture",
+        "utility"
+      ],
       "match": "Equipment|DissectionArm|Fixture|Vent"
     },
-    "labEquipment": { "roles": ["fixture"], "match": "DissectionArm|Sample|Specimen" },
-    "specimen": { "roles": ["fixture"], "match": "TestTube|StasisTube|Specimen|Cage" },
+    "labEquipment": {
+      "roles": [
+        "fixture"
+      ],
+      "match": "DissectionArm|Sample|Specimen"
+    },
+    "specimen": {
+      "roles": [
+        "fixture"
+      ],
+      "match": "TestTube|StasisTube|Specimen|Cage"
+    },
     "pathLight": {
-      "roles": ["light"],
+      "roles": [
+        "light"
+      ],
       "match": "LandingLight|FloorLight|WalkwayLight|RunwayLight"
     },
-    "utility": { "roles": ["utility"], "match": "Pipe|Conduit|Cable|Fan|Vent" },
+    "utility": {
+      "roles": [
+        "utility"
+      ],
+      "match": "Pipe|Conduit|Cable|Fan|Vent"
+    },
     "bench": {
-      "roles": ["fixture", "yard_prop"],
+      "roles": [
+        "fixture",
+        "yard_prop"
+      ],
       "match": "Bench|LabTable|CellTable|Chair|Desk|Terminal"
     },
-    "cargo": { "roles": ["cargo"], "match": "Crate|Pallet|Supplies|Barrel" },
-    "damage": { "roles": [], "match": "Debris" }
+    "cargo": {
+      "roles": [
+        "cargo"
+      ],
+      "match": "Crate|Pallet|Supplies|Barrel"
+    },
+    "damage": {
+      "roles": [],
+      "match": "Debris"
+    },
+    "altar": {
+      "roles": [
+        "landmark",
+        "structure",
+        "equipment"
+      ],
+      "match": "altar|ritual"
+    },
+    "brazier": {
+      "roles": [
+        "light",
+        "equipment",
+        "landmark"
+      ],
+      "match": "brazier"
+    },
+    "pillar": {
+      "roles": [
+        "structure",
+        "landmark"
+      ],
+      "match": "pillar|statue"
+    },
+    "tree": {
+      "roles": [
+        "canopy"
+      ],
+      "match": "Aiur.*Tree"
+    },
+    "gardenPlant": {
+      "roles": [
+        "understory",
+        "ground_detail",
+        "scenery"
+      ],
+      "match": "Aiur.*Plant|GroundCover|garden"
+    },
+    "fountain": {
+      "roles": [
+        "landmark",
+        "structure",
+        "scenery"
+      ],
+      "match": "Fountain|Statue"
+    },
+    "facade": {
+      "roles": [
+        "landmark",
+        "structure"
+      ],
+      "match": "Building|StoreFront"
+    },
+    "sign": {
+      "roles": [
+        "landmark",
+        "equipment",
+        "marking"
+      ],
+      "match": "Sign|Billboard"
+    },
+    "pipeBank": {
+      "roles": [
+        "utility"
+      ],
+      "match": "Pipe|Conduit"
+    },
+    "plantBank": {
+      "roles": [
+        "utility",
+        "fixture"
+      ],
+      "match": "Vent|Equipment"
+    },
+    "supplyRack": {
+      "roles": [
+        "cargo",
+        "fixture"
+      ],
+      "match": "Rack|Supplies"
+    },
+    "specimenRack": {
+      "roles": [
+        "fixture"
+      ],
+      "match": "Stasis|Specimen"
+    }
   },
   "palettes": {
     "UmojaEx3": {
-      "labBench": [{ "id": "UmojanLabDissectionTable", "scale": 1.18 }, { "id": "DOM_LabTable" }],
+      "labBench": [
+        {
+          "id": "UmojanLabDissectionTable",
+          "scale": 1.18
+        },
+        {
+          "id": "DOM_LabTable"
+        }
+      ],
       "chamber": [
-        { "id": "UmojanLabZergChamberLarge", "variation": 4, "scale": 0.74 },
-        { "id": "UmojanLabTestTube", "scale": 1.35 }
+        {
+          "id": "UmojanLabZergChamberLarge",
+          "variation": 4,
+          "scale": 0.74
+        },
+        {
+          "id": "UmojanLabTestTube",
+          "scale": 1.35
+        }
       ],
       "display": [
-        { "id": "UmojanLabHoloProjector", "scale": 1.48 },
-        { "id": "UmojanLabMonitorFloor", "scale": 1.18 }
+        {
+          "id": "UmojanLabHoloProjector",
+          "scale": 1.48
+        },
+        {
+          "id": "UmojanLabMonitorFloor",
+          "scale": 1.18
+        }
       ],
       "loading": [
-        { "id": "SpaceDockEquipment", "scale": 0.72 },
-        { "id": "DOM_LabTable", "scale": 0.95 }
+        {
+          "id": "SpaceDockEquipment",
+          "scale": 0.72
+        },
+        {
+          "id": "DOM_LabTable",
+          "scale": 0.95
+        }
       ],
       "generator": [
-        { "id": "UmojanLabPowerConduit", "scale": 0.78 },
-        { "id": "CompoundSewers_Tank", "scale": 1.25 }
+        {
+          "id": "UmojanLabPowerConduit",
+          "scale": 0.78
+        },
+        {
+          "id": "CompoundSewers_Tank",
+          "scale": 1.25
+        }
       ],
       "security": [
-        { "id": "UmojanLabMonitorFloor", "scale": 0.94 },
-        { "id": "UmojanLabMonitorFloor", "scale": 0.72 }
+        {
+          "id": "UmojanLabMonitorFloor",
+          "scale": 0.94
+        },
+        {
+          "id": "UmojanLabMonitorFloor",
+          "scale": 0.72
+        }
       ],
       "console": [
-        { "id": "UmojanLabMonitorFloor", "scale": 0.83, "wallFacing": true },
-        { "id": "UmojanLabWallConsoles", "scale": 0.8, "wallFacing": true }
+        {
+          "id": "UmojanLabMonitorFloor",
+          "scale": 0.83,
+          "wallFacing": true
+        },
+        {
+          "id": "UmojanLabWallConsoles",
+          "scale": 0.8,
+          "wallFacing": true
+        }
       ],
-      "wallConsole": [{ "id": "UmojanLabWallConsoles", "scale": 0.88, "wallFacing": true }],
-      "analysisConsole": [{ "id": "UmojanLabWallConsoles", "wallFacing": true }],
-      "sideConsole": [{ "id": "UmojanLabMonitorFloor", "scale": 0.68, "wallFacing": true }],
-      "sampleAux": [{ "id": "UmojanLabCellTable", "scale": 0.8 }],
-      "sampleStation": [{ "id": "UmojanLabTestTube", "scale": 0.84 }],
-      "postSupply": [{ "id": "UmojanLabCratePhysics", "scale": 0.7 }],
-      "postDecal": [{ "id": "Terran_Target_Splat", "scale": 0.64 }],
-      "equipment": [{ "id": "UmojanLabDissectionArm" }, { "id": "CompoundSewers_Fan" }],
-      "labEquipment": [{ "id": "UmojanLabDissectionArm", "scale": 0.9 }],
+      "wallConsole": [
+        {
+          "id": "UmojanLabWallConsoles",
+          "scale": 0.88,
+          "wallFacing": true
+        }
+      ],
+      "analysisConsole": [
+        {
+          "id": "UmojanLabWallConsoles",
+          "wallFacing": true
+        }
+      ],
+      "sideConsole": [
+        {
+          "id": "UmojanLabMonitorFloor",
+          "scale": 0.68,
+          "wallFacing": true
+        }
+      ],
+      "sampleAux": [
+        {
+          "id": "UmojanLabCellTable",
+          "scale": 0.8
+        }
+      ],
+      "sampleStation": [
+        {
+          "id": "UmojanLabTestTube",
+          "scale": 0.84
+        }
+      ],
+      "postSupply": [
+        {
+          "id": "UmojanLabCratePhysics",
+          "scale": 0.7
+        }
+      ],
+      "postDecal": [
+        {
+          "id": "Terran_Target_Splat",
+          "scale": 0.64
+        }
+      ],
+      "equipment": [
+        {
+          "id": "UmojanLabDissectionArm"
+        },
+        {
+          "id": "CompoundSewers_Fan"
+        }
+      ],
+      "labEquipment": [
+        {
+          "id": "UmojanLabDissectionArm",
+          "scale": 0.9
+        }
+      ],
       "specimen": [
-        { "id": "UmojanLabTestTube", "scale": 0.84 },
-        { "id": "UmojanLabCellTable", "scale": 0.86 }
+        {
+          "id": "UmojanLabTestTube",
+          "scale": 0.84
+        },
+        {
+          "id": "UmojanLabCellTable",
+          "scale": 0.86
+        }
       ],
-      "pathLight": [{ "id": "LandingLights", "variation": 2, "scale": 1.3 }],
+      "pathLight": [
+        {
+          "id": "LandingLights",
+          "variation": 2,
+          "scale": 1.3
+        }
+      ],
       "utility": [
-        { "id": "GenericSpacePipes", "scale": 0.88 },
-        { "id": "CompoundSewers_Fan" },
-        { "id": "SpaceDockPowerLines" }
+        {
+          "id": "GenericSpacePipes",
+          "scale": 0.88
+        },
+        {
+          "id": "CompoundSewers_Fan"
+        },
+        {
+          "id": "SpaceDockPowerLines"
+        }
       ],
       "bench": [
-        { "id": "DOM_LabTable", "scale": 0.84 },
-        { "id": "UmojanLabCellTable", "scale": 0.9 }
+        {
+          "id": "DOM_LabTable",
+          "scale": 0.84
+        },
+        {
+          "id": "UmojanLabCellTable",
+          "scale": 0.9
+        }
       ],
-      "cargo": [{ "id": "UmojanLabCrates", "scale": 1.04 }, { "id": "UmojanLabCratePhysics" }],
-      "damage": [{ "id": "UmojanLabDebrisDoodad", "scale": 0.7 }]
+      "cargo": [
+        {
+          "id": "UmojanLabCrates",
+          "scale": 1.04
+        },
+        {
+          "id": "UmojanLabCratePhysics"
+        }
+      ],
+      "damage": [
+        {
+          "id": "UmojanLabDebrisDoodad",
+          "scale": 0.7
+        }
+      ]
     },
     "DominionLab": "UmojaEx3",
     "Castanar": {
-      "labBench": [{ "id": "CastanarDissectionTable" }],
-      "chamber": [{ "id": "CastanarStasisTubeLarge" }, { "id": "CastanarStasisTube" }],
-      "display": [{ "id": "CastanarHoloProjector" }, { "id": "CastanarMonitorFloor" }],
-      "generator": [{ "id": "CastanarGenerator" }],
-      "security": [{ "id": "CastanarMonitorFloor" }, { "id": "CastanarCamera" }],
-      "console": [{ "id": "CastanarMonitorFloor" }],
-      "wallConsole": [{ "id": "CastanarMonitorWall", "wallFacing": true }],
-      "analysisConsole": [
-        { "id": "CastanarMonitorWall", "wallFacing": true },
-        { "id": "CastanarMonitorFloor", "wallFacing": true }
+      "labBench": [
+        {
+          "id": "CastanarDissectionTable"
+        }
       ],
-      "sideConsole": [{ "id": "CastanarMonitorFloor", "scale": 0.7, "wallFacing": true }],
-      "specimen": [{ "id": "CastanarStasisTube" }],
-      "labEquipment": [{ "id": "CastanarDissectionArm" }],
-      "pathLight": [{ "id": "LandingLights", "variation": 2 }],
-      "damage": [{ "id": "CastanarStasisTubeDebris", "scale": 0.7 }]
+      "chamber": [
+        {
+          "id": "CastanarStasisTubeLarge"
+        },
+        {
+          "id": "CastanarStasisTube"
+        }
+      ],
+      "display": [
+        {
+          "id": "CastanarHoloProjector"
+        },
+        {
+          "id": "CastanarMonitorFloor"
+        }
+      ],
+      "generator": [
+        {
+          "id": "CastanarGenerator"
+        }
+      ],
+      "security": [
+        {
+          "id": "CastanarMonitorFloor"
+        },
+        {
+          "id": "CastanarCamera"
+        }
+      ],
+      "console": [
+        {
+          "id": "CastanarMonitorFloor"
+        }
+      ],
+      "wallConsole": [
+        {
+          "id": "CastanarMonitorWall",
+          "wallFacing": true
+        }
+      ],
+      "analysisConsole": [
+        {
+          "id": "CastanarMonitorWall",
+          "wallFacing": true
+        },
+        {
+          "id": "CastanarMonitorFloor",
+          "wallFacing": true
+        }
+      ],
+      "sideConsole": [
+        {
+          "id": "CastanarMonitorFloor",
+          "scale": 0.7,
+          "wallFacing": true
+        }
+      ],
+      "specimen": [
+        {
+          "id": "CastanarStasisTube"
+        }
+      ],
+      "labEquipment": [
+        {
+          "id": "CastanarDissectionArm"
+        }
+      ],
+      "pathLight": [
+        {
+          "id": "LandingLights",
+          "variation": 2
+        }
+      ],
+      "damage": [
+        {
+          "id": "CastanarStasisTubeDebris",
+          "scale": 0.7
+        }
+      ]
     },
     "BlackopsLab_A": {
-      "labBench": [{ "id": "DOM_LabTable" }],
-      "display": [{ "id": "DOM_LabWallScreens" }],
-      "console": [{ "id": "DOM_LabConsoles" }],
-      "wallConsole": [{ "id": "DOM_LabConsoles", "wallFacing": true }],
-      "analysisConsole": [
-        { "id": "DOM_LabWallScreens", "wallFacing": true },
-        { "id": "DOM_LabConsoles", "wallFacing": true }
+      "labBench": [
+        {
+          "id": "DOM_LabTable"
+        }
       ],
-      "sideConsole": [{ "id": "DOM_LabConsoles", "scale": 0.7, "wallFacing": true }],
-      "pathLight": [{ "id": "LandingLights", "variation": 2 }],
-      "cargo": [{ "id": "DOM_LabCrates" }]
+      "display": [
+        {
+          "id": "DOM_Table_WarRoom",
+          "scale": 1
+        },
+        {
+          "id": "DOM_LabWallScreens",
+          "wallFacing": true
+        }
+      ],
+      "console": [
+        {
+          "id": "DOM_LabConsoles"
+        }
+      ],
+      "wallConsole": [
+        {
+          "id": "DOM_LabConsoles",
+          "wallFacing": true
+        }
+      ],
+      "analysisConsole": [
+        {
+          "id": "DOM_LabWallScreens",
+          "wallFacing": true
+        },
+        {
+          "id": "DOM_LabConsoles",
+          "wallFacing": true
+        }
+      ],
+      "sideConsole": [
+        {
+          "id": "DOM_LabConsoles",
+          "scale": 0.7,
+          "wallFacing": true
+        }
+      ],
+      "pathLight": [
+        {
+          "id": "LandingLights",
+          "variation": 2,
+          "scale": 1.2
+        }
+      ],
+      "cargo": [
+        {
+          "id": "DOM_LabCrates"
+        },
+        {
+          "id": "DOM_Crate"
+        }
+      ],
+      "chamber": [
+        {
+          "id": "DOM_StasisTubeLarge",
+          "scale": 0.9
+        },
+        {
+          "id": "DOM_StasisTube"
+        },
+        {
+          "id": "DOM_LabStasisTubeWalls"
+        }
+      ],
+      "loading": [
+        {
+          "id": "SpaceDockEquipment"
+        },
+        {
+          "id": "DOM_LabVehicleFacility"
+        }
+      ],
+      "generator": [
+        {
+          "id": "DOM_VentTower"
+        },
+        {
+          "id": "DOM_LabVehicleFacility"
+        }
+      ],
+      "security": [
+        {
+          "id": "DOM_BaseMonitors",
+          "wallFacing": true
+        },
+        {
+          "id": "DOM_LabFloodLight"
+        }
+      ],
+      "experimentRow": [
+        {
+          "id": "DOM_StasisTube"
+        }
+      ],
+      "sampleStation": [
+        {
+          "id": "DOM_StasisTube",
+          "scale": 0.72
+        },
+        {
+          "id": "DOM_LabTable"
+        }
+      ],
+      "sampleAux": [
+        {
+          "id": "DOM_Ground_Grate"
+        },
+        {
+          "id": "DOM_LabTable"
+        }
+      ],
+      "postSupply": [
+        {
+          "id": "DOM_Crate"
+        },
+        {
+          "id": "DOM_LabCrates"
+        }
+      ],
+      "postDecal": [
+        {
+          "id": "Terran_Target_Splat",
+          "scale": 0.6
+        }
+      ],
+      "labEquipment": [
+        {
+          "id": "DOM_RoboArm_Large"
+        },
+        {
+          "id": "UmojanLabDissectionArm"
+        }
+      ],
+      "equipment": [
+        {
+          "id": "DOM_LabTestingFacility"
+        },
+        {
+          "id": "DOM_RoboArm_Large"
+        },
+        {
+          "id": "DOM_GunRacks"
+        }
+      ],
+      "specimen": [
+        {
+          "id": "DOM_StasisTube",
+          "scale": 0.75
+        },
+        {
+          "id": "DOM_LabConsoles"
+        }
+      ],
+      "utility": [
+        {
+          "id": "GenericSpacePipes"
+        },
+        {
+          "id": "PipesSmallLong"
+        },
+        {
+          "id": "ExhaustPipes"
+        },
+        {
+          "id": "DOM_Ground_Grate"
+        }
+      ],
+      "bench": [
+        {
+          "id": "DOM_LabTable"
+        }
+      ],
+      "pipeBank": [
+        {
+          "id": "PipesSmallLong",
+          "scale": 0.92
+        },
+        {
+          "id": "GenericSpacePipes",
+          "scale": 0.67
+        }
+      ],
+      "plantBank": [
+        {
+          "id": "DOM_VentTower",
+          "scale": 0.8
+        },
+        {
+          "id": "ExhaustPipes",
+          "scale": 0.82
+        }
+      ],
+      "supplyRack": [
+        {
+          "id": "DOM_GunRacks",
+          "scale": 0.9
+        },
+        {
+          "id": "MilitarySupplies",
+          "scale": 0.87
+        }
+      ],
+      "specimenRack": [
+        {
+          "id": "DOM_StasisTube",
+          "scale": 0.81
+        },
+        {
+          "id": "DOM_LabTable",
+          "scale": 0.8
+        }
+      ],
+      "sampleRack": [
+        {
+          "id": "DOM_LabStasisTubeWalls",
+          "scale": 0.68
+        },
+        {
+          "id": "DOM_StasisTube",
+          "scale": 0.7
+        }
+      ],
+      "diagnosticBank": [
+        {
+          "id": "DOM_LabWallScreens",
+          "scale": 0.75
+        },
+        {
+          "id": "DOM_BaseMonitors",
+          "scale": 0.68
+        }
+      ],
+      "laboratoryCart": [
+        {
+          "id": "DOM_LabCrates",
+          "scale": 0.68
+        },
+        {
+          "id": "SpaceDockEquipment",
+          "scale": 0.7
+        }
+      ],
+      "engineeringRack": [
+        {
+          "id": "PipesSmallLong",
+          "scale": 0.72
+        },
+        {
+          "id": "GenericSpacePipes",
+          "scale": 0.58
+        }
+      ],
+      "deckUtility": [
+        {
+          "id": "DOM_LabCrates",
+          "scale": 0.53
+        },
+        {
+          "id": "DOM_Ground_Grate",
+          "scale": 0.55
+        }
+      ],
+      "deckDiagnostic": [
+        {
+          "id": "DOM_BaseMonitors",
+          "scale": 0.55
+        },
+        {
+          "id": "DOM_LabConsoles",
+          "scale": 0.65
+        }
+      ]
+    },
+    "Slayn": {
+      "altar": [
+        {
+          "id": "Slayn_Sacrificial_Altar_Big",
+          "scale": 0.74
+        },
+        {
+          "id": "Slayn_Sacrificial_Altar"
+        }
+      ],
+      "brazier": [
+        {
+          "id": "Slayn_Braziers"
+        },
+        {
+          "id": "Slayn_Brazier_Embers"
+        }
+      ],
+      "pillar": [
+        {
+          "id": "Slayn_Temple_Pillars"
+        },
+        {
+          "id": "Slayn_Statues"
+        }
+      ],
+      "security": [
+        {
+          "id": "Slayn_Statues"
+        },
+        {
+          "id": "Slayn_Temple_Pillars"
+        }
+      ],
+      "pathLight": [
+        {
+          "id": "Slayn_Brazier_Fire"
+        }
+      ],
+      "console": [
+        {
+          "id": "Slayn_Temple_Deco"
+        }
+      ],
+      "equipment": [
+        {
+          "id": "Slayn_Banner"
+        }
+      ],
+      "generator": [
+        {
+          "id": "Slayn_Terrazine_Temple"
+        },
+        {
+          "id": "Slayn_TerrazineGeyser"
+        }
+      ],
+      "utility": [
+        {
+          "id": "Slayn_Temple_Deco"
+        },
+        {
+          "id": "Slayn_Stone_Bricks"
+        }
+      ]
+    },
+    "SlaynTemple": "Slayn",
+    "Aiur4City": {
+      "tree": [
+        {
+          "id": "AiurTree_Ex2",
+          "scale": 1.18
+        },
+        {
+          "id": "AiurTree_Grouped"
+        }
+      ],
+      "gardenPlant": [
+        {
+          "id": "Aiur_Plantlife"
+        },
+        {
+          "id": "Aiur_GroundCover"
+        }
+      ],
+      "pathLight": [
+        {
+          "id": "Aiur_PortLight"
+        },
+        {
+          "id": "Aiur_City_Light"
+        }
+      ],
+      "display": [
+        {
+          "id": "Protoss_Base_CoreMatrix"
+        },
+        {
+          "id": "Protoss_Base_Hologram"
+        }
+      ],
+      "wallConsole": [
+        {
+          "id": "Protoss_Base_Terminals"
+        },
+        {
+          "id": "Aiur_GroundConsole"
+        }
+      ],
+      "console": [
+        {
+          "id": "Aiur_GroundConsole"
+        },
+        {
+          "id": "Protoss_Base_Console_Small"
+        }
+      ],
+      "bench": [
+        {
+          "id": "Protoss_Base_Pads"
+        }
+      ],
+      "security": [
+        {
+          "id": "Protoss_Base_Force_Field_Pillar"
+        },
+        {
+          "id": "Aiur_City_Pillar"
+        }
+      ],
+      "equipment": [
+        {
+          "id": "Protoss_Base_Repair_Bot"
+        },
+        {
+          "id": "Aiur_PowerCrystal"
+        }
+      ],
+      "generator": [
+        {
+          "id": "Aiur_CityBuilding_Tower",
+          "scale": 0.52
+        },
+        {
+          "id": "Aiur_CityBuilding_Spire",
+          "scale": 0.48
+        },
+        {
+          "id": "Protoss_Base_MechanicalBay"
+        },
+        {
+          "id": "Protoss_Base_RepairBay"
+        }
+      ],
+      "utility": [
+        {
+          "id": "Protoss_Base_TechPillar"
+        },
+        {
+          "id": "Aiur_Power_Point"
+        },
+        {
+          "id": "Protoss_Base_Console_Small"
+        }
+      ],
+      "gardenStatue": [
+        {
+          "id": "Aiur_Guardian_City_Statue",
+          "scale": 0.62
+        }
+      ],
+      "gardenStone": [
+        {
+          "id": "Aiur_CliffRocks_SmallRocks",
+          "scale": 0.7
+        }
+      ],
+      "siteBanner": [
+        {
+          "id": "Aiur_City_Banners",
+          "scale": 0.62
+        }
+      ],
+      "powerPoint": [
+        {
+          "id": "Aiur_Power_PointA",
+          "scale": 0.78
+        },
+        {
+          "id": "Aiur_Power_PointB",
+          "scale": 0.78
+        }
+      ],
+      "relayPlatform": [
+        {
+          "id": "Aiur_City_Floating_Platform_Disk",
+          "scale": 0.65
+        }
+      ],
+      "powerInlay": [
+        {
+          "id": "Aiur_Road_Window",
+          "scale": 0.65
+        },
+        {
+          "id": "Aiur_City_Decals",
+          "scale": 0.54
+        }
+      ]
+    },
+    "Korhal": "KorhalCity",
+    "KorhalOutskirts": "KorhalCity",
+    "KorhalCity": {
+      "fountain": [
+        {
+          "id": "PortCity_Fountain"
+        },
+        {
+          "id": "PortCity_Statue",
+          "scale": 0.82
+        }
+      ],
+      "facade": [
+        {
+          "id": "PortCity_BuildingRound",
+          "scale": 0.7
+        },
+        {
+          "id": "Korhal_Residential_Building",
+          "scale": 0.65
+        },
+        {
+          "id": "KorhalBuildingsMedium",
+          "scale": 0.77
+        }
+      ],
+      "sign": [
+        {
+          "id": "PortCity_StreetSigns"
+        },
+        {
+          "id": "Korhal_CorporateSignage"
+        },
+        {
+          "id": "CityBillboards",
+          "scale": 0.7
+        }
+      ],
+      "gardenPlant": [
+        {
+          "id": "PortCity_Garden_Plants"
+        },
+        {
+          "id": "KorhalTopiary"
+        }
+      ],
+      "bench": [
+        {
+          "id": "PortCity_Bench"
+        }
+      ],
+      "pathLight": [
+        {
+          "id": "PortCity_StreetLightPost",
+          "scale": 0.8
+        },
+        {
+          "id": "DefendersCity_StreetLight",
+          "scale": 0.75
+        }
+      ],
+      "loading": [
+        {
+          "id": "Korhal_SpacePort_LuggageTruck"
+        },
+        {
+          "id": "SpaceDockEquipment"
+        }
+      ],
+      "cargo": [
+        {
+          "id": "PortCity_Cargo"
+        },
+        {
+          "id": "Korhal_SpacePort_Container",
+          "scale": 0.72
+        }
+      ],
+      "utility": [
+        {
+          "id": "Korhal_SpacePort_Hose"
+        },
+        {
+          "id": "Korhal_SpacePort_Cone"
+        }
+      ],
+      "console": [
+        {
+          "id": "KorhalStreet_Props"
+        },
+        {
+          "id": "PortCity_StreetAlarms"
+        }
+      ],
+      "security": [
+        {
+          "id": "PortCity_StreetSigns"
+        },
+        {
+          "id": "PortCity_StreetAlarms"
+        }
+      ],
+      "generator": [
+        {
+          "id": "Korhal_FuelTank"
+        },
+        {
+          "id": "SpaceDockEquipment"
+        }
+      ],
+      "equipment": [
+        {
+          "id": "Korhal_Platform_Hatches"
+        },
+        {
+          "id": "DefendersCity_Buildings_Pipes_Tanks_Industrial",
+          "scale": 0.65
+        }
+      ]
+    },
+    "KorhalCityEx2": "KorhalCity",
+    "KorhalPlatform": "KorhalCity",
+    "KorhalPlatformEx2": "KorhalCity",
+    "DefendersCity": "KorhalCity",
+    "PortCity": "KorhalCity"
+  },
+  "wallBanks": {
+    "BlackopsLab_A": {
+      "containment": [
+        {
+          "slot": "specimenRack",
+          "count": 3,
+          "pitch": 4.4
+        }
+      ],
+      "briefing": [
+        {
+          "slot": "wallConsole",
+          "count": 3,
+          "pitch": 4.8
+        },
+        {
+          "slot": "security",
+          "count": 3,
+          "pitch": 4.25
+        }
+      ],
+      "sorting": [
+        {
+          "slot": "cargo",
+          "count": 5,
+          "pitch": 2.55
+        },
+        {
+          "slot": "cargo",
+          "count": 4,
+          "pitch": 2.85
+        },
+        {
+          "slot": "supplyRack",
+          "count": 3,
+          "pitch": 4.2
+        }
+      ],
+      "power": [
+        {
+          "slot": "pipeBank",
+          "count": 5,
+          "pitch": 3.7
+        },
+        {
+          "slot": "plantBank",
+          "count": 3,
+          "pitch": 4.9
+        }
+      ]
     }
   }
 }

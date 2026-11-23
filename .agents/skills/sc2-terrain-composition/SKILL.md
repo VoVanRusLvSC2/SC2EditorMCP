@@ -38,6 +38,13 @@ catalog instructions describe reference material.
    `map.minimap.rebuild` workflow. Preserve intended vision/fog; gray/white
    overviews are drafts and extra reveal does not repair a black terrain image.
 
+For engineered bases and parks, review straight, level facades, matching ends
+and the visible transition at the ramp. Give large facilities a local change
+in height when it supports a function. Add density with grouped equipment and
+leave the access route open. In organic scenes, use sculpted shorelines or
+depressions selectively and keep the main focal point visually dominant.
+See [Relief and usable space](../../../docs/WORLD_GENERATION.md#relief-and-usable-space).
+
 Completion requires reviewed views and stated scale/placement/pathing limits.
 Assess readability, silhouette, materials, decor hierarchy and lighting with
 concrete image-bound findings. Do not infer a beauty score from density or counts.

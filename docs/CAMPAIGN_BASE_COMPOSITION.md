@@ -308,3 +308,74 @@ alongside the facility input.
 Public primary references for the visual interpretation include
 [Thiago Klafke's Legacy of the Void environment set](https://www.thiagoklafke.com/blog/portfolio/starcraft-ii-legacy-of-the-void/)
 and [Blizzard's Nova Covert Ops compound and multiple approaches](https://news.blizzard.com/en-us/article/20372509/patch-3-8-preview-nova-the-final-missions).
+
+## Korhal district and Slayn citadel profiles
+
+The placement study used the ObjectDoodad rows from the installed campaigns.
+Counts refer to complete authored layers, and proximity uses object anchors in
+map cells. The six-cell pairs describe visible planning motifs and give the
+procedural generator room to adapt to different model bounds and map sizes.
+
+| Campaign | Stock map and observed composition | Procedural design rule |
+| --- | --- | --- |
+| Wings of Liberty | **Media Blitz**, `thorner04`, Korhal. 60 Korhal buildings, 16 city buildings, 15 storefronts and 36 billboards. The city silhouette combines repeated building families and recognisable fronts. | Repeat two or three compatible facade families along a block line. Turn visible fronts toward the road. Place signs near doors and keep the crossing clear. |
+| Heart of the Swarm | **Planetfall**, `zkorhal01`, KorhalOutskirts. 78 Korhal buildings, 60 wall props, 83 diagonal pipe props and 21 diagonal road props. | Build an urban edge. Connect paved gates to the road, place pipe runs inside their service yards and use rock and brush outside the enclosure. |
+| Heart of the Swarm | **Death From Above**, `zkorhal02`, KorhalPlatform. 175 generic pipe assemblies, 206 medium conduits and 59 landing lights. | Generate a service platform with conduit bands, marked approaches and active equipment, leaving a distinct landing lane. |
+| Heart of the Swarm | **The Reckoning**, `zkorhal03`, KorhalCity. 138 Korhal buildings, 112 medium skyscrapers, 105 diagonal road props and 79 topiary props. Damage is carried by separate debris and destroyed actors. | Group intact, damaged and planted sections by block purpose and condition. Use medium and high masses behind lower facades to shape the skyline. |
+| Legacy of the Void | **Sky Shield**, `pkorhal01`, KorhalPlatformEx2. 97 platform cliff structures, 87 landing lights and 48 diagonal platform road props. | Read a platform through its edge, bays and lane markings. Group wear at traffic and servicing points. Use the appropriate orbital subtype. |
+| Legacy of the Void | **Brothers in Arms**, `pkorhal02`, KorhalCityEx2. 62 straight road pieces, 50 curbs, 53 cliff skyscraper props and 55 medium buildings. | Create a street hierarchy, close curb runs at crossings and use height and facade modules to close the skyline. Damage can be localized by objective or block. |
+| Nova Covert Ops | **Dark Skies**, `nova08`, DefendersCity. 216 greenbelt props, 145 general garden props, 123 topiary props, 93 industrial building pieces, 89 municipal walls and 61 pipe/tank props. 143 of 216 greenbelt anchors are within six cells of a general garden prop, and 46 of 93 industrial building anchors are within six cells of an industrial pipe/tank. | Build civic, planted and industrial blocks from distinct assemblies. Align plants, mulch and light along the same edge. Attach pipes, tanks and cargo to service sides. |
+| Nova Covert Ops | **Flashpoint**, `nova06`, PortCity, is the port reference. Of its 77 intact downtown building props, 52 have a Port City trim anchor within six cells. | Bind continuous trims to streets and quays, with separate loading pockets and frontage. Reuse the pattern for port-style Korhal requests. |
+
+The installed index also contains `zstorykorhal`, a story scene with no authored
+doodad rows in the surveyed layer. For a city block the first quality pass is
+facade continuity, a real crossing, pavement edge continuity and a destination
+at the end of the view. Public scale is established by grouped benches and
+planters around a focal point. Service scale is established by a loading vehicle,
+stacked cargo and pipes against the service boundary.
+
+### Slayn campaign evidence and the new base grammar
+
+- **Steps of the Rite**, `ptaldarim01`. 54 Actor IDs and 2,076 instances on
+  200×200. It has 183 tall cliffs, 139 cliff spires, 273 rubble pieces, 65 brick
+  floor props, 59 cliff temples, and 41 temple wall props. 72 of the tall cliff
+  anchors are within six cells of a rubble pile. 28 of 30 braziers have a flame
+  anchor within six cells.
+- **Rak'Shir**, `ptaldarim02`. 56 Actor IDs and 2,503 instances on 200×160.
+  It has 184 tall cliffs, 64 short cliffs, 62 spires, 158 rubble piles, 106
+  temple decoration props and 56 stone brick props. Its 689 windy grasses and
+  382 weeds are a landscape layer. 14 of its 20 braziers sit near a flame
+  anchor. 15 of 106 temple-deco anchors sit near the stone-brick family.
+- **Placement rule.** Reserve the wide approach, ascent and landing court.
+  Along the far edges use repeated tall cliff masses and shorter spires, with
+  rubble and a sparse low plant layer. Draw the built precinct with straight
+  inlay and floor boundaries and a perimeter framing its entrance. Put a
+  temple mass or altar at the focal end. Place pillars or statues as a row
+  or a pair, and group lights near entrance, landing and ritual features.
+  Burning and ember variations are local accents.
+
+### Environment separation and installation
+
+- Nova uses experimental and analysis equipment by floor and an explicit
+  measurement-based fit for one row of matching console actors. Planar floor
+  differences receive low Dominion joints. Clear circulation first, then fit
+  wall or working groups and connect storage to the service side. The room
+  fitter retains a console approach, samples model height on its footprint,
+  checks aisle conflict and keeps matching repeats together.
+- Zerus scatters from separate grove, trail-shoulder and nursery conditions.
+  Large trees reserve a wider set-back from the trail and prefer coherent
+  patches. The shoulder uses lower plants. The nursery and cliff foothills use
+  their own actor families. A feathered material band follows the trail.
+- An abandoned Aiur temple starts with a recognisable surviving building or
+  shrine. A nearby group of ruined walls, columns and masonry describes the
+  collapse. Tall canopies stay out of the monument core, and moss and roots
+  re-enter from the sides. The exterior keeps a visible route through the forest.
+- Aiur's operational base reserves garden, energy and command spaces with
+  a shared perimeter. The garden has its own floor and planting/light fixtures.
+  Long built material breaks use Protoss trim and existing aisle rules
+  keep lights and consoles close to the function they support.
+
+External campaign context is available from [Blizzard's Media Blitz article](https://news.blizzard.com/en-us/article/2950662/achievecraft-7-blitzkrieg),
+[the Nova mission announcement](https://news.blizzard.com/en-gb/article/20372509/patch-3-8-preview-nova-the-final-missions)
+and [the Rak'Shir setting overview](https://news.blizzard.com/en-gb/article/20066445/patch-3-2-preview-chain-of-ascension-a-new-co-op-mission).
+The counts above are from the installed layers.

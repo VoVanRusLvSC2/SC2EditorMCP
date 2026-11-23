@@ -54,6 +54,19 @@ type Recipes = {
     experimentSupport: string[];
   };
   activities: Record<RoomPassport["activity"], StationRecipe & { secondary?: StationRecipe }>;
+  wallBanks?: Record<
+    string,
+    Partial<
+      Record<
+        RoomPassport["activity"],
+        Array<{
+          slot: string;
+          count: number;
+          pitch: number;
+        }>
+      >
+    >
+  >;
   slots: Record<string, { roles: string[]; match: string }>;
   palettes: Record<string, Record<string, Asset[]> | string | undefined>;
 };
@@ -639,6 +652,57 @@ export function createRoomDresser(palette: DecorPalette, recipes: Recipes) {
       return undefined;
     }
 
+    const fitLightPair = async (samples: Sample[], surface = roomShape) => {
+      const positions: Position3[] = [];
+      for (const sample of samples) {
+        const light = await fit("pathLight", 0, [sample], surface);
+        if (light) positions.push(light.position);
+      }
+      if (positions.length === 2 && Math.abs(positions[0].z - positions[1].z) <= 0.18)
+        return positions;
+      objects.length -= positions.length;
+      footprints.length -= positions.length;
+      fitted.length -= positions.length;
+      return undefined;
+    };
+    const entryLights: Position3[][] = [];
+    const edgeOffset = recipes.wayfinding.edgeOffset;
+    const dressEntryLights = async () => {
+      if (passport.condition !== "abandoned" && (space.walls || deck))
+        for (const { side, offset, width } of space.openings) {
+          const normal = facilitySides[side];
+          const edge = width / 2 + edgeOffset;
+          // Move the two fixtures together if a workstation occupies the preferred jamb.
+          for (const [depth, extra] of [
+            [1.65, 0],
+            [2.1, 0.38],
+            [1.45, 0.75],
+            [2.8, 0.75],
+          ]) {
+            const pair = await fitLightPair(
+              [-edge - extra, edge + extra].map((shift) => {
+                const p = facilityFace(space, side, offset + shift);
+                return { side, points: [{ x: p.x - depth * normal.x, y: p.y - depth * normal.y }] };
+              }),
+            );
+            if (pair) {
+              entryLights.push(pair);
+              break;
+            }
+          }
+        }
+    };
+    // Ordinary rooms reserve both jamb fixtures before fitting their equipment.
+    const site = facility.grounds.find(({ zone }) => zone === space.zone);
+    const compact =
+      site &&
+      site.area.maxX - site.area.minX >= 44 &&
+      site.area.maxX - site.area.minX <= 54 &&
+      site.area.maxY - site.area.minY >= 44 &&
+      site.area.maxY - site.area.minY <= 54;
+    if (!deck || compact) await dressEntryLights();
+    const entryObjects = objects.splice(0);
+    const entryFixtures = fitted.splice(0);
     const upper = passport.placement === "upper" && deck;
     const raisedLab = upper && passport.activity === "containment" && recipes.raisedContainment;
     const upperArea =
@@ -711,7 +775,6 @@ export function createRoomDresser(palette: DecorPalette, recipes: Recipes) {
     }
     const isGallery =
       passport.activity === "circulation" && !space.walls && space.shape !== "ellipse";
-    const site = facility.grounds.find(({ zone }) => zone === space.zone);
     let postOutline: Point2[] | undefined;
     let postDecal:
       { actor: string; variation: number; scale: number; position: Position3 } | undefined;
@@ -904,25 +967,144 @@ export function createRoomDresser(palette: DecorPalette, recipes: Recipes) {
         }
       }
     }
+    if (compact && !isGallery && focus && typeof paletteSlots === "object") {
+      const stations: Partial<Record<RoomPassport["activity"], string[]>> = {
+        containment: ["sampleStation", "labEquipment", "specimenRack", "sampleAux", "equipment"],
+        briefing: [
+          "analysisConsole",
+          "equipment",
+          "labBench",
+          "wallConsole",
+          "bench",
+          "siteBanner",
+        ],
+        sorting: ["supplyRack", "utility", "loading", "cargo", "cargo"],
+        power: [
+          "pipeBank",
+          "plantBank",
+          "equipment",
+          "utility",
+          "console",
+          "powerPoint",
+          "relayPlatform",
+          "powerPoint",
+          "powerInlay",
+        ],
+        garden: [
+          "gardenPlant",
+          "gardenPlant",
+          "bench",
+          "tree",
+          "pathLight",
+          "gardenStatue",
+          "gardenStone",
+        ],
+        plaza: ["gardenPlant", "bench", "pathLight"],
+        frontage: ["facade", "sign", "pathLight"],
+        ritual: ["brazier", "pillar", "utility"],
+      };
+      // Fit additional groups against role-specific wall bays and skip occupied approaches.
+      const clearGround = ground.map(({ side, points }) => ({
+        side,
+        points: points.filter(
+          (p) =>
+            (!upper || labGround(p)) &&
+            Math.hypot(p.x - focus.position.x, p.y - focus.position.y) >= 3.2,
+        ),
+      }));
+      if (raisedLab && upperArea && passport.density === "busy") {
+        for (const [i, slot] of ["deckUtility", "deckDiagnostic"].entries()) {
+          if (paletteSlots[slot]?.length)
+            await fit(slot, i, elevated, upperArea, "secondary", paletteSlots[slot]);
+        }
+      }
+      const busyBanks: Partial<Record<RoomPassport["activity"], string[]>> = {
+        containment: ["sampleRack", "laboratoryCart", "labEquipment"],
+        briefing: ["diagnosticBank", "diagnosticBank", "bench"],
+        sorting: ["laboratoryCart", "supplyRack", "cargo"],
+        power: ["engineeringRack", "engineeringRack", "plantBank"],
+      };
+      const selected = [
+        ...(stations[passport.activity] ?? []),
+        ...(passport.density === "busy" ? (busyBanks[passport.activity] ?? []) : []),
+      ];
+      for (const [index, key] of selected.entries()) {
+        const assets = paletteSlots[key];
+        if (!assets?.length) continue;
+        const existing = new Set(fitted.map(({ actor }) => actor));
+        const choices = [...assets].sort(
+          (a, b) => Number(existing.has(a.id)) - Number(existing.has(b.id)),
+        );
+        await fit(key, index, clearGround, roomShape, "secondary", choices);
+      }
+    }
+    const clearWallRuns = (side: Side) => {
+      const span = (facilitySides[side].x ? space.height : space.width) / 2;
+      const wall = facilityFace(space, side, 0);
+      const gates = space.openings
+        .filter((opening) => opening.side === side)
+        .map(({ offset, width }) => [offset - width / 2 - 1.2, offset + width / 2 + 1.2])
+        .sort(([a], [b]) => a - b);
+      const segments: Array<{ length: number; center: Point2 }> = [];
+      let cursor = -span + 1.3;
+      for (const [start, end] of [...gates, [span - 1.3, span]]) {
+        const stop = Math.min(start, span - 1.3);
+        if (stop - cursor >= 2.8) {
+          const middle = (cursor + stop) / 2;
+          segments.push({
+            length: stop - cursor,
+            center: facilitySides[side].x
+              ? { x: wall.x, y: wall.y + middle }
+              : { x: wall.x + middle, y: wall.y },
+          });
+        }
+        cursor = Math.max(cursor, end);
+      }
+      return segments.sort((a, b) => b.length - a.length);
+    };
+    const banks = recipes.wallBanks?.[passport.tileSet]?.[passport.activity] ?? [];
+    const occupiedWalls = new Set<Side>();
+    for (const { slot, count, pitch } of banks) {
+      for (const side of order) {
+        if (occupiedWalls.has(side)) continue;
+        let row;
+        for (const { length, center } of clearWallRuns(side)) {
+          const fitCount = Math.min(count, Math.floor(length / pitch));
+          if (fitCount < 2) continue;
+          row = await fitWallRow(
+            slot,
+            side,
+            center,
+            { span: length, seam: 0.45 },
+            [2.1, 2.7, 3.3],
+            roomShape,
+            {
+              counts: Array.from({ length: fitCount - 1 }, (_, i) => fitCount - i),
+              ...(upper ? { onFloor: labGround } : {}),
+            },
+          );
+          if (row) break;
+        }
+        if (row) {
+          occupiedWalls.add(side);
+          break;
+        }
+      }
+    }
+    // Stock Slayn keeps the flame actor on the brazier's own placement pivot.
+    if (passport.tileSet === "Slayn" || passport.tileSet === "SlaynTemple") {
+      const flame = await measure({ id: "Slayn_Brazier_Fire" });
+      if (flame) {
+        for (const base of objects.filter(({ catalogId }) => catalogId === "Slayn_Braziers")) {
+          objects.push({ ...base, catalogId: flame.actor.id, variation: flame.variation ?? 0 });
+        }
+      }
+    }
     const lightRuns: LightRun[] = [];
     const stairLights: Position3[][] = [];
-    const entryLights: Position3[][] = [];
     const galleryLights: Position3[][] = [];
     if (passport.condition !== "abandoned") {
       const { spacing, edgeOffset, stairSideOffset, upperLandingDepth } = recipes.wayfinding;
-      const fitLightPair = async (samples: Sample[], surface = roomShape) => {
-        const positions: Position3[] = [];
-        for (const sample of samples) {
-          const light = await fit("pathLight", 0, [sample], surface);
-          if (light) positions.push(light.position);
-        }
-        if (positions.length === 2 && Math.abs(positions[0].z - positions[1].z) <= 0.18)
-          return positions;
-        objects.length -= positions.length;
-        footprints.length -= positions.length;
-        fitted.length -= positions.length;
-        return undefined;
-      };
       for (const stair of deck?.stairs ?? []) {
         const inward = facilitySides[stair.direction];
         for (const depth of [-2.7, upperLandingDepth]) {
@@ -940,18 +1122,9 @@ export function createRoomDresser(palette: DecorPalette, recipes: Recipes) {
           if (pair) stairLights.push(pair);
         }
       }
-      if (deck)
-        for (const { side, offset, width } of space.openings) {
-          const normal = facilitySides[side];
-          const edge = width / 2 + edgeOffset;
-          const pair = await fitLightPair(
-            [-edge, edge].map((shift) => {
-              const p = facilityFace(space, side, offset + shift);
-              return { side, points: [{ x: p.x - 1.65 * normal.x, y: p.y - 1.65 * normal.y }] };
-            }),
-          );
-          if (pair) entryLights.push(pair);
-        }
+      if (deck && !compact) await dressEntryLights();
+      objects.push(...entryObjects);
+      fitted.push(...entryFixtures);
       const markers = [...stairLights.flat(), ...entryLights.flat()];
       for (const { from, to, width } of lightAisles(space.aisles ?? [])) {
         const dx = to.x - from.x,

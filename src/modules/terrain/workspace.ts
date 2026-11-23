@@ -176,7 +176,7 @@ export class TerrainWorkspace {
       proceduralStyles: Object.keys(TERRAIN_STYLES),
       wholeMapStamp: true,
       structuralCliffEditing: state.descriptor.version===115 && !!state.sync && !!state.visibility,
-      nativeGeometryProfile: "v115 identity; rectangular two-cell lattice; nonflat cliff joins between adjacent levels 1..3, including measured low-HMAP/high-SMAP saddle centers; multi-level and void joins rejected; cardinal width-4 ramps",
+      nativeGeometryProfile: "v115 identity; rectangular two-cell lattice; adjacent cliff levels 0..3, including measured level 0/1 non-saddle edges and corners; saddles supported at levels 1..3; cardinal width-4 ramps",
       nativeRampEditing: state.descriptor.version===115 && !!state.sync && !!state.visibility,
       nativeSyncLevelLabels: 'SMAP low-byte levels follow HMAP; saddle height correction is independent; upper SMAP bits are preserved',
       pathingPainting: modkitAvailable()&&!!state.sources.get('CellAttribute_Pnp')?.length,

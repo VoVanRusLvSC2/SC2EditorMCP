@@ -38,10 +38,11 @@ Use `world.build` with the resulting `planId`. For variations, reuse the same
 intent and pass another seed. Compare the plotted route, bridge location and
 room adjacency in the returned plan before reviewing surface and native Editor
 views. `textureBudget` caps the distinct texture IDs in the selected banks.
-The build reports the IDs actually painted and measures decor coverage against
-stock references by default in intent plans for mission, ladder and arcade.
-Use `decorReference` to select an original map ID, or use the fixed mission
-`decorBudget` or per-zone `distinctActors` for explicit targets. The build
+The build reports the IDs actually painted. Supported authored composition profiles
+default to 45–65 scenic Actor IDs in mission mode. Other intent designs use stock
+references when no explicit decor target is given. Set `decorReference` to select
+an original map ID, or set `decorBudget` or per-zone `distinctActors` for explicit
+targets. The build
 receipt includes elapsed milliseconds for each stage.
 
 - Organic routes can wind and change width. Forest terrain blends across each
@@ -57,8 +58,11 @@ receipt includes elapsed milliseconds for each stage.
   fixtures. Its generated storage room uses a two-depth freight group with a
   landing light at an outer corner. Manual facilities can use the same
   [cargo bay presets](CAMPAIGN_BASE_COMPOSITION.md#world-generator-input).
-  Other palettes currently get site and floor geometry plus catalog
-  decor, with fitted architecture supplied by the detailed input when needed.
+  BlackopsLab_A adds Dominion joints, matched wall banks, a raised analysis
+  deck and independently seeded service links. The city profiles align facades
+  to the street and group frontage, plaza and utility fixtures. Aiur4City and
+  Slayn use fitted base perimeters and distinct floor trim. Garden and ritual
+  rooms use separate fixture palettes. See the [campaign composition evidence](CAMPAIGN_BASE_COMPOSITION.md#korhal-district-and-slayn-citadel-profiles).
 - In a ladder brief, pair opposite zones with `mirrorOf` and specify matching
   links. A zone in the center can serve as a shared waypoint. Starts and
   expansions use the existing symmetric melee generator.
@@ -85,7 +89,7 @@ aisle width. Room names keep their existing shorthand form.
 ```
 
 Activities are `research`, `containment`, `briefing`, `sorting`, `power`,
-`checkpoint`, `circulation` and `habitation`. Placement accepts `auto`, `wall`,
+`checkpoint`, `circulation`, `habitation`, `ritual`, `garden`, `plaza` and `frontage`. Placement accepts `auto`, `wall`,
 `island` and `upper`. Request one upper room per automatically shaped facility.
 Aisle widths range from 2 to 6 cells. Door approaches use the available door width.
 `abandoned` skips active accent lighting. `damaged` adds a localized damage
@@ -170,6 +174,67 @@ Pass this input to `world.plan`. Anchors run west to east and south to north. Th
 1. Inspect the plan's palettes, zone areas, room entrances and crossings. Change the seed to vary the result or move anchors to constrain it.
 2. Pass the returned `planId` to `world.build`. The receipt includes the archive path, SHA-256 revision, painted texture IDs, distinct placed actors per zone and two diagnostic preview PNGs.
 3. Pass `planId` and `revision` to `world.verify`. Add `editor: true` for load, compilation and save/reopen. Add `game: true` for ground-route checks. Set `run: true` to execute a ready test plan and use `project.test.status` and `project.test.report` to read the outcome. Native checks require configured local runtimes. The terrain previews show height and texture distribution. Game camera captures use the native testing workflow.
+
+## Compact facilities
+
+A 64×64 mission with an open approach and a four-room facility on the same
+tileset can generate three circulation shapes. Labs and bases choose a
+longitudinal gallery, a cross hall, or a central court from the seed. A city uses
+a main street with adjacent plots. The approach sector rotates the site and its
+entry together. Each room connects to the common circulation space through its
+own opening. A compact facility can request one upper work bay. The deck fits against the
+wall opposite the entry, with an aligned native stair and enough room for its
+landing. Bridge approaches use the standard facility planner.
+
+Room groups use their activity palette and measured footprints. The rear wall
+is selected from the doorway, equipment rows use uninterrupted wall spans, and
+paired entry lights fit beside the usable doorway. Ground joints follow the
+finished rooms and connections. Assembly records actual catalog IDs and applies
+the requested decor budget after placement. On small maps, a shortfall can use
+additional small props from the same palette and the same clearance checks.
+
+Perimeter spans share a course when their measured support is level. Aiur's
+perimeter can use the dedicated cliff corner actor where both adjoining spans
+reach the vertex. A gate that cuts the vertex keeps the corner clear. Paired
+entry fixtures can move together to a fitting position around the opening.
+
+Natural mission decoration tries small groups around already placed trees,
+rocks and landmarks. Candidates still pass terrain support, path and clearance
+checks before the existing dispersed fallback is used.
+
+### Relief and usable space
+
+- Engineered park terraces and bases use one horizontal datum for each facade.
+  Align repeated spans and keep the ramp opening square and symmetric. A native
+  ramp can have beveled side caps. Inspect them from the approach and fit a
+  straight facing and matched jambs when the native cap interrupts the facade.
+  Keep terrain steps where the facility functions justify them.
+- Large laboratories can use different elevations for different activities.
+  Use a level deck for analysis or monitoring and retain clear access to the
+  experiment floor. Fit each work group against the room edges with clearance
+  for operators, stairs and doors. A busy room adds appropriate bench modules,
+  console banks, racks or utility lines on free wall spans.
+- Keep a strong landform, a readable path and a small number of accents. Place
+  a habitat pool or a ceremonial depression in open ground beside the route
+  when it supports the setting. Ground the banks with rock, vegetation or
+  fittings drawn from the same theme. For constructed terraces use continuous
+  material edges. Use broad blends on natural shores.
+- For a dry natural rift, use the [scenic rift recipe](../src/modules/world/scenicRift.ts)
+  to paint default cliff level 1 down to native level 0. Join bands on the native
+  two-cell lattice with shared edges. Keep a buffer from routes, water, ramps
+  and higher cliff tiers. Level 0 is the deep native cut, so place scenery on
+  the solid rim and check the bottom and wall silhouettes in the Editor.
+- Use the [scenic basin recipe](../src/modules/world/scenicBasin.ts) to form an
+  irregular bowl. Water surfaces use eight-cell bounds, with the waterline
+  shaped by the terrain. Check the full footprint and adjacent routes for
+  unintended flooding. Audit placed objects against the sampled waterline.
+  Scenic basin placement is available to authored plans. The standard
+  `world.plan_intent` pipeline still needs an explicit basin-placement policy
+  to pick one from a map brief.
+- Change route shape, landform position or arrangement of functional spaces
+  across variants. Repeat fixture families within a facility where a common
+  function calls for them. Keep focal points legible from the editor overview,
+  and review transitions and vertical structure from a closer angle.
 
 ## Campaign composition
 
