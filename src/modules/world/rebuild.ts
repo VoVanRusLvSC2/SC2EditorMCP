@@ -43,7 +43,8 @@ export function mergeWorldObjects(base: string, current: string, generated: stri
       next = c.nodes.get(id);
     if (
       mine?.bytes !== old?.bytes &&
-      (old ?? mine)?.kind !== "ObjectDoodad" &&
+      ((old?.kind && old.kind !== "ObjectDoodad") ||
+        (mine?.kind && mine.kind !== "ObjectDoodad")) &&
       mine?.bytes !== next?.bytes
     )
       throw Error("WORLD_REBUILD_REVIEW_GAMEPLAY_OBJECT: " + id);
@@ -72,7 +73,9 @@ export async function mergeWorldComponents(baseline: string, edited: string, gen
   );
   const names = [...new Set([...a.keys(), ...b.keys(), ...c.keys()])];
   // These files jointly encode one terrain surface or one GUI/Galaxy program.
-  for (const family of [/^(t3|CellAttribute)/i, /^(Triggers$|MapScript\.galaxy$|.*\.galaxy$)/i]) {
+  const scripts = /^(Triggers$|.*\.galaxy$)/i;
+  const scriptsChanged = names.some((n) => scripts.test(n) && a.get(n) !== c.get(n));
+  for (const family of [/^(t3|CellAttribute)/i, scripts]) {
     const related = names.filter((n) => family.test(n));
     if (
       related.some((n) => a.get(n) !== b.get(n)) &&
@@ -90,6 +93,14 @@ export async function mergeWorldComponents(baseline: string, edited: string, gen
       next = c.get(name);
     if (mine === next) continue;
     if (before === next) {
+      if (name === "Objects" && scriptsChanged) {
+        // Even unchanged generated placements can be targets of newly generated triggers.
+        if (!before || !mine) throw Error("WORLD_REBUILD_REVIEW_GAMEPLAY_OBJECT: Objects");
+        const [original, manual] = await Promise.all(
+          [baseline, edited].map((dir) => fs.readFile(path.join(dir, name), "utf8")),
+        );
+        mergeWorldObjects(original, manual, original);
+      }
       kept.push(name);
       continue;
     }

@@ -108,6 +108,24 @@ test("manual crate transform and an independently regenerated fixture merge by I
   assert.throws(() => mergeWorldObjects(doc.source, mine.source, next.source), /CONFLICT/);
 });
 
+test("revised triggers require review if a manually removed unit may be referenced", async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "sc2-sdk-"));
+  try {
+    const dirs = ["base", "manual", "generated"].map((d) => path.join(dir, d));
+    const original = '<PlacedObjects><ObjectUnit Id="7" UnitType="Marine"/></PlacedObjects>';
+    for (const d of dirs) {
+      await fs.mkdir(d);
+      await fs.writeFile(path.join(d, "Objects"), original);
+      await fs.writeFile(path.join(d, "Triggers"), "base");
+    }
+    await fs.writeFile(path.join(dirs[1], "Objects"), "<PlacedObjects></PlacedObjects>");
+    await fs.writeFile(path.join(dirs[2], "Triggers"), "revised");
+    await assert.rejects(mergeWorldComponents(dirs[0], dirs[1], dirs[2]), /REVIEW_GAMEPLAY_OBJECT/);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
+
 test("manual terrain and generated changes to the same terrain family require review", async () => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "sc2-sdk-"));
   try {
