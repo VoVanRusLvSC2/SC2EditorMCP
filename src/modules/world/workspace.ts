@@ -31,7 +31,10 @@ import {
   gateRequests,
   waterOperations,
 } from "./structures.js";
-import { worldTriggers } from "./gameplay.js";
+import { loadMissionPlugin } from "./plugin.js";
+import { mergeWorldComponents } from "./rebuild.js";
+import { defineMissionPack, type MissionPack } from "../../mission-sdk.js";
+import { stageTriggers, worldTriggers } from "./gameplay.js";
 
 const digest = (data: Buffer | string) => createHash("sha256").update(data).digest("hex");
 const summarizeCoverage = (coverage: DecorCoverage) => ({
@@ -111,7 +114,7 @@ export class WorldWorkspace {
       coverage.minimum = Math.max(coverage.minimum, campaign.decorBudget.min);
     return {
       sets,
-      generatorVersion: 39,
+      generatorVersion: 40,
       ...(structures.facility.spaces.some(
         ({ roomComposition }) => roomComposition && "activity" in roomComposition,
       )
@@ -127,7 +130,28 @@ export class WorldWorkspace {
       dependencies: resolution.ordered.map((d) => d.file),
     };
   }
-  async planIntent(intent: WorldIntent, seed: number) {
+  private async loadPack(file: string, embedded?: MissionPack) {
+    if (embedded) throw Error("WORLD_PACK_SPECIFY_FILE_OR_INLINE");
+    const name = this.workspace.resolveUserPath(file);
+    if (!name.toLowerCase().endsWith(".json") || (await fs.stat(name)).size > 512 * 1024)
+      throw Error("WORLD_INVALID_PACK_FILE");
+    return defineMissionPack(JSON.parse(await fs.readFile(name, "utf8")));
+  }
+  async planIntent(intent: WorldIntent, seed: number, packFile?: string, plugin?: string) {
+    if (plugin) {
+      if (packFile || intent.missionPack) throw Error("WORLD_MULTIPLE_PACK_SOURCES");
+      intent = {
+        ...intent,
+        missionPack: await loadMissionPlugin(plugin, {
+          seed,
+          width: intent.width,
+          height: intent.height,
+          zones: intent.zones.map((z) => z.id),
+        }),
+      };
+    }
+    if (packFile)
+      intent = { ...intent, missionPack: await this.loadPack(packFile, intent.missionPack) };
     const resolution = await this.providers().document.dependencies.resolve(
       worldDependencies(intent.mode, intent.dependencies),
       true,
@@ -139,9 +163,20 @@ export class WorldWorkspace {
     );
     return { ...(await this.savePlan(spec, layout, structures, resolution)), seed };
   }
-  async plan(input: unknown) {
-    const spec = resolveWorldSpec(input),
-      layout = planWorld(spec);
+  async plan(input: unknown, packFile?: string, plugin?: string) {
+    let spec = resolveWorldSpec(input);
+    if (plugin) {
+      if (packFile || spec.missionPack) throw Error("WORLD_MULTIPLE_PACK_SOURCES");
+      spec.missionPack = await loadMissionPlugin(plugin, {
+        seed: spec.seed,
+        width: spec.width,
+        height: spec.height,
+        zones: spec.zones.map((z) => z.id),
+      });
+    }
+    if (packFile) spec.missionPack = await this.loadPack(packFile, spec.missionPack);
+    spec = resolveWorldSpec(spec);
+    const layout = planWorld(spec);
     const structures = structureLayout(spec, layout);
     return this.savePlan(spec, layout, structures);
   }
@@ -190,6 +225,7 @@ export class WorldWorkspace {
         ...(z.composition ? { composition: z.composition } : {}),
       })),
       routes: layout.routes,
+      ...(spec.stages ? { stages: spec.stages } : {}),
       structures,
       ...(resources.campaign
         ? {
@@ -398,8 +434,13 @@ export class WorldWorkspace {
       const settingsPlan = await settings.plan({ operations });
       await settings.apply(settingsPlan.id, { dryRun: false, stage: false, backup: false });
       const triggers = new TriggerWorkspace(copy, undefined, browse.data, providers.casc);
+      const stages = spec.stages?.map((stage) => ({
+        ...spec.missionPack!.mechanics.find((m) => m.id === stage.mechanic)!,
+        ...stage,
+        point: layout.zones.find((z) => z.id === stage.zone)!.center,
+      }));
       const gui = await triggers.planBatch([
-        ...worldTriggers(spec.mode, roster, goal),
+        ...(stages ? stageTriggers(roster[0], stages) : worldTriggers(spec.mode, roster, goal)),
         ...gateRequests(gates, roster),
       ]);
       await triggers.applyPlan(gui.planId, false, true);
@@ -431,6 +472,7 @@ export class WorldWorkspace {
         archive: this.key(archive),
         mode: spec.mode,
         paintedTextures: surface.paintedTextures,
+        ...(stages ? { missionStages: stages } : {}),
         ...(assembled.edgeObjects.length ? { edgeObjects: assembled.edgeObjects } : {}),
         ...(assembled.floorJointObjects.length
           ? { facilityFloorJoints: assembled.floorJointObjects }
@@ -502,6 +544,84 @@ export class WorldWorkspace {
       throw error;
     }
   }
+  async rebuild(args: {
+    basePlanId: string;
+    baseRevision: string;
+    planId: string;
+    generatedRevision: string;
+    editedArchive: string;
+    editedSha256: string;
+  }) {
+    const base = await this.verify(args.basePlanId, args.baseRevision);
+    const generated = await this.verify(args.planId, args.generatedRevision);
+    if (base.mode !== "mission" || generated.mode !== "mission")
+      throw Error("WORLD_REBUILD_REQUIRES_MISSION");
+    if (base.rebuild || generated.rebuild)
+      throw Error("WORLD_REBUILD_REQUIRES_GENERATOR_BASELINES");
+    const readSpec = async (id: string) =>
+      resolveWorldSpec(
+        JSON.parse(await fs.readFile(path.join(this.root(), id, "plan.json"), "utf8")).spec,
+      );
+    const [oldSpec, newSpec] = await Promise.all([
+      readSpec(args.basePlanId),
+      readSpec(args.planId),
+    ]);
+    if (
+      oldSpec.width !== newSpec.width ||
+      oldSpec.height !== newSpec.height ||
+      oldSpec.seed !== newSpec.seed
+    )
+      throw Error("WORLD_REBUILD_CHANGED_COORDINATE_FRAME");
+    if (!/\.sc2map$/i.test(args.editedArchive)) throw Error("WORLD_REBUILD_EXPECTED_MAP");
+    const source = this.workspace.resolveUserPath(args.editedArchive);
+    const parent = path.join(this.root(), args.planId);
+    const attempt = await fs.mkdtemp(path.join(parent, "build-"));
+    try {
+      const map = this.providers().map;
+      for (const [file, label, expected] of [
+        [base.archive, "base", args.baseRevision],
+        [generated.archive, "generated", args.generatedRevision],
+        [args.editedArchive, "edited", args.editedSha256],
+      ]) {
+        const snapshot = path.join(attempt, label + ".SC2Map");
+        await fs.copyFile(this.workspace.resolveUserPath(file), snapshot);
+        if (digest(await fs.readFile(snapshot)) !== expected) throw Error("WORLD_REVISION_CHANGED");
+        await map.import(this.key(snapshot), this.key(path.join(attempt, label)), false);
+      }
+      const merged = await mergeWorldComponents(
+        path.join(attempt, "base"),
+        path.join(attempt, "edited"),
+        path.join(attempt, "generated"),
+      );
+      const archive = path.join(attempt, "world.SC2Map");
+      const result = await map.export(
+        this.key(path.join(attempt, "edited")),
+        this.key(archive),
+        false,
+        false,
+      );
+      if (!("verification" in result) || !result.verification.reopened)
+        throw Error("WORLD_PACK_VERIFICATION_FAILED");
+      if (digest(await fs.readFile(source)) !== args.editedSha256)
+        throw Error("WORLD_EDITED_SOURCE_CHANGED");
+      const receipt = {
+        planId: args.planId,
+        revision: digest(await fs.readFile(archive)),
+        archive: this.key(archive),
+        mode: "mission",
+        archiveReopened: true,
+        editorVerification: "not_run",
+        gameVerification: "not_run",
+        rebuild: { ...args, ...merged },
+      };
+      await fs.writeFile(path.join(attempt, "receipt.json"), JSON.stringify(receipt));
+      return receipt;
+    } catch (error) {
+      await fs.rm(attempt, { recursive: true, force: true });
+      throw error;
+    }
+  }
+
   async verify(planId: string, revision: string) {
     if (![planId, revision].every((id) => /^[a-f0-9]{64}$/.test(id)))
       throw Error("WORLD_INVALID_REVISION");

@@ -1,3 +1,5 @@
+import { missionPackSchema, missionStageSchema } from "../../mission-sdk.js";
+import { bindMissionStages } from "./stages.js";
 import { createHash } from "node:crypto";
 import * as z from "zod/v4";
 import { dependencySchema } from "../document/schemas.js";
@@ -81,6 +83,7 @@ const zoneSpec = z
     landmark: z
       .object({
         actor: id,
+        faceZone: id.optional(),
         variation: z.number().int().min(0).max(127).optional(),
         offset: z
           .object({ x: z.number().min(-20).max(20), y: z.number().min(-20).max(20) })
@@ -148,6 +151,8 @@ export const worldSpec = z
       .optional(),
     zones: z.array(zoneSpec).min(1).max(32),
     connections: z.array(edge).max(96),
+    missionPack: missionPackSchema.optional(),
+    stages: z.array(missionStageSchema).min(1).max(24).optional(),
     starts: z.array(id).min(1).max(2),
     objective: id.optional(),
     dependencies: dependencySchema.optional(),
@@ -242,7 +247,14 @@ export function planWorld(spec: WorldSpec) {
     throw Error("WORLD_OBJECTIVE_ZONE");
   if (spec.objective && !ids.has(spec.objective)) throw Error("WORLD_UNKNOWN_OBJECTIVE");
   const inBounds = (p: { x: number; y: number }) => p.x <= spec.width - 4 && p.y <= spec.height - 4;
-  const routes = spec.connections.map((e) => {
+  const routes = bindMissionStages(
+    spec.mode,
+    spec.starts[0],
+    spec.objective,
+    spec.connections,
+    spec.missionPack,
+    spec.stages,
+  ).map((e) => {
     const from = centers.get(e.from),
       to = centers.get(e.to);
     if (!from || !to || from === to)
@@ -338,6 +350,8 @@ export function planWorld(spec: WorldSpec) {
       }
     }
     if (!zone.landmark) continue;
+    if (zone.landmark.faceZone && !ids.has(zone.landmark.faceZone))
+      throw Error("WORLD_UNKNOWN_FACING_ZONE: " + zone.landmark.faceZone);
     const x = zone.center.x + zone.landmark.offset.x;
     const y = zone.center.y + zone.landmark.offset.y;
     if (spec.mode !== "mission" || Math.min(x, y, spec.width - x, spec.height - y) < 4)

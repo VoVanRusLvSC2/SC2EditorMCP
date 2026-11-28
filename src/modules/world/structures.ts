@@ -1,3 +1,5 @@
+import { modelRotation } from "../../mission-sdk.js";
+import { measuredFacing } from "./facings.js";
 import {
   bridgeAxis,
   routeEdgeDistance,
@@ -281,6 +283,9 @@ export function structureLayout(spec: WorldSpec, layout: WorldLayout) {
       ? [
           {
             actor: zone.landmark.actor,
+            ...(zone.landmark.faceZone
+              ? { face: layout.zones.find((z) => z.id === zone.landmark!.faceZone)!.center }
+              : {}),
             ...(zone.landmark.variation === undefined
               ? {}
               : { variation: zone.landmark.variation }),
@@ -388,6 +393,7 @@ export function structureLayout(spec: WorldSpec, layout: WorldLayout) {
     chambers,
     embankments,
     landmarks,
+    ...(spec.missionPack ? { measuredFacings: spec.missionPack.facings } : {}),
     edges,
     facility,
     perimeter,
@@ -842,6 +848,7 @@ export async function structureObjects(
     for (const row of space.fixtures) {
       const model = await panel(row.actor);
       const outward = facilitySides[row.side];
+      const measured = measuredFacing(model.actor.id, model.variation ?? 0, s.measuredFacings);
       const { dimensions } = model.measured.measurement;
       const scale = row.scale ?? 1;
       const radius = (scale * Math.hypot(dimensions.width, dimensions.depth)) / 2;
@@ -872,7 +879,10 @@ export async function structureObjects(
         );
       };
       const offsets = row.adaptive ? [0, -2, 2, -4, 4, -6, 6, -8, 8] : [0];
-      const insets = row.adaptive ? [row.inset, row.inset - 2, row.inset + 2] : [row.inset];
+      const inset = Math.max(row.inset, measured?.standOff ?? 0);
+      const insets = row.adaptive
+        ? [inset, inset - 2, inset + 2].filter((n) => n >= (measured?.standOff ?? 0))
+        : [inset];
       for (let i = 0; i < row.count; i++) {
         const along = row.offset + (i - (row.count - 1) / 2) * row.spacing;
         const candidates = insets.flatMap((inset) =>
@@ -883,16 +893,20 @@ export async function structureObjects(
         );
         const p = candidates.find(clear);
         if (!p) throw Error("WORLD_FACILITY_FIXTURE_CLEARANCE: " + space.id + "/" + row.actor);
+        const position = pointOnGround(p);
+        position.z += measured?.height ?? 0;
         objects.push({
           kind: "Doodad",
           catalogId: model.actor.id,
           variation: model.variation,
-          position: pointOnGround(p),
+          position,
           ...(scale === 1 ? {} : { scale: { x: scale, y: scale, z: scale } }),
           flags: { HeightAbsolute: "1" },
           rotation:
             row.rotation === undefined
-              ? Math.atan2(-outward.y, -outward.x)
+              ? measured
+                ? modelRotation(Math.atan2(-outward.y, -outward.x), measured.frontDegrees)
+                : Math.atan2(-outward.y, -outward.x)
               : (row.rotation * Math.PI) / 180,
         });
         reserved.push({ ...p, radius });
@@ -903,7 +917,7 @@ export async function structureObjects(
   }
   if (passportSpaces.length) {
     const { recipes } = await loadRoomRecipes();
-    const dress = createRoomDresser(palette, recipes);
+    const dress = createRoomDresser(palette, recipes, s.measuredFacings);
     const routes = [
       ...s.routes.map((route) => ({
         id: route.from + "/" + route.to,
@@ -1186,12 +1200,26 @@ export async function structureObjects(
       Math.max(Math.abs(min[0]), Math.abs(max[0])),
       Math.max(Math.abs(min[1]), Math.abs(max[1])),
     );
+    const rule = measuredFacing(landmark.actor, actor.variation ?? 0, s.measuredFacings);
+    if (
+      landmark.face &&
+      (!rule || Math.hypot(landmark.face.x - landmark.x, landmark.face.y - landmark.y) < 0.01)
+    )
+      throw Error("WORLD_LANDMARK_FACING_UNRESOLVED: " + landmark.actor);
     reserved.push({ x: landmark.x, y: landmark.y, radius });
     objects.push({
       kind: "Doodad",
       catalogId: actor.actor.id,
       variation: actor.variation,
       position: pointOnGround(landmark),
+      ...(landmark.face && rule
+        ? {
+            rotation: modelRotation(
+              Math.atan2(landmark.face.y - landmark.y, landmark.face.x - landmark.x),
+              rule.frontDegrees,
+            ),
+          }
+        : {}),
       flags: { HeightAbsolute: "1" },
     });
   }

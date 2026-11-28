@@ -4,6 +4,11 @@ import type { ProjectTestWorkspace } from "../testing/workspace.js";
 import { intentSeed, worldIntent } from "./intent.js";
 import { worldSpec } from "./plan.js";
 import type { WorldWorkspace } from "./workspace.js";
+const plugin = z
+  .string()
+  .regex(/^[A-Za-z][A-Za-z0-9_]{0,63}$/)
+  .optional();
+const packFile = z.string().min(1).max(512).optional();
 const hash = z.string().regex(/^[a-f0-9]{64}$/);
 async function response(task: Promise<unknown>) {
   try {
@@ -22,18 +27,18 @@ export function registerWorldTools(
     {
       description:
         "Plan a seeded world with zones and reserved connections. Missions support trail profiles, sculpted shores, facilities with closed perimeters and route gates, double-sided walls, terraces and stairways. Campaign missions resolve biome styles and decor budgets. Anchors run west to east and south to north.",
-      inputSchema: z.object({ spec: worldSpec }).strict(),
+      inputSchema: z.object({ spec: worldSpec, packFile, plugin }).strict(),
     },
-    (a) => response(world.plan(a.spec)),
+    (a) => response(world.plan(a.spec, a.packFile, a.plugin)),
   );
   server.registerTool(
     "world.plan_intent",
     {
       description:
         "Generate a seeded SC2 layout from a map brief: relative sectors, biomes, styles, links and room roles. Converts intent into a standard world plan for world.build. Use mirrored zone pairs and links for ladder. Mission supports laboratories, street districts, and architectural bases with role-based dressing and floor joints.",
-      inputSchema: z.object({ intent: worldIntent, seed: intentSeed }).strict(),
+      inputSchema: z.object({ intent: worldIntent, seed: intentSeed, packFile, plugin }).strict(),
     },
-    (a) => response(world.planIntent(a.intent, a.seed)),
+    (a) => response(world.planIntent(a.intent, a.seed, a.packFile, a.plugin)),
   );
   server.registerTool(
     "world.build",
@@ -43,6 +48,24 @@ export function registerWorldTools(
       inputSchema: z.object({ planId: hash }).strict(),
     },
     (a) => response(world.build(a.planId)),
+  );
+  server.registerTool(
+    "world.rebuild",
+    {
+      description:
+        "Reconcile a manually edited mission archive with a regenerated mission. Pin both generator revisions and the edited archive hash. Disjoint edits survive, overlapping edits report a conflict. Writes a new archive.",
+      inputSchema: z
+        .object({
+          basePlanId: hash,
+          baseRevision: hash,
+          planId: hash,
+          generatedRevision: hash,
+          editedArchive: z.string().min(1),
+          editedSha256: hash,
+        })
+        .strict(),
+    },
+    (a) => response(world.rebuild(a)),
   );
   server.registerTool(
     "world.verify",

@@ -3,6 +3,11 @@
   "displayName": "SC2EditorMCP",
   "version": "1.1.0-alpha.21",
   "private": true,
+  "exports": {
+    ".": "./dist/index.js",
+    "./mission-sdk": { "types": "./dist/mission-sdk.d.ts", "import": "./dist/mission-sdk.js" },
+    "./*": "./*"
+  },
   "author": {
     "name": "VoVanRusLvSC2",
     "email": "vladimir.lencmanis@gmail.com"

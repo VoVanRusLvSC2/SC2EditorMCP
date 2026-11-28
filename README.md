@@ -2,6 +2,8 @@
 
 SC2EditorMCP is a Model Context Protocol server for building and editing StarCraft II maps and mods with the Galaxy Editor. It generates mission, melee ladder and arcade maps and edits terrain, water, objects, game Data, GUI triggers and Galaxy scripts, cutscenes, UI, and localized text.
 
+**Project roles.** SC2EditorMCP is the main authoring server. The [SC2 Editor Toolkit](https://github.com/VoVanRusLvSC2/SC2EditorToolkit) is its optional native Editor backend for compilation, diagnostics, rendering and save/reopen checks. For mission stage design, editor-facing model placement, revision reconciliation and external mechanics, see the [mission SDK and example](docs/MISSION_SDK.md).
+
 An MCP client can work with unpacked components, import and export `.SC2Map` and `.SC2Mod` archives, and use supported tools on the open Editor document. The browser workbench and Editor toolbar chat are optional interfaces.
 
 [Generate a map](#build-a-map-through-mcp) · [Connect an MCP client](#quick-start) · [Explore all capabilities](#capabilities-and-confirmation) · [Edit the open map](#edit-the-current-editor-document)

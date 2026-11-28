@@ -68,6 +68,8 @@ export const worldIntent = z
     starts: z.array(worldId).min(1).max(2),
     objective: worldId.optional(),
     dependencies: dependencySchema.optional(),
+    missionPack: worldSpec.shape.missionPack,
+    stages: worldSpec.shape.stages,
     textureBudget: z.number().int().min(1).max(64).default(64),
     decorBudget: worldSpec.shape.decorBudget,
     decorReference: worldSpec.shape.decorReference,
@@ -320,6 +322,8 @@ function resolveIntentLayout(
     height,
     mode,
     seed: worldSeed,
+    missionPack: intent.missionPack,
+    stages: intent.stages,
     dependencies: intent.dependencies,
     decorBudget,
     decorReference:

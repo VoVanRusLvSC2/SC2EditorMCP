@@ -126,6 +126,24 @@ export function compileWorldSurface(
           Math.min(width / 8 - 1, Math.floor(x / 8))
       ]
     ];
+  const pads = new Map<
+    string,
+    { center: { x: number; y: number }; radius: number; height: number }
+  >();
+  for (const stage of spec.stages ?? []) {
+    const rule = spec.missionPack!.mechanics.find((m) => m.id === stage.mechanic)!;
+    if (!rule.landform) continue;
+    const zone = plan.zones.find((z) => z.id === stage.zone)!;
+    if (zone.room || zone.facility) throw Error("WORLD_STAGE_PAD_REQUIRES_OPEN_ZONE: " + zone.id);
+    const height = { levelPad: 4, overlook: 5.5, sunkenYard: 3 }[rule.landform];
+    const prior = pads.get(zone.id);
+    if (prior && prior.height !== height) throw Error("WORLD_STAGE_PAD_CONFLICT: " + zone.id);
+    pads.set(zone.id, {
+      center: zone.center,
+      radius: Math.max(rule.radius, prior?.radius ?? 0),
+      height,
+    });
+  }
   function distanceToRoad(x: number, y: number) {
     let distance = Infinity;
     for (const route of plan.routes)
@@ -160,12 +178,18 @@ export function compileWorldSurface(
           weight * irregular * smoothstep(road / 3) * (zone.biome === "engineered" ? 1.35 : 0.55)
         );
       }, 0);
-      state.sync!.delta(
-        x,
-        y,
-        state.heights.setZ(x, y, 4 + relief * blend + bankRelief - riverDepth(x, y, structures)) -
-          old,
-      );
+      const depth = riverDepth(x, y, structures);
+      let heightAtPoint = 4 + relief * blend + bankRelief - depth;
+      let influenced = false;
+      for (const [id, pad] of pads) {
+        const distance = Math.hypot(x - pad.center.x, y - pad.center.y);
+        const weight = 1 - smoothstep((distance - pad.radius) / 6);
+        if (!weight) continue;
+        if (depth > 0 || influenced) throw Error("WORLD_STAGE_PAD_OVERLAP: " + id);
+        influenced = true;
+        heightAtPoint += weight * (pad.height - heightAtPoint);
+      }
+      state.sync!.delta(x, y, state.heights.setZ(x, y, heightAtPoint) - old);
     }
   for (const feature of campaign?.features ?? [])
     for (const area of feature.strokes)

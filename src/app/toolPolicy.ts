@@ -4,6 +4,7 @@ const missionTools = [
   "world.plan",
   "world.plan_intent",
   "world.build",
+  "world.rebuild",
   "world.verify",
   "mission.contract",
   "mission.inspect",

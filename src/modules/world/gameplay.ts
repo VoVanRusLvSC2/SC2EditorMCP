@@ -34,6 +34,113 @@ const finish = (player: number, win: boolean) =>
     showScore: preset("show"),
   });
 
+type StageBinding = {
+  title: string;
+  point: Point2;
+  seconds: number;
+  radius: number;
+  conditions?: GuiCall[];
+  onComplete?: GuiCall[];
+};
+
+export function stageTriggers(id: number, stages: StageBinding[]): GuiRequest[] {
+  if (!id || !stages.length) throw Error("WORLD_GAMEPLAY_BINDINGS");
+  const phase = "WorldStageIndex",
+    elapsed = "WorldStageTime",
+    objective = "WorldStageObjective";
+  const assign = (name: string, val: GuiValue) =>
+    action("SetVariable", { var: variable(name), val });
+  const title = (value: string): GuiValue => ({ kind: "text", value });
+  const tick = event("TriggerAddEventTimePeriodic", { dur: fixed(1), timeType: preset("game") });
+  const requests: GuiRequest[] = [
+    {
+      create: { identifier: "WorldStageSetup" },
+      variables: [
+        { name: phase, type: "int", initial: int(0) },
+        { name: elapsed, type: "int", initial: int(0) },
+        { name: objective, type: "objective" },
+      ],
+      calls: [
+        event("TriggerAddEventMapInit"),
+        action("ObjectiveCreate", {
+          name: title(stages[0].title),
+          description: title(""),
+          state: preset("Active"),
+          primary: preset("primary"),
+        }),
+        assign(objective, call("ObjectiveLastCreated", {})),
+      ],
+    },
+  ];
+  // One timer per mission. Evaluate in reverse order so a tick can advance only once.
+  const steps: GuiCall[] = stages.map((stage, index) => {
+    const distance = call("DistanceBetweenPoints", {
+      p1: call("UnitGetPosition", { u: { kind: "unit", objectId: id } }),
+      p2: call("Point", { x: fixed(stage.point.x), y: fixed(stage.point.y) }),
+    });
+    const advance = stages[index + 1]
+      ? action("ObjectiveSetName", {
+          objective: variable(objective),
+          text: title(stages[index + 1].title),
+        })
+      : finish(1, true);
+    const inside: GuiCall = {
+      kind: "Action",
+      function: "IfThenElse",
+      args: {},
+      children: [
+        { role: "if", call: comparison(distance, "lt", fixed(stage.radius)) },
+        ...(stage.conditions ?? []).map((call) => ({ role: "if", call })),
+        {
+          role: "then",
+          call: assign(
+            elapsed,
+            call("ArithmeticInt", { val1: variable(elapsed), op: preset("plus"), val2: int(1) }),
+          ),
+        },
+        {
+          role: "then",
+          call: {
+            kind: "Action",
+            function: "IfThenElse",
+            args: {},
+            children: [
+              { role: "if", call: comparison(variable(elapsed), "gt", int(stage.seconds - 1)) },
+              { role: "then", call: assign(phase, int(index + 1)) },
+              { role: "then", call: assign(elapsed, int(0)) },
+              ...(stage.onComplete ?? []).map((call) => ({ role: "then", call })),
+              { role: "then", call: advance },
+            ],
+          },
+        },
+        { role: "else", call: assign(elapsed, int(0)) },
+      ],
+    };
+    return {
+      kind: "Action",
+      function: "IfThenElse",
+      args: {},
+      children: [
+        { role: "if", call: comparison(variable(phase), "eq", int(index)) },
+        { role: "then", call: inside },
+      ],
+    };
+  });
+  requests.push(
+    { create: { identifier: "WorldStageTick" }, calls: [tick, ...steps.reverse()] },
+    {
+      create: { identifier: "WorldStageDefeat" },
+      calls: [
+        event("TriggerAddEventUnitDied", { u: { kind: "unit", objectId: id } }),
+        comparison(variable(phase), "lt", int(stages.length)),
+        assign(phase, int(stages.length)),
+        finish(1, false),
+      ],
+    },
+  );
+  return requests;
+}
+
 export function worldTriggers(
   mode: WorldSpec["mode"],
   units: number[],

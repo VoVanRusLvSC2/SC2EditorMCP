@@ -82,6 +82,9 @@ export async function loadRoomRecipes() {
 }
 
 const sideOrder = ["north", "east", "south", "west"] as const;
+import { measuredFacing } from "./facings.js";
+import { modelRotation, type MissionPack } from "../../mission-sdk.js";
+
 const wallFacing = { north: 0, east: 270, south: 180, west: 90 } as const;
 const opposite = { north: "south", south: "north", east: "west", west: "east" } as const;
 const accentSlots = new Set([
@@ -261,7 +264,17 @@ function workApproaches(area: Footprint, wall: RoomPassport["side"], operator: b
   ).map((side) => aprons[side]);
 }
 
-export function createRoomDresser(palette: DecorPalette, recipes: Recipes) {
+export function createRoomDresser(
+  palette: DecorPalette,
+  recipes: Recipes,
+  facings?: MissionPack["facings"],
+) {
+  function wallRotation(model: DecorModel, side: Side) {
+    const rule = measuredFacing(model.actor.id, model.variation ?? 0, facings);
+    if (!rule) return (wallFacing[side] * Math.PI) / 180;
+    const outward = facilitySides[side];
+    return modelRotation(Math.atan2(-outward.y, -outward.x), rule.frontDegrees);
+  }
   const models = new Map<
     string,
     Promise<Awaited<ReturnType<DecorPalette["resolve"]>> | undefined>
@@ -429,7 +442,7 @@ export function createRoomDresser(palette: DecorPalette, recipes: Recipes) {
             /monitor|console|wall.?screen|terminal|holoprojector/i.test(model.actor.id);
           for (const { side, points } of samples) {
             for (const p of points) {
-              const preferred = (wallFacing[side] * Math.PI) / 180;
+              const preferred = wallRotation(model, side);
               const angles =
                 faceInterior || asset.wallFacing || operator
                   ? [preferred]
@@ -586,13 +599,12 @@ export function createRoomDresser(palette: DecorPalette, recipes: Recipes) {
           ];
           let packed: { along: number; asset: Asset }[] | undefined;
           if ("span" in layout) {
-            const rotation = (wallFacing[side] * Math.PI) / 180;
             const extents: { variant: Asset; min: number; width: number; depth: number }[] = [];
             for (const variation of variations) {
               const variant = { ...asset, variation, wallFacing: true };
               const measured = await measure(variant);
               if (!measured) continue;
-              const corners = cornersAtOrigin(measured, rotation, 1);
+              const corners = cornersAtOrigin(measured, wallRotation(measured, side), 1);
               const axis = corners.map(({ x, y }) => -x * normal.y + y * normal.x);
               const cross = corners.map(({ x, y }) => x * normal.x + y * normal.y);
               const depth = Math.max(...cross) - Math.min(...cross);
